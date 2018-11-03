@@ -1,0 +1,44 @@
+<html>
+
+<head>
+ <title><?php echo $_REQUEST["Title"] ?></title>
+</head>
+
+<body bgcolor="<?php echo $BodyBackgroundColor  ?>" text="<?php echo $BodyTextColor ?>" link="<?php echo $BodyLinkColor ?>" vlink="<?php echo $BodyVisitedLinkColor ?>">
+
+<table align=center border=0 cellpadding=2 cellspacing=2 width="60%">
+<tr bgcolor="<?php echo $InformationRowBGColor ?>"><td>
+
+<!--- #02679B -->
+
+ <table border=0 cellpadding=2 cellspacing=2 width="100%">
+   <tr bgcolor="<?php echo $InformationRowBGColor ?>"><td>
+    <img src="images/<?php echo $SpacerGIFName ?>" height="3" width="10"><br/>
+    <font face="Verdana" size=2 color="<?php echo $InformationRowFontColor ?>">
+    <b>&nbsp;&nbsp;<?php echo $_REQUEST["Title"] ?></b>
+    </font><br/>
+    <img src="images/<?php echo $SpacerGIFName ?>" height=3 width="10"><br/>
+   </td></tr>
+  
+  <tr bgcolor="<?php echo $MainRowBGColor ?>"><td>
+ 
+   <table border=0 cellpadding=2 cellspacing=2 width="100%">
+    <tr><td>
+    <font face="Verdana" size=2 color="<?php echo $MainRowFontColor ?>">
+     <b><?php echo $_REQUEST["Message"] ?><br/><br/>
+    <center>
+     <a href="<?php echo $_REQUEST["RedirectURL"] ?>" STYLE="color:<?php echo $MainRowFontColor ?>;text-decoration:none;" border="0"><?php echo $_MSG_TCPE_COMMON["Continue"] ?></a>
+    </center></font>
+    </td></tr>
+   </table>
+ 
+  </td></tr>
+ 
+ </table>
+
+</td></tr>
+</table>
+
+</body>
+</html>
+

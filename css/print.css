@@ -1,0 +1,38 @@
+body {
+	background-color: White;
+	font-family: Helvetica, arial, sans serif;
+	margin: 0px;
+	margin-top: 0px;
+	margin-right: 60em;
+	color: black;
+}
+
+a:link, a:visited {
+   color: #520;
+   background: transparent;
+   font-weight: bold;
+   text-decoration: underline;
+}
+
+
+.topbar {
+	display: none; 
+}
+
+#menu, #tools, #howto, #seqtop, #seqbottom, #top {
+	display: none;
+}
+
+#content {
+	width: auto;
+	border: 2;
+	margin: 0 15%;
+	margin-right: 60em;
+	padding: 3;
+	float: none;
+}
+
+.left {
+	text-align: left;
+}
+

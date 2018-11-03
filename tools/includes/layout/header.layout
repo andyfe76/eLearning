@@ -1,0 +1,81 @@
+  <!-- Management Toolbar -->
+  <?php 
+    
+    /*****************************************************************************
+     * The management toolbar is displayed here if the admin is logged in
+     *****************************************************************************/
+
+    if($_SESSION['is_admin']) { 
+
+  ?>
+  
+  <table border=0 cellpadding=0 cellspacing=0 width="100%">
+   <tr class="row2" align="left">
+    <td class="cat3" align="left" valign="center">
+     <b>
+     <img src="images/<?php echo $SpacerGIFName ?>" height="6" width="10"><br/>&nbsp;&nbsp;
+	 <font face="<?php echo $FontFamily; ?>" size=2 color="#000000">
+      <?php echo CreateLink($SCRIPT_SELF_REFERAL."?CurrentDirectory=".$_REQUEST["CurrentDirectory"]."&action=AddObjects",$_MSG_TCPE_MANAGE["Add"],FALSE,$InformationRowFontColor) ?> |
+      <?php echo CreateLink($SCRIPT_SELF_REFERAL."?CurrentDirectory=".$_REQUEST["CurrentDirectory"]."&action=Backup",$_MSG_TCPE_COMMON["Backup"],FALSE,$InformationRowFontColor) ?>
+	  </font>
+      <br/><img src="images/<?php echo $SpacerGIFName ?>" height="6" width="10"><br/>
+     </b>
+    </td>
+   </tr>
+  </table>
+  
+  <?php 
+
+    /*****************************************************************************
+     * The management toolbar display function ends here
+     *****************************************************************************/
+     
+     } 
+  
+  ?>
+
+  <!-- Ends here (MGT Toolbar) -->
+
+  <br/>
+  
+  <table border=0 cellpadding=0 cellspacing=0 width="<?php echo $TableWidth ?>" align="<?php echo $TableAlign ?>">
+
+  <tr bgcolor="<?php echo $InformationRowBGColor ?>" align="center"><td>
+   
+    <!-- Titlebar starts here 
+    <table border="<?php echo $InformationBorderWidth ?>" cellpadding=2 cellspacing=2 width="100%" align="center">
+    <tr align="center"><td>
+     <img src="images/default_top_bar.jpg" alt="Terracotta Personal Edition (c) 2002 Eternity Technologies" height="85" width="690"><br/>
+    </td></tr>
+    </table>
+    Titlebar ends here -->
+    
+  </td></tr>
+
+  <tr bgcolor="<?php echo $InformationRowBGColor ?>" align="center"><td>
+   <!-- Navigation bar starts here -->
+
+   <table border="<?php echo $InformationBorderWidth ?>" cellpadding=2 cellspacing=2 width="100%" align="center">
+   <tr>
+     <td align="left" valign="center">
+      <font face="<?php echo $FontFamily; ?>" size=2 color="#FFFFFF">
+      <b>&nbsp;&nbsp;<?php echo $RenderObject->DisplayNavigationBar($_REQUEST["CurrentDirectory"]); ?></b>
+      </font>
+     </td>
+     <td align="right" valign="center">
+      <font face="<?php echo $FontFamily; ?>" size=2 color="#FFFFFF">
+      <b><?php echo $RenderObject->DisplayPageNumbers($DirectoryContents); ?></b>
+      </font>
+     </td>
+   </tr>
+   </table>
+
+   <!-- Navigation bar ends here -->
+  </td></tr>
+
+  <tr bgcolor="<?php echo $InformationRowBGColor ?>" align="center"><td>
+   <!-- Main content area starts here -->
+
+   <table border="<?php echo $MainBorderWidth ?>" cellpadding=2 cellspacing=2 width="100%" align="<?php echo $MainTableAlign ?>">
+    <tr bgcolor="<?php echo $MainRowBGColor ?>"><td align="center">
+ 

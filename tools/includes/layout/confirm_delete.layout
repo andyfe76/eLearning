@@ -1,0 +1,20 @@
+<img src="images/<?php echo $SpacerGIFName ?>" height="25" width="10"><br>
+<font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="3"> 
+<b><?php echo $_MSG_TCPE_MANAGE["ConfirmDelete"] ?></b>
+</font>
+
+<br/><br/>
+
+<form name="Search" action="<?php echo $SCRIPT_SELF_REFERAL ?>" method="POST">
+
+<input type="hidden" name="action" value="ConfirmDelete">
+<input type="hidden" name="FileType" value="<?php echo $_REQUEST["FileType"]; ?>">
+<input type="hidden" name="File" value="<?php echo $_REQUEST["File"]; ?>">
+<input type="hidden" name="CurrentDirectory" value="<?php echo $_REQUEST["CurrentDirectory"] ?>">
+
+<input type="Submit" name="Submit" value="<?php echo $_MSG_TCPE_COMMON["Continue"] ?>"><br/>
+
+
+</form>
+
+

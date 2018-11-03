@@ -1,0 +1,55 @@
+<img src="images/<?php echo $SpacerGIFName ?>" height="25" width="10"><br/>
+<font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="3"> 
+<b><?php echo $_MSG_TCPE_MANAGE["MultipleItemTitle"] ?></b>
+</font>
+
+<br/><br/>
+
+<font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2"> 
+<?php echo $_MSG_TCPE_MANAGE["MultipleItemDescribe"] ?></b><br/><br/>
+</b>
+
+<form name="Search" action="<?php echo $SCRIPT_SELF_REFERAL ?>" method="POST">
+
+<input type="hidden" name="action" value="Add">
+<input type="hidden" name="File" value="<?php echo $_REQUEST["File"] ?>">
+<input type="hidden" name="CurrentDirectory" value="<?php echo $_REQUEST["CurrentDirectory"] ?>">
+
+<table border="0" cellpadding="2" cellspacing="2" width="100%" align="center">
+
+<tr>
+ <td align="right" width="50%">
+  <font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2"> 
+  <b><?php echo $_MSG_TCPE_MANAGE["SelectType"] ?></b>&nbsp;&nbsp;
+  </font>
+ </td>
+ <td align="left" width="50%">
+  <select name="FileType">
+   <option value="Folder"><?php echo $_MSG_TCPE_COMMON["Folder"] ?></option>
+   <option value="Document"><?php echo $_MSG_TCPE_COMMON["Document"] ?></option>
+   <option value="Link"><?php echo $_MSG_TCPE_COMMON["Link"] ?></option>
+  </select>
+ </td>
+</tr>
+
+<tr>
+ <td align="right" width="50%">
+  <font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2"> 
+  <b><?php echo $_MSG_TCPE_MANAGE["SelectNumber"] ?></b>&nbsp;&nbsp;
+  </font>
+ </td>
+ <td align="left" width="50%">
+  <select name="NoItems">
+  <?php for($Counter = 1; $Counter < 21; $Counter++) { ?>
+  <option value="<?php echo $Counter ?>"><?php echo $Counter ?></option>
+  <?php } ?>
+  </select>
+ </td>
+</tr>
+
+</table>
+
+<br/><br/>
+<input type="Submit" name="Submit" value=" <?php echo $_MSG_TCPE_MANAGE["Add"] ?> "><br/><br/>
+</form>
+</font>

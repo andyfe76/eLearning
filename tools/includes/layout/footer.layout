@@ -1,0 +1,25 @@
+    </td></tr>
+   </table>
+
+   <!-- Main content area ends here -->
+  </td></tr>
+
+  <tr bgcolor="<?php echo $InformationRowBGColor ?>" align="center"><td>
+   <!-- Footer Bar starts here -->
+
+   <table border="<?php echo $InformationBorderWidth ?>" cellpadding=2 cellspacing=2 width="100%" align="center" cols="3">
+    <tr>
+
+     <td align="left">
+      <font face="<?php echo $FontFamily; ?>" size=2 color="<?php echo $InformationRowFontColor ?>">
+      <b>[<?php echo CreateLink($SCRIPT_SELF_REFERAL."?CurrentDirectory=".$_REQUEST["CurrentDirectory"]."&action=SearchForm",$_MSG_TCPE_COMMON["Search"],FALSE,$InformationRowFontColor) ?>]</b>
+      </font>
+     </td>
+
+    </tr>
+   </table>
+
+   <!-- Footer bar ends here -->
+  </td></tr>
+  </table>
+  <br>

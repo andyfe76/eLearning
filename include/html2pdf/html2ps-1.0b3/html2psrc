@@ -1,0 +1,19 @@
+/* Global configuration file for html2ps */
+
+@html2ps {
+  package {
+    ImageMagick: 1;
+    djpeg: 1;
+    Ghostscript: 1;
+    libwww-perl: 1;
+    path: "/usr/X11R6/bin:/usr/bin";
+  }
+  paper {
+    type: A4;
+  }
+  hyphenation {
+    en {
+      file: "/usr/local/lib/html2ps/hyphen.tex";
+    }
+  }
+}

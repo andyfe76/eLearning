@@ -1,0 +1,25 @@
+<img src="images/<?php echo $SpacerGIFName ?>" height="25" width="10"><br/>
+<font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="3"> 
+<b><?php echo $_MSG_TCPE_SEARCH["SearchTitle"] ?></b>
+</font>
+
+<br/><br/>
+
+<font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2"> 
+<?php echo $_MSG_TCPE_SEARCH["SearchMessage"] ?><br/><br/>
+
+
+<form name="Search" action="<?php echo $SCRIPT_SELF_REFERAL ?>" method="POST">
+
+<input type="hidden" name="action" value="Search">
+<input type="hidden" name="CurrentDirectory" value="<?php echo $_REQUEST["CurrentDirectory"] ?>">
+
+<b><?php echo $_MSG_TCPE_SEARCH["SearchKeywords"] ?></b><br/>
+</font>
+<img src="images/<?php echo $SpacerGIFName ?>" height="8" width="10"><br/>
+<input type="text" name="Keywords" size="40"><br/><br/>
+
+<input type="Submit" name="Submit" value="<?php echo $_MSG_TCPE_SEARCH["SearchButton"] ?>"><br/>
+</form>
+
+

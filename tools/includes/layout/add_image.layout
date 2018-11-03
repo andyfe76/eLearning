@@ -1,0 +1,101 @@
+<?php
+
+  if($_REQUEST["action"] == "Edit") {
+   
+    $ImageCaption = ReadTextFromFile($GalleryBaseDirectory.$_REQUEST["CurrentDirectory"].$ImageCaptionsDirectory.$FileSystemSeperator.$_REQUEST["File"].".txt");
+    $NumItems = 1;
+    
+  }
+  else $NumItems = $_REQUEST["NoItems"];
+
+?>
+
+<table border="0" cellpadding="4" cellspacing="4" width="100%"><tr><td align="left">
+
+<center>
+ <font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="3"> 
+ <img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+ <b><?php if($_REQUEST["action"] == "Add") echo $_MSG_TCPE_MANAGE_IMAGE["AddImageTitle"]; else echo $_MSG_TCPE_MANAGE_IMAGE["EditImageTitle"]; ?></b>
+ </font>
+</center>
+
+<br/>
+
+<font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2"> 
+
+<?php if($_REQUEST["action"] == "Add") echo $_MSG_TCPE_MANAGE_IMAGE["AddImageMessage"]; else echo $_MSG_TCPE_MANAGE_IMAGE["EditImageMessage"]; ?><br/><br/>
+
+</b>
+
+<form name="AddFolders" action="<?php echo $SCRIPT_SELF_REFERAL ?>" method="POST" enctype="multipart/form-data">
+
+<input type="hidden" name="action" value="Save">
+<input type="hidden" name="FileType" value="Image">
+<input type="hidden" name="CurrentDirectory" value="<?php echo $_REQUEST["CurrentDirectory"] ?>">
+<input type="hidden" name="NoItems" value="<?php echo $_REQUEST["NoItems"]; ?>">
+<input type="hidden" name="File" value="<?php echo $_REQUEST["File"] ?>">
+<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $MaxFileUploadSize; ?>">
+
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+<?php for($Counter = 1; $Counter <= $NumItems; $Counter++) { ?>
+
+<tr>
+ <td valign="top">
+  <font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2"> 
+  <b><?php echo $_MSG_TCPE_MANAGE_IMAGE["ImageFile"] ?></b>
+  </font>
+ </td>
+ <td>
+  
+  <?php if($_REQUEST["action"] == "Add") { ?>
+  
+  <input type="File" name="ImageFile_<?php echo $Counter ?>" size="30" onBlur="validate(this)"><br/>
+  <img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+  <?php 
+  
+    /* 
+     * $CreateThumbnails is read from the configuration file
+     * to decide if the thumbnail input box will be shown
+     *
+     */
+  
+    if($CreateThumbnails == FALSE) { 
+   
+  ?>  
+  <font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2">
+   <?php echo $_MSG_TCPE_MANAGE_IMAGE["ThumbnailFile"] ?><br/>
+  </font>
+  <img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+  <input type="File" name="ThumbnailFile_<?php echo $Counter ?>" size="30" onBlur="validate(this)"><br/> 
+  <img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+  <?php 
+  
+   } // end CreateThumbnail form
+  
+   } // end Add form
+   
+  ?>  
+  <font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2">
+   <?php echo $_MSG_TCPE_MANAGE_IMAGE["Caption"] ?><br/>
+  </font>   
+  <img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+  <input type="text" name="ImageDescription_<?php echo $Counter ?>" size="30" value="<?php echo $ImageCaption; ?>"><br/>  
+  <img src="images/<?php echo $SpacerGIFName ?>" height="15" width="10"><br/>
+ 
+ </td>
+</tr>
+
+<?php } ?>
+
+</table>
+
+<br/><br/>
+
+<center>
+<input type="Submit" name="Submit" value="<?php if($_REQUEST["action"] == "Add") echo $_MSG_TCPE_MANAGE_IMAGE["AddButton"]; else echo $_MSG_TCPE_MANAGE_IMAGE["ModButton"]; ?>">
+</center>
+</form>
+</font>
+</td></tr></table>

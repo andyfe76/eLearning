@@ -1,0 +1,70 @@
+<?xml version="1.0" ?>
+<package>
+	<comment>
+	PrimalCode wizard generated file.
+	</comment>
+	<job id="autoinc">
+		<object id="fso" progid="Scripting.FileSystemObject"/>
+		<object id="Shell" progid="WScript.Shell" events="false" reference="false"/>
+		<script id="replace1" language="VBScript">
+<![CDATA[
+dir=WScript.ScriptFullName
+dir=Left(dir,Len(dir)-12)
+WScript.Echo(dir)
+Set w=fso.CreateTextFile(dir&"\"&"autoinc.log",True)
+Set save=fso.CreateTextFile(dir&"\"&"klore.plsql",True)
+
+Set f=fso.OpenTextFile(dir&"\"&"klore.sql")
+Do
+ line=f.readline
+ If InStr(1,line,"CREATE TABLE")<>0 Then
+  a=InStr(1,line,"`")+1
+  table=""
+  Do
+   table=table&Mid(line,a,1)
+   a=a+1
+  Loop Until Mid(line,a,1)="`"
+  table=UCase(table)
+ End If
+ 
+ If InStr(1,line,"auto_increment")<>0 Then
+  a=InStr(1,line,"`")+1
+  field=""
+  Do
+   field=field&Mid(line,a,1)
+   a=a+1
+  Loop Until Mid(line,a,1)="`"
+  field=UCase(field)
+  write("Table: "&table&", field: "&field)
+  plsql table,field
+ End If
+Loop Until f.atendofstream
+f.close
+save.close
+w.close
+
+
+Function plsql(table,field)
+ save.writeline("CREATE SEQUENCE "&chr(34)&"KLORE"&Chr(34)&"."&chr(34)&"AUTO_"&table&"_"&field&Chr(34)&" INCREMENT BY 1 START WITH 1")
+ save.writeline("   MAXVALUE 1.0E28 MINVALUE 1 NOCYCLE")
+ save.writeline("   CACHE 20 NOORDER")
+ save.writeline("/")
+ save.writeline("")
+ 
+ save.writeline("create trigger AUTO_"&table&"_"&field&" before insert on "&table)
+ save.writeline("for each row")
+ save.writeline("begin")
+ save.writeline("select AUTO_"&table&"_"&field&".nextval into:new."&field&" from dual;")
+ save.writeline("end;")
+ save.writeline("/")
+ save.writeline("")
+End Function
+
+Function write(txt)
+ w.writeline(txt)
+ WScript.Echo(txt)
+End Function
+]]>
+		</script>
+	</job>
+</package>

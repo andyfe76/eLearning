@@ -1,0 +1,46 @@
+body {
+	background-color: White;
+	font-family: Helvetica, arial, sans serif;
+	margin: 0px;
+	margin-top: 0px;
+	margin-right: 15em;
+	color: black;
+}
+
+a:link, a:visited {
+   color: #520;
+   background: transparent;
+   font-weight: bold;
+   text-decoration: underline;
+}
+
+.hide {
+	display: none;
+}
+
+.topbar {
+	display: none;
+}
+
+/* breadcrumbs */
+td.breadcrumbs	{
+	display: none;
+}
+
+#menu, #tools, #howto, #seqtop, #seqbottom, #top, #menuR {
+	display: none;
+}
+
+#content {
+	width: auto;
+	border: 2;
+	margin: 0 10%;
+	margin-right: 20em;
+	padding: 3;
+	float: none;
+}
+
+.left {
+	text-align: left;
+}
+

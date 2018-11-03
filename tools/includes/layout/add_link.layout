@@ -1,0 +1,80 @@
+<table border="0" cellpadding="4" cellspacing="4" width="100%"><tr><td align="left">
+
+<center>
+<font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="3"> 
+<img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+<b><?php if(!($_REQUEST["File"] == "")) echo $_MSG_TCPE_MANAGE_LINK["EditLinkTitle"]; else echo $_MSG_TCPE_MANAGE_LINK["AddLinkTitle"]; ?></b>
+</font>
+</center>
+
+<br/>
+
+<font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2"> 
+
+<?php echo $_MSG_TCPE_MANAGE_LINK["AddLinkMessage"] ?><br/><br/>
+
+</b>
+
+<form name="AddLinks" action="<?php echo $SCRIPT_SELF_REFERAL ?>" method="POST">
+
+<input type="hidden" name="action" value="Save">
+<input type="hidden" name="FileType" value="Link">
+<input type="hidden" name="CurrentDirectory" value="<?php echo $_REQUEST["CurrentDirectory"] ?>">
+<input type="hidden" name="NoItems" value="<?php echo $_REQUEST["NoItems"]; ?>">
+<input type="hidden" name="File" value="<?php echo $_REQUEST["File"] ?>">
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+<?php 
+
+ if(!($_REQUEST["File"] == "")) $NumItems = 1;
+ else $NumItems = $_REQUEST["NoItems"];
+
+ for($Counter = 1; $Counter <= $NumItems; $Counter++) { 
+ 
+  if(!($_REQUEST["File"] == "")) {
+  
+    $LinkURL   = ReadTextFromFile($GalleryBaseDirectory.$_REQUEST["CurrentDirectory"].$_REQUEST["File"]);
+    $LinkTitle = ReadTextFromFile($GalleryBaseDirectory.$_REQUEST["CurrentDirectory"].$LinkTitleDirectory.$FileSystemSeperator.$_REQUEST["File"].".txt");
+
+  }
+  else {
+  
+   $LinkURL = "http://";
+   $LinkTitle = "";
+   
+ }
+ 
+?>
+
+<tr>
+ <td valign="top">
+  <font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2"> 
+  <b><?php echo $_MSG_TCPE_MANAGE_LINK["LinkCaption"] ?></b>
+  </font>
+ </td>
+ <td>
+  <input type="text" name="LinkCaption_<?php echo $Counter ?>" size="30" value="<?php echo $LinkTitle; ?>"><br/>
+  <font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2">
+   <img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+   <?php echo $_MSG_TCPE_MANAGE_LINK["LinkURL"] ?><br/>
+  </font>   
+  <img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+  <input type="text" name="LinkURL_<?php echo $Counter ?>" size="30" value="<?php echo $LinkURL; ?>"><br/>
+  <img src="images/<?php echo $SpacerGIFName ?>" height="15" width="10"><br/>
+ </td>
+</tr>
+
+<?php } ?>
+
+</table>
+
+<br/><br/>
+
+<center>
+<input type="Submit" name="Submit" value="<?php if(!($_REQUEST["File"] == "")) echo $_MSG_TCPE_MANAGE_LINK["ModButton"]; else echo $_MSG_TCPE_MANAGE_LINK["AddButton"]; ?>">
+</center>
+
+</form>
+</font>
+</td></tr></table>

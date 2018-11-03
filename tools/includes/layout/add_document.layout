@@ -1,0 +1,85 @@
+<?php
+
+  if($_REQUEST["action"] == "Edit" && (!($_REQUEST["File"] == ""))) {
+  
+    $FileName = $_REQUEST["File"];
+
+    $FileTitle   = ReadTextFromFile($GalleryBaseDirectory.$_REQUEST["CurrentDirectory"].$FileRepositoryTitlesDirectoryName.$FileSystemSeperator.$FileName.".txt");
+    $FileCaption = ReadTextFromFile($GalleryBaseDirectory.$_REQUEST["CurrentDirectory"].$FileRepositoryCaptionDirectoryName.$FileSystemSeperator.$FileName.".txt");
+    $NumItems    = 1;
+  
+  }
+  else {
+    
+    $NumItems = $_REQUEST["NoItems"];
+    
+  }
+
+?>
+
+<table border="0" cellpadding="4" cellspacing="4" width="100%"><tr><td align="left">
+
+<center>
+<font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="3"> 
+<img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+<b><?php if($_REQUEST["action"] == "Add") echo $_MSG_TCPE_MANAGE_DOCUMENT["AddDocTitle"]; else echo $_MSG_TCPE_MANAGE_DOCUMENT["ModDocTitle"]; ?></b>
+</font>
+</center>
+
+<br/>
+
+<font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2"> 
+
+<?php if($_REQUEST["action"] == "Add") echo $_MSG_TCPE_MANAGE_DOCUMENT["AddDocMessage"]; else echo $_MSG_TCPE_MANAGE_DOCUMENT["ModDocMessage"]; ?><br/><br/>
+
+</b>
+
+<form name="AddDocument" action="<?php echo $SCRIPT_SELF_REFERAL ?>" method="POST" enctype="multipart/form-data">
+
+<input type="hidden" name="action" value="Save">
+<input type="hidden" name="FileType" value="Document">
+<input type="hidden" name="CurrentDirectory" value="<?php echo $_REQUEST["CurrentDirectory"] ?>">
+<input type="hidden" name="NoItems" value="<?php echo $NumItems; ?>">
+<input type="hidden" name="File" value="<?php echo $_REQUEST["File"] ?>">
+<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $MaxFileUploadSize; ?>">
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+<?php for($Counter = 1; $Counter <= $NumItems; $Counter++) { ?>
+
+<tr>
+ <td valign="top">
+  <font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2"> 
+  <b><?php echo $_MSG_TCPE_MANAGE_DOCUMENT["DocumentTitle"] ?></b>
+  </font>
+ </td>
+ <td>
+  <input type="text" name="DocTitle_<?php echo $Counter ?>" size="30" value="<?php echo $FileTitle; ?>"><br/>
+  <font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2">
+   <img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+   <?php echo $_MSG_TCPE_MANAGE_DOCUMENT["DocumentCaption"] ?><br/>
+  </font>   
+  <img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+  <textarea name="DocCaption_<?php echo $Counter ?>" cols="30" rows="3"><?php echo $FileCaption; ?></textarea><br/>
+  <font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2">
+   <img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+   <?php echo $_MSG_TCPE_MANAGE_DOCUMENT["DocFile"] ?><br/>
+  </font>
+  <img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+  <input type="File" name="DocFile_<?php echo $Counter ?>" size="30" onBlur="validate(this)"><br/>
+  <img src="images/<?php echo $SpacerGIFName ?>" height="15" width="10"><br/>
+ </td>
+</tr>
+
+<?php } ?>
+
+</table>
+
+<br/><br/>
+
+<center>
+<input type="Submit" name="Submit" value="<?php if($_REQUEST["action"] == "Add") echo $_MSG_TCPE_MANAGE_DOCUMENT["AddButton"]; else echo $_MSG_TCPE_MANAGE_DOCUMENT["ModButton"]; ?>">
+</center>
+</form>
+</font>
+</td></tr></table>

@@ -1,0 +1,115 @@
+body {
+	font-family: Arial;
+}
+
+h1 {
+	font-family: Arial;
+}
+
+h2 {
+	font-family: Arial;
+}
+
+h3 {
+	font-family: Arial;
+}
+
+h4 {
+	font-family: Arial;
+}
+
+h5 {
+	font-family: Arial;
+}
+
+h6 {
+	font-family: Arial;
+}
+
+p {
+	font-family: Arial;
+}
+
+ul,li {
+	font-family: Arial;
+}
+
+a:link {
+	font-family: Arial;
+}
+
+a:visited {
+	font-family: Arial;
+}
+
+a:hover {
+	font-family: Arial;
+}
+
+.formfield {
+	font-family: Arial;
+}
+
+.formfieldR {
+	font-family: Arial;
+}
+
+.button {
+	font-family: Arial;
+}
+
+.button2 {
+	font-family: Arial;
+}
+
+.topbar {
+	font-family: Arial;
+}
+
+/* the menu */
+td.row1 	{ 
+	font-family: Arial;
+}
+
+/* menu title */
+td.cat, th {
+	font-family: Arial;
+}
+
+td.cat2 {
+	font-family: Arial;
+}
+
+td.cat2b {
+	font-family: Arial;
+}
+
+td.cat2c {
+	font-family: Arial;
+}
+
+td.cat2d {
+	font-family: Arial;
+}
+
+td.cat2e {
+	font-family: Arial;
+}
+
+table.cat2 {
+	font-family: Arial;
+}
+
+.spacer {
+	font-family: Arial;
+}
+
+small.date {
+	font-family: Arial;
+}
+
+select.dropdown {
+	font-size: 8pt; 
+	color: black; 
+	font-family: Arial;
+}

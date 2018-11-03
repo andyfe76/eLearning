@@ -1,0 +1,542 @@
+/* Modify this style sheet by entering your own values
+   
+   Here's a good CSS reference if you need help:
+   http://www.w3schools.com/css/css_reference.asp
+*/
+
+/* main body attributes */
+body {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: black;
+	font-weight: ;
+	background-color: white;
+	background-image: url();
+	margin-bottom: 0px;
+	margin-top: 0px;
+	margin-left: 3px;
+	margin-right: 0px;
+	font-size: 8pt;
+}
+
+/* heading attributes */
+h1 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12pt;
+	color: black;
+	font-weight: bold;
+	margin-bottom: 0px;
+	margin-top: 0px;
+	margin-left: 3px;
+	margin-right: 0px;
+}
+h2 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: black;
+	font-weight: ;
+	margin-bottom: 0px;
+	margin-top: 0px;
+	margin-left: 7px;
+	margin-right: 0px;
+}
+h3 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: black;
+	font-weight: ;
+	margin-bottom: 0px;
+	margin-top: 0px;
+	margin-left: 10px;
+	margin-right: 0px;
+}
+h4 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: black;
+	font-weight: ;
+	margin-bottom: 0px;
+	margin-top: 0px;
+	margin-left: 15px;
+	margin-right: 0px;
+}
+h5 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: black;
+	font-weight: ;
+	margin-bottom: 0px;
+	margin-top: 0px;
+	margin-left: 20px;
+	margin-right: 0px;
+}
+h6 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: black;
+	font-weight: ;
+	margin-bottom: 0px;
+	margin-top: 0px;
+	margin-left: 25px;
+	margin-right: 0px;
+}
+
+/* paragraph attributes */
+p {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: black;
+	margin-bottom: 10px;
+	margin-top: 0px;
+	margin-left: 5px;
+	margin-right: 0px;
+}
+
+/* list attributes */
+ul {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	margin-bottom: 0px;
+	margin-top: 0px;
+	margin-right: 0px;
+    font-size: 8pt;
+}
+
+li {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	margin-bottom: 0px;
+	margin-top: 0px;
+	margin-right: 0px;
+    font-size: 8pt;
+}
+
+/* link attributes */
+a:link {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #384F89;
+	text-decoration: underline;
+}
+a:visited {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #51286C;
+	text-decoration: underline;
+}
+a:hover {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: black;
+	text-decoration: underline;
+}
+
+/* formfield attributes */
+.formfield  { color: black; font-size: 8pt; font-family: Verdana, Arial, Helvetica, sans-serif; border: solid 1px #003399}
+.formfieldR  { color: black; font-size: 8pt; font-family: Verdana, Arial, Helvetica, sans-serif; text-align: right; border: solid 1px #003399}
+form {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	margin-bottom: 0px;
+	margin-top: 0px;
+	margin-left: 0px;
+	margin-right: 0px;
+	font-size: 8pt;
+}
+
+/* main submit button */
+.button {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-image: url('images/cellpic2.jpeg');
+	background-color: #F8F8F8;
+	font-weight: bold;
+	border-top:  #354A81  solid 1px;
+	border-bottom: #354A81 solid 1px;
+	border-right: #354A81 solid 1px;
+	border-left: #354A81 solid 1px;
+	font-size: 8pt;	
+}
+
+/* small submit button at top */
+.button2 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-color: #F8F8F8;
+	font-size: 0.7em;
+	border-top:  #354A81  solid 1px;
+	border-bottom: #354A81  solid 1px;
+	border-right: #354A81  solid 1px;
+	border-left: #354A81  solid 1px;
+	font-size: 8pt;
+}
+
+/* table border */
+.tableborder {
+	border: 1px #606060 solid;
+}
+
+/* user menu at top */
+.topbar {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-image: url('images/cellpic1.gif');
+	background-repeat: repeat-x;
+	background-color: #D1D7DC;
+	text-align: center;
+	padding: 3px;
+}
+
+
+/* breadcrumbs */
+a.breadcrumbs { 
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	color: #395a69;
+	text-decoration: none;
+	margint-left: 5px;
+}
+a.breadcrumbs:visited {
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	color : #395a69;
+	text-decoration: none; 
+	margint-left: 5px;
+}
+a.breadcrumbs:hover { 
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	color: #000000;
+	text-decoration: UNDERLINE; 
+	margint-left: 5px;
+}
+
+
+a.noline { 
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 7pt;
+	color: #395a69;
+	text-decoration: none;
+	margint-left: 5px;
+}
+a.noline:hover { 
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 7pt;
+	color: #000000;
+	text-decoration: underline; 
+	margint-left: 5px;
+}
+a.noline:visited {
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 7pt;
+	color : #395a69;
+	text-decoration: none; 
+	margint-left: 5px;
+}
+
+/* 
+td.rowpic {
+		background-color: #FFFFFF;
+		background-image: url('images/cellpic2.jpg');
+		background-repeat: repeat-y;
+}
+*/
+
+/* the menu */
+td.row1, table.row1 { 
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	background-color: #EFEFEF;
+	vertical-align: top;	
+	padding: 3px;
+	font-size: 8pt;
+}
+td.mrow1, table.mrow1 { 
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	background-color: #DFE3E5;
+	border: 1px #606060 solid;
+	vertical-align: top;	
+	padding: 3px;
+	font-size: 8pt;
+	
+}
+
+.course_title {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight: bold;	
+}
+
+/* menu titles*/
+td.cat, th {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-image: url('images/cellpic1.gif');
+	background-repeat: repeat-x;
+	background-color:#D1D7DC; 
+	height: 25px;
+	text-align: center;
+	font-weight: bold;
+	padding-top: 3px;
+	padding-left: 5px;
+	padding-right: 5px;
+	white-space: nowrap;
+}
+td.cat2 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-image: url('images/cellpic1.gif');
+	background-repeat: repeat;
+	text-align: center;
+	font-weight: bold;
+	padding: 1px;
+	border: 1px #98AAB1 solid;
+}
+td.cat2b {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-image: url('images/cellpic1.gif');
+	background-repeat: repeat;
+	text-align: center;
+	font-weight: bold;
+	height: 27px;
+	padding: 1px;
+	border: 1px #98AAB1 solid;
+}
+td.cat2c {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-image: url('images/cellpic1.gif');
+	background-repeat: repeat;
+	text-align: center;
+	font-weight: bold;
+	height: 27px;
+	padding: 1px;
+	border: 1px #98AAB1 solid;
+}
+td.cat2d {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-image: url('images/cellpic1.gif');
+	background-repeat: repeat;
+	text-align: center;
+	font-weight: bold;
+	height: 27px;
+	padding: 1px;
+	border: 1px #98AAB1 solid;
+}
+td.cat2e {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-image: url('images/cellpic1.gif');
+	background-repeat: repeat;
+	text-align: center;
+	font-weight: bold;
+	height: 27px;
+	padding: 1px;
+	border: 1px #98AAB1 solid;
+}
+table.cat2 {
+font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-image: url('images/cellpic1.gif');
+	background-repeat: repeat-x;
+	/*Remove this attribute, to fix Opera menu display problem*/
+	/*height: 27px;*/
+	text-align: center;
+	font-weight: bold;
+	border: 1px #98AAB1 solid;
+}
+table.mcat2 {
+font-family: Verdana, Arial, Helvetica, sans-serif;
+	/*Remove this attribute, to fix Opera menu display problem*/
+	/*height: 27px;*/
+	text-align: center;
+	font-weight: bold;
+}
+
+table.cat3 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-color: ;
+}
+
+/* various line breaks */
+td.row2 { 
+	background-color: #F8F8FA; 
+	font-weight: normal;
+	height: 1px;
+}
+td.mrow2 { 
+	font-weight: normal;
+	background-color: #F8F8FA;
+	border: 1px #606060 solid;
+	height: 1px;
+}
+td.row3 {
+	background-color: #006699;
+	font-weight: normal;
+	height: 1px;
+}
+td.row4 {
+	background-color: #f3f3f2;
+	font-weight: normal;
+	height: 1px;
+}
+
+/* align text to the left */
+.left {
+	text-align: left;
+}
+
+/* pipe attribute  */
+.spacer {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #006699;
+    font-size: 8pt;
+}
+
+/* previous/next text attribute */
+.bigspacer {
+	color: #006699;
+}
+
+.bodyline { 
+	background-color: #FFFFFF; 
+	border: 1px #98AAB1 solid; 
+}
+/* date attributes */
+small.date {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #006699;	
+	margin-bottom: 0px;
+	margin-top: 0px;
+	margin-left: 5px;
+	margin-right: 0px;
+}
+
+.menuimage {
+}
+
+/* page breakline */
+hr {
+	color: #98AAB1;
+	background-color: white;
+	height: 1px;
+}
+
+/* box around a forum reply */
+.block  {background-color: #ffffff; margin-right: 5px; margin-bottom: 0px; margin-left: 15px; padding: 5px; border: dotted 1px #98aab1; position: relative}
+
+/* instructor graphs */
+td.graph1  { 
+	background-color: #EFEFEF;
+	border-right: 1px #CFCFCF solid;
+}
+td.graph2  { 
+	background-color: #EFEFEF;
+	border-bottom: 1px #CFCFCF solid;
+	font-size: 0.55em;
+}
+td.graph {
+	background-image: url('images/graph.gif');
+	background-color: ;
+}
+span.indentleft {
+	margin-left: 10px;
+}
+
+/* menu title colour */
+a.white:link {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: white;
+	text-decoration: none;
+}
+a.white:visited {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: white;
+	text-decoration: none;
+}
+a.white:hover {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #F6F7FA;
+}
+
+/* invert title colour */
+a.invert:link {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #FFFFFF;
+}
+a.invert:visited {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #FFFFFF;
+}
+a.invert:hover {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #FFFFFF;
+}
+
+/* message box styles */
+
+/* error box */
+table.errbox{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-color: #FF0000;
+	border: 2px #EEEEEE solid;
+}
+tr.errbox {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-color: #EEEEEE;
+	vertical-align:top;
+}
+
+/* help box */
+table.hlpbox{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-color: #006699;
+	border: 2px #EEEEEE solid;
+}
+tr.hlpbox{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-color: #EEEEEE;
+	vertical-align:top;
+}
+
+/* warning box */
+table.wrnbox{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-color: #FF8400;
+	border: 2px #EEEEEE solid;
+}
+tr.wrnbox{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-color: #EEEEEE;
+	vertical-align:top;
+}
+
+/* feedback box */
+table.fbkbox{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-color: #30B626;
+	border: 2px #EEEEEE solid;
+}
+tr.fbkbox{
+	font-family: Verdana, Arial, Helvetica, sans-serif;	
+	background-color:#EEEEEE;
+	vertical-align:top;
+}
+select.dropdown  {font-size: 8pt; font-family: Verdana, Arial, Helvetica, sans-serif; background-color: #f1f3f1}                                                             
+.copy {
+	font-family: Verdana, Arial, Helvetica, sans-serif;                                     
+}   
+
+.small_red {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #880000;	
+	font-size: 7pt;
+}
+
+.small_green {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #008800;	
+	font-size: 7pt;
+}
+
+.nblack {
+	font-family: Verdana, Arial;
+	color: #000000;	
+	font-weight: bold;
+	font-size: 8pt;
+	margin-left: 10px;
+}
+
+.ngrey {
+	font-family: Verdana, Arial;
+	color: #50565A;	
+	font-weight: bold;
+	font-size: 8pt;
+}
+
+.nounderline: {
+	FONT-FAMILY: Verdana, Arial, Helvetica;
+	COLOR: #000000;
+	TEXT_DECORATION: none;
+}
+
+.course_title: {
+	FONT-FAMILY: Verdana, Arial, Helvetica;
+	COLOR: #FFFFFF;
+}

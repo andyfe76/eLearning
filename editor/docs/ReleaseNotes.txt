@@ -1,0 +1,32 @@
+SPAW Editor PHP Edition
+version 1.0.2
+Release Notes
+
+Thanks to everyone who downloaded, tried and supported SPAW Editor!
+
+This release adds "active toolbar" feature (toolbar reflecting style
+and functions applicable to current selection). This feature is 
+sponsored by "MALING intelligent computing", http://www.maling.de. 
+Also HTML code editing is now performed in a standard textarea.
+
+IMPORTANT: Changes mentioned above may (and most likelty do) require you
+to make changes to custom toolbar files you made. As of this release
+each toolbar file can have each toolbar item only once. You will most
+likely only have to remove "top_html" array from your toolbar file.
+
+Check out ChangeLog.txt for the list of new features and bugfixes.
+
+
+Many people asked about instructions on integrating SPAW Editor into
+various content management systems. We don't have experience with many CMSs
+and no time to dig. So it would be nice if you could share your experience with
+others if you integrate SPAW into some publicly available CMS. Send your
+instructions or links to pages with instructions to spaw@solmetra.com
+
+Also if you are fluent in any of languages that are now included and 
+see any typos or mistakes please report to spaw@solmetra.com
+
+Happy editing,
+Alan Mendelevich a.k.a. ailon
+alan@solmetra.com
+

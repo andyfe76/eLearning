@@ -1,0 +1,49 @@
+<?php
+
+ $ArticleContents = ReadTextFromFile($GalleryBaseDirectory.$_REQUEST["CurrentDirectory"].$_REQUEST["File"]);
+ $ArticleTitle    = ReadTextFromFile($GalleryBaseDirectory.$_REQUEST["CurrentDirectory"].$ArticlesTitleDirectory.$FileSystemSeperator.$_REQUEST["File"].".txt");
+
+?>
+
+<table border="0" cellpadding="4" cellspacing="4" width="100%"><tr><td align="left">
+
+<center>
+ <img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+ <font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="3"> 
+ <b><?php if(!($_REQUEST["File"] == "")) echo $_MSG_TCPE_MANAGE_ARTICLE["EditArticleTitle"]; else echo $_MSG_TCPE_MANAGE_ARTICLE["AddArticleTitle"]; ?></b>
+ </font>
+</center>
+
+<br/>
+
+
+<font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2"> 
+<?php echo $_MSG_TCPE_MANAGE_ARTICLE["AddArticleMessage"] ?></b><br/><br/>
+</b>
+
+<form name="AddArticle" action="<?php echo $SCRIPT_SELF_REFERAL ?>" method="POST">
+<center>
+
+<input type="hidden" name="action" value="Save">
+<input type="hidden" name="FileType" value="Article">
+<input type="hidden" name="CurrentDirectory" value="<?php echo $_REQUEST["CurrentDirectory"] ?>">
+<input type="hidden" name="NoItems" value="<?php echo $_REQUEST["NoItems"]; ?>">
+<input type="hidden" name="File" value="<?php echo $_REQUEST["File"] ?>">
+
+<b><?php echo $_MSG_TCPE_MANAGE_ARTICLE["ArticleHead"] ?></b><br/>
+</font>
+<img src="images/<?php echo $SpacerGIFName ?>" height="8" width="10"><br/>
+<input type="text" name="ArticleHead" size="60" value="<?php echo $ArticleTitle; ?>"><br/><br/>
+
+<font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2"> 
+<b><?php echo $_MSG_TCPE_MANAGE_ARTICLE["ArticleBody"] ?></b><br/>
+</font>
+<img src="images/<?php echo $SpacerGIFName ?>" height="8" width="10"><br/>
+<textarea name="ArticleBody" rows="15" cols="60"><?php echo $ArticleContents; ?></textarea><br/><br/>
+
+<input type="Submit" name="Submit" value="<?php echo $_MSG_TCPE_MANAGE_ARTICLE["AddButton"] ?>"><br/>
+</center>
+
+</form>
+
+</td></tr></table>

@@ -1,0 +1,116 @@
+body {
+	font-family: verdana;
+}
+
+h1 {
+	font-family: verdana;
+}
+
+h2 {
+	font-family: verdana;
+}
+
+h3 {
+	font-family: verdana;
+}
+
+h4 {
+	font-family: verdana;
+}
+
+h5 {
+	font-family: verdana;
+}
+
+h6 {
+	font-family: verdana;
+}
+
+p {
+	font-family: verdana;
+}
+
+ul,li {
+	font-family: verdana;
+}
+
+a:link {
+	font-family: verdana;
+}
+
+a:visited {
+	font-family: verdana;
+}
+
+a:hover {
+	font-family: verdana;
+}
+
+.formfield {
+	font-family: verdana;
+}
+
+.formfieldR {
+	font-family: verdana;
+}
+
+.button {
+	font-family: verdana;
+}
+
+.button2 {
+	font-family: verdana;
+}
+
+.topbar {
+	font-family: verdana;
+}
+
+
+/* the menu */
+td.row1 	{ 
+	font-family: verdana;
+}
+
+/* menu title */
+td.cat, th {
+	font-family: verdana;
+}
+
+td.cat2 {
+	font-family: verdana;
+}
+
+td.cat2b {
+	font-family: verdana;
+}
+
+td.cat2c {
+	font-family: verdana;
+}
+
+td.cat2d {
+	font-family: verdana;
+}
+
+td.cat2e {
+	font-family: verdana;
+}
+
+table.cat2 {
+	font-family: verdana;
+}
+
+.spacer {
+	font-family: verdana;
+}
+
+small.date {
+	font-family: verdana;
+}
+
+select.dropdown {
+	font-size: 8pt; 
+	color: black; 
+	font-family: verdana;
+}

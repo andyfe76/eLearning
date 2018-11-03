@@ -1,0 +1,82 @@
+<?php
+
+ $FileName = $_REQUEST["File"];
+ $NumItems = $_REQUEST["NoItems"];
+ 
+ if($_REQUEST["action"] == "Edit") {
+ 
+   $NumItems = 1;
+   $FileName = $_REQUEST["File"];
+   $FolderTitle = ReadTextFromFile($GalleryBaseDirectory.$_REQUEST["CurrentDirectory"].$FileName.$FileSystemSeperator.$DirectoryTitleFile);
+   $FolderDescription = ReadTextFromFile($GalleryBaseDirectory.$_REQUEST["CurrentDirectory"].$FileName.$FileSystemSeperator.$DirectoryDescriptionFile);
+ 
+ }
+
+?>
+
+<table border="0" cellpadding="4" cellspacing="4" width="100%"><tr><td align="left">
+
+<center>
+<font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="3"> 
+<img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+<b><?php if($_REQUEST["action"] == "Add") echo $_MSG_TCPE_MANAGE_FOLDER["AddFolder"]; else echo $_MSG_TCPE_MANAGE_FOLDER["ModFolder"]; ?></b>
+</font>
+</center>
+
+<br/>
+
+<font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2"> 
+
+<?php if($_REQUEST["action"] == "Add") echo $_MSG_TCPE_MANAGE_FOLDER["AddFolderMessage"]; else echo $_MSG_TCPE_MANAGE_FOLDER["ModFolderMessage"]; ?><br/><br/>
+
+</b>
+
+<form name="AddFolders" action="<?php echo $SCRIPT_SELF_REFERAL ?>" method="POST" enctype="multipart/form-data">
+
+<input type="hidden" name="action" value="Save">
+<input type="hidden" name="FileType" value="Folder">
+<input type="hidden" name="CurrentDirectory" value="<?php echo $_REQUEST["CurrentDirectory"] ?>">
+<input type="hidden" name="NoItems" value="<?php echo $NumItems ?>">
+<input type="hidden" name="File" value="<?php echo $FileName ?>">
+<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $MaxFileUploadSize; ?>">
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+<?php for($Counter = 1; $Counter <= $NumItems; $Counter++) { ?>
+
+<tr>
+ <td valign="top">
+  <font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2"> 
+  <b><?php echo $_MSG_TCPE_MANAGE_FOLDER["FolderName"] ?></b>
+  </font>
+ </td>
+ <td>
+  <input type="text" name="FolderName_<?php echo $Counter ?>" size="30" value="<?php echo $FolderTitle; ?>"><br/>
+  <font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2">
+   <img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+   <?php echo $_MSG_TCPE_MANAGE_FOLDER["FolderDescription"] ?><br/>
+  </font>   
+  <img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+  <input type="text" name="FolderDescription_<?php echo $Counter ?>" size="30" value="<?php echo $FolderDescription; ?>"><br/>
+  <font face="<?php echo $FontFamily ?>" color="<?php echo $MainRowFontColor ?>" size="2">
+   <img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+   <?php echo $_MSG_TCPE_MANAGE_FOLDER["FolderIcon"] ?><br/>
+  </font>
+  <img src="images/<?php echo $SpacerGIFName ?>" height="5" width="10"><br/>
+  <input type="File" name="FolderIcon_<?php echo $Counter ?>" size="30" onBlur="validate(this)"><br/>
+  <img src="images/<?php echo $SpacerGIFName ?>" height="15" width="10"><br/>
+ </td>
+</tr>
+
+<?php } ?>
+
+</table>
+
+<br/><br/>
+
+<center>
+<input type="Submit" name="Submit" value="<?php if($_REQUEST["action"] == "Add") echo $_MSG_TCPE_MANAGE_FOLDER["AddButton"]; else echo $_MSG_TCPE_MANAGE_FOLDER["ModButton"]; ?>">
+</center>
+</form>
+</font>
+</td></tr></table>

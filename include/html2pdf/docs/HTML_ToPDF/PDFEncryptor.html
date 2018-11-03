@@ -1,0 +1,1159 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+	<title>Docs For Class PDFEncryptor</title>
+	<link rel="stylesheet" type="text/css" id="layout" href="../media/layout.css">
+	<link rel="stylesheet" type="text/css" href="../media/style.css">
+</head>
+
+<body>
+<div id="header">
+	<div id="navLinks">
+		[ <a href="../classtrees_HTML_ToPDF.html">Class Tree: HTML_ToPDF</a> ]
+		[ <a href="../elementindex_HTML_ToPDF.html">Index: HTML_ToPDF</a> ]
+		[ <a href="../elementindex.html">All elements</a> ]
+	</div>
+	<div id="packagePosition">
+		<div id="packageTitle2">HTML_ToPDF</div>
+		<div id="packageTitle">HTML_ToPDF</div>
+		<div id="elementPath"> &middot; </div>
+	</div>
+</div>
+
+<div id="nav" class="small">
+	<div id="ric">
+					<p><a href="../ric_README.html">README</a></p>
+			</div>
+	<div id="packages">
+		Packages:
+					<p><a href="../li_HTML_ToPDF.html">HTML_ToPDF</a></p>
+			</div>
+
+				<div id="index">
+			<div id="files">
+								Files:<br>
+								<a href="../HTML_ToPDF/_ToPDF_examples_example1_php.html">		example1.php
+		</a><br>
+			<a href="../HTML_ToPDF/_ToPDF_examples_example2_php.html">		example2.php
+		</a><br>
+			<a href="../HTML_ToPDF/_ToPDF_examples_example3_php.html">		example3.php
+		</a><br>
+			<a href="../HTML_ToPDF/_ToPDF_HTML_ToPDF_php.html">		HTML_ToPDF.php
+		</a><br>
+			<a href="../HTML_ToPDF/_ToPDF_PDFEncryptor_php.html">		PDFEncryptor.php
+		</a><br>
+				</div>
+			<div id="classes">
+				Classes:<br>
+								<a href="../HTML_ToPDF/HTML_ToPDF.html">		HTML_ToPDF
+		</a><br>
+			<a href="../HTML_ToPDF/HTML_ToPDFException.html">		HTML_ToPDFException
+		</a><br>
+			<a href="../HTML_ToPDF/PDFEncryptor.html">		PDFEncryptor
+		</a><br>
+			<a href="../HTML_ToPDF/PDFEncryptorException.html">		PDFEncryptorException
+		</a><br>
+				</div>
+		</div>
+	</div>
+
+<div id="body">
+			<h1>Class: PDFEncryptor</h1>
+	<p style="margin: 0px;">Source Location: Program_Root/PDFEncryptor.php</p>
+	
+
+<div class="leftcol">
+	<h3><a href="#class_details">Class Overview</a> <span class="smalllinenumber">[line 38]</span></h3>
+	<div id="classTree"><pre></pre>
+</div>
+	<div class="small">
+	<p>A class to encrypt a PDF file and add security permissions to a PDF file.</p>
+		<h4>Author(s):</h4>
+	<ul>
+																		<li><p>Jason Rust &lt;<a href="mailto:jrust@rustyparts.com">jrust@rustyparts.com</a>&gt;</p></li>
+						</ul>
+	<h4>Version:</h4>
+	<ul>
+													<li><p>3.2</p></li>
+											</ul>
+
+	<h4>Copyright:</h4>
+	<ul>
+								<li><p>The PHP License</p></li>
+																</li>
+	</div>
+</div>
+
+<div class="middlecol">
+	<h3><a href="#class_vars">Variables</a></h3>
+	<ul class="small">
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$allowAssembly">$allowAssembly</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$allowCopy">$allowCopy</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$allowDegradedPrinting">$allowDegradedPrinting</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$allowFillIn">$allowFillIn</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$allowModifyAnnotations">$allowModifyAnnotations</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$allowModifyContents">$allowModifyContents</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$allowPrinting">$allowPrinting</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$allowScreenReaders">$allowScreenReaders</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$author">$author</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$creator">$creator</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$encryptionStrength">$encryptionStrength</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$encryptPdfPath">$encryptPdfPath</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$iTextPath">$iTextPath</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$javaPath">$javaPath</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$keywords">$keywords</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$ownerPassword">$ownerPassword</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$pdfFile">$pdfFile</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$subject">$subject</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$title">$title</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$tmpDir">$tmpDir</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#var$userPassword">$userPassword</a></li>
+			</ul>
+</div>
+<div class="rightcol">
+	<h3><a href="#class_methods">Methods</a></h3>
+	<ul class="small">
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodPDFEncryptor">PDFEncryptor</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodencrypt">encrypt</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetAllowAssembly">setAllowAssembly</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetAllowCopy">setAllowCopy</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetAllowDegradedPrinting">setAllowDegradedPrinting</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetAllowFillIn">setAllowFillIn</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetAllowModifyAnnotations">setAllowModifyAnnotations</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetAllowModifyContents">setAllowModifyContents</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetAllowPrinting">setAllowPrinting</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetAllowScreenReaders">setAllowScreenReaders</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetAuthor">setAuthor</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetCreator">setCreator</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetEncryptionStrength">setEncryptionStrength</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetEncryptPdfPath">setEncryptPdfPath</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetITextPath">setITextPath</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetJavaPath">setJavaPath</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetKeywords">setKeywords</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetOwnerPassword">setOwnerPassword</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetPdfFile">setPdfFile</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetSubject">setSubject</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetTitle">setTitle</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetTmpDir">setTmpDir</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#methodsetUserPassword">setUserPassword</a></li>
+				<li><a href="../HTML_ToPDF/PDFEncryptor.html#method_getProperty">_getProperty</a></li>
+			</ul>
+</div>
+
+<div id="content">
+<hr>
+	<div class="contents">
+	</div>
+
+	<div class="leftCol">
+	<h2>Inherited Variables</h2>
+		</div>
+
+	<div class="rightCol">
+	<h2>Inherited Methods</h2>
+		</div>
+	<br clear="all">
+	<hr>
+
+	<a name="class_details"></a>
+	<h2>Class Details</h2>
+	<p align="center"><strong>A class to encrypt a PDF file and add security permissions to a PDF file.
+</strong></p>
+<p>This class can be used stand alone or as a helper class to encrypt and digitally sign PDF files that have been created using HTML_ToPDF.  See the README and examples for more information.</p>
+<h4>Tags:</h4>
+<ul>
+	<li><b>copyright</b> - <p>The PHP License</p></li>
+	<li><b>version</b> - <p>3.2</p></li>
+	<li><b>author</b> - <p>Jason Rust &lt;<a href="mailto:jrust@rustyparts.com">jrust@rustyparts.com</a>&gt;</p></li>
+</ul>
+	<p class="small" style="color: #334B66;">[ <a href="#top">Top</a> ]</p>
+
+	<hr>
+	<a name="class_vars"></a>
+	<h2>Class Variables</h2>
+		<a name="var$allowAssembly"></a>
+	<p></p>
+	<h4>$allowAssembly = <span class="value">false</span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 105]</p>
+		<p align="center"><strong>Should we allow assembly?
+</strong></p>
+
+		<p><b>Type:</b> bool</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$allowCopy"></a>
+	<p></p>
+	<h4>$allowCopy = <span class="value">false</span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 87]</p>
+		<p align="center"><strong>Should we allow the copy command?
+</strong></p>
+
+		<p><b>Type:</b> bool</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$allowDegradedPrinting"></a>
+	<p></p>
+	<h4>$allowDegradedPrinting = <span class="value">false</span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 117]</p>
+		<p align="center"><strong>Should we allow degraded printing?
+</strong></p>
+
+		<p><b>Type:</b> bool</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$allowFillIn"></a>
+	<p></p>
+	<h4>$allowFillIn = <span class="value">false</span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 111]</p>
+		<p align="center"><strong>Should we allow fill in?
+</strong></p>
+
+		<p><b>Type:</b> bool</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$allowModifyAnnotations"></a>
+	<p></p>
+	<h4>$allowModifyAnnotations = <span class="value">false</span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 93]</p>
+		<p align="center"><strong>Should we allow modify annotations?
+</strong></p>
+
+		<p><b>Type:</b> bool</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$allowModifyContents"></a>
+	<p></p>
+	<h4>$allowModifyContents = <span class="value">false</span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 81]</p>
+		<p align="center"><strong>Should we allow the contents to be modified?
+</strong></p>
+
+		<p><b>Type:</b> bool</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$allowPrinting"></a>
+	<p></p>
+	<h4>$allowPrinting = <span class="value">false</span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 75]</p>
+		<p align="center"><strong>Should we allow printing?
+</strong></p>
+
+		<p><b>Type:</b> bool</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$allowScreenReaders"></a>
+	<p></p>
+	<h4>$allowScreenReaders = <span class="value">false</span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 99]</p>
+		<p align="center"><strong>Should we allow screen readers?
+</strong></p>
+
+		<p><b>Type:</b> bool</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$author"></a>
+	<p></p>
+	<h4>$author = <span class="value"></span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 153]</p>
+		<p align="center"><strong>The author (meta-data)
+</strong></p>
+
+		<p><b>Type:</b> string</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$creator"></a>
+	<p></p>
+	<h4>$creator = <span class="value">PDFEncryptor</span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 159]</p>
+		<p align="center"><strong>The creator (meta-data)
+</strong></p>
+
+		<p><b>Type:</b> string</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$encryptionStrength"></a>
+	<p></p>
+	<h4>$encryptionStrength = <span class="value">128</span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 123]</p>
+		<p align="center"><strong>The encryption strength (128 or 40)
+</strong></p>
+
+		<p><b>Type:</b> int</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$encryptPdfPath"></a>
+	<p></p>
+	<h4>$encryptPdfPath = <span class="value"></span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 69]</p>
+		<p align="center"><strong>The path to the encrypt_pdf java class
+</strong></p>
+
+		<p><b>Type:</b> string</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$iTextPath"></a>
+	<p></p>
+	<h4>$iTextPath = <span class="value"></span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 63]</p>
+		<p align="center"><strong>The path to the iText jar file
+</strong></p>
+
+		<p><b>Type:</b> string</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$javaPath"></a>
+	<p></p>
+	<h4>$javaPath = <span class="value">/usr/bin/java</span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 57]</p>
+		<p align="center"><strong>The path to the java binary
+</strong></p>
+
+		<p><b>Type:</b> string</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$keywords"></a>
+	<p></p>
+	<h4>$keywords = <span class="value"></span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 165]</p>
+		<p align="center"><strong>The keywords (meta-data)
+</strong></p>
+
+		<p><b>Type:</b> string</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$ownerPassword"></a>
+	<p></p>
+	<h4>$ownerPassword = <span class="value"></span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 135]</p>
+		<p align="center"><strong>The owner password
+</strong></p>
+
+		<p><b>Type:</b> string</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$pdfFile"></a>
+	<p></p>
+	<h4>$pdfFile = <span class="value"></span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 45]</p>
+		<p align="center"><strong>The full path to the PDF we are encrypting
+</strong></p>
+
+		<p><b>Type:</b> string</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$subject"></a>
+	<p></p>
+	<h4>$subject = <span class="value"></span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 141]</p>
+		<p align="center"><strong>The subject (meta-data)
+</strong></p>
+
+		<p><b>Type:</b> string</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$title"></a>
+	<p></p>
+	<h4>$title = <span class="value"></span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 147]</p>
+		<p align="center"><strong>The title (meta-data)
+</strong></p>
+
+		<p><b>Type:</b> string</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$tmpDir"></a>
+	<p></p>
+	<h4>$tmpDir = <span class="value">/tmp</span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 51]</p>
+		<p align="center"><strong>The temporary directory to save intermediate files
+</strong></p>
+
+		<p><b>Type:</b> string</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="var$userPassword"></a>
+	<p></p>
+	<h4>$userPassword = <span class="value"></span></h4>
+	<div class="indent">
+		<p class="linenumber">[line 129]</p>
+		<p align="center"><strong>The user password
+</strong></p>
+
+		<p><b>Type:</b> string</p>
+		<p><b>Overrides:</b> </p>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+
+	<hr>
+	<a name="class_methods"></a>
+	<h2>Class Methods</h2>
+		<a name="methodPDFEncryptor"></a>
+	<p></p>
+	<h3>PDFEncryptor</h3>
+	<div class="indent">
+		<p>
+		<code>void PDFEncryptor(
+string
+$in_pdfFile)</code>
+		</p>
+	
+		<p class="linenumber">[line 178]</p>
+		<p align="center"><strong>Initializes the class
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">string</span>
+		<b>$in_pdfFile</b> 
+		- 
+		<p>(optional) The full path to the pdf file to encrypt.</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodencrypt"></a>
+	<p></p>
+	<h3>encrypt</h3>
+	<div class="indent">
+		<p>
+		<code>mixed encrypt(
+)</code>
+		</p>
+	
+		<p class="linenumber">[line 534]</p>
+		<p align="center"><strong>Encrypt the PDF file, add meta-data, and set permissions
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>return</b> - <p>True on success, pear error on problem</p></li>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetAllowAssembly"></a>
+	<p></p>
+	<h3>setAllowAssembly</h3>
+	<div class="indent">
+		<p>
+		<code>void setAllowAssembly(
+bool
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 340]</p>
+		<p align="center"><strong>Set should we allow assembly?
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">bool</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetAllowCopy"></a>
+	<p></p>
+	<h3>setAllowCopy</h3>
+	<div class="indent">
+		<p>
+		<code>void setAllowCopy(
+bool
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 292]</p>
+		<p align="center"><strong>Set should we allow the copy command?
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">bool</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetAllowDegradedPrinting"></a>
+	<p></p>
+	<h3>setAllowDegradedPrinting</h3>
+	<div class="indent">
+		<p>
+		<code>void setAllowDegradedPrinting(
+bool
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 372]</p>
+		<p align="center"><strong>Set should we allow degraded printing?
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">bool</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetAllowFillIn"></a>
+	<p></p>
+	<h3>setAllowFillIn</h3>
+	<div class="indent">
+		<p>
+		<code>void setAllowFillIn(
+bool
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 356]</p>
+		<p align="center"><strong>Set should we fill in?
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">bool</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetAllowModifyAnnotations"></a>
+	<p></p>
+	<h3>setAllowModifyAnnotations</h3>
+	<div class="indent">
+		<p>
+		<code>void setAllowModifyAnnotations(
+bool
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 308]</p>
+		<p align="center"><strong>Set should we allow modify annotations?
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">bool</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetAllowModifyContents"></a>
+	<p></p>
+	<h3>setAllowModifyContents</h3>
+	<div class="indent">
+		<p>
+		<code>void setAllowModifyContents(
+bool
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 276]</p>
+		<p align="center"><strong>Set should we allow the contents to be modified?
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">bool</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetAllowPrinting"></a>
+	<p></p>
+	<h3>setAllowPrinting</h3>
+	<div class="indent">
+		<p>
+		<code>void setAllowPrinting(
+bool
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 260]</p>
+		<p align="center"><strong>Set should we allow printing?
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">bool</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetAllowScreenReaders"></a>
+	<p></p>
+	<h3>setAllowScreenReaders</h3>
+	<div class="indent">
+		<p>
+		<code>void setAllowScreenReaders(
+bool
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 324]</p>
+		<p align="center"><strong>Set should we allow screen readers?
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">bool</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetAuthor"></a>
+	<p></p>
+	<h3>setAuthor</h3>
+	<div class="indent">
+		<p>
+		<code>void setAuthor(
+string
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 473]</p>
+		<p align="center"><strong>Set the author (meta-data)
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">string</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetCreator"></a>
+	<p></p>
+	<h3>setCreator</h3>
+	<div class="indent">
+		<p>
+		<code>void setCreator(
+string
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 489]</p>
+		<p align="center"><strong>Set the creator (meta-data)
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">string</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetEncryptionStrength"></a>
+	<p></p>
+	<h3>setEncryptionStrength</h3>
+	<div class="indent">
+		<p>
+		<code>void setEncryptionStrength(
+int
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 388]</p>
+		<p align="center"><strong>Set the encryption strength (128 or 40)
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">int</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetEncryptPdfPath"></a>
+	<p></p>
+	<h3>setEncryptPdfPath</h3>
+	<div class="indent">
+		<p>
+		<code>void setEncryptPdfPath(
+string
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 244]</p>
+		<p align="center"><strong>Set the path to the encrypt_pdf java class
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">string</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetITextPath"></a>
+	<p></p>
+	<h3>setITextPath</h3>
+	<div class="indent">
+		<p>
+		<code>void setITextPath(
+string
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 228]</p>
+		<p align="center"><strong>Set the path to the iText jar file
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">string</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetJavaPath"></a>
+	<p></p>
+	<h3>setJavaPath</h3>
+	<div class="indent">
+		<p>
+		<code>void setJavaPath(
+string
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 212]</p>
+		<p align="center"><strong>Set the path to the java binary
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">string</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetKeywords"></a>
+	<p></p>
+	<h3>setKeywords</h3>
+	<div class="indent">
+		<p>
+		<code>void setKeywords(
+string
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 505]</p>
+		<p align="center"><strong>Set the keywords (meta-data)
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">string</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetOwnerPassword"></a>
+	<p></p>
+	<h3>setOwnerPassword</h3>
+	<div class="indent">
+		<p>
+		<code>void setOwnerPassword(
+string
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 425]</p>
+		<p align="center"><strong>Set the owner password
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">string</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetPdfFile"></a>
+	<p></p>
+	<h3>setPdfFile</h3>
+	<div class="indent">
+		<p>
+		<code>void setPdfFile(
+string
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 196]</p>
+		<p align="center"><strong>Set the full path to the PDF we are encrypting
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">string</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetSubject"></a>
+	<p></p>
+	<h3>setSubject</h3>
+	<div class="indent">
+		<p>
+		<code>void setSubject(
+string
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 441]</p>
+		<p align="center"><strong>Set the subject (meta-data)
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">string</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetTitle"></a>
+	<p></p>
+	<h3>setTitle</h3>
+	<div class="indent">
+		<p>
+		<code>void setTitle(
+string
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 457]</p>
+		<p align="center"><strong>Set the title (meta-data)
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">string</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetTmpDir"></a>
+	<p></p>
+	<h3>setTmpDir</h3>
+	<div class="indent">
+		<p>
+		<code>void setTmpDir(
+string
+$in_path)</code>
+		</p>
+	
+		<p class="linenumber">[line 521]</p>
+		<p align="center"><strong>Set the temporary directory path
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">string</span>
+		<b>$in_path</b> 
+		- 
+		<p>The full path to the tmp dir</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="methodsetUserPassword"></a>
+	<p></p>
+	<h3>setUserPassword</h3>
+	<div class="indent">
+		<p>
+		<code>void setUserPassword(
+string
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 409]</p>
+		<p align="center"><strong>Set the user password
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">string</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+	<a name="method_getProperty"></a>
+	<p></p>
+	<h3>_getProperty</h3>
+	<div class="indent">
+		<p>
+		<code>string _getProperty(
+string
+$in_key, string
+$in_value)</code>
+		</p>
+	
+		<p class="linenumber">[line 616]</p>
+		<p align="center"><strong>Gets a property if it has been set
+</strong></p>
+
+<h4>Tags:</h4>
+<ul>
+	<li><b>return</b> - <p>The key value pair</p></li>
+	<li><b>access</b> - public</li>
+</ul>
+		
+
+	<h4>Parameters:</h4>
+	<ul>
+			<li>
+		<span class="type">string</span>
+		<b>$in_key</b> 
+		- 
+		<p>The key property</p></li>
+			<li>
+		<span class="type">string</span>
+		<b>$in_value</b> 
+		- 
+		<p>The value of the key</p><p></p></li>
+		</ul>
+	</div>
+	<p class="top">[ <a href="#top">Top</a> ]</p>
+</div>
+	<div id="credit">
+		<hr>
+		Documention generated on Thu, 13 Nov 2003 18:13:26 -0600 by <a href="http://www.phpdoc.org">phpDocumentor 1.2.0</a>
+	</div>
+</div>
+</body>
+</html>
