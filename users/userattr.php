@@ -17,7 +17,7 @@ require($_include_path.'vitals.inc.php');
 				$mandatory = 0;
 			}
 			$sql = "UPDATE user_custom_fields SET name='$name', mandatory=$mandatory WHERE id=$i";
-			$res = $db->query($sql);
+			$res = mysql_query($sql, $db);
 		}
 		$feedback[] = AT_FEEDBACK_SUCCESS;
 		Header('Location: usermng.php?grp='.$group);
@@ -41,14 +41,14 @@ require($_include_path.'cc_html/header.inc.php');
 		<th><?php echo $_template['mandatory']; ?></th>
 	</tr>
 	<?php
-		$sql = "SELECT * FROM user_custom_fields ORDER BY id";
-		$res = $db->query($sql);
+		$sql = "SELECT * FROM user_custom_fields";
+		$res = mysql_query($sql, $db);
 		$i = 1;
-		while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+		while ($row = mysql_fetch_array($res)) {
 			echo '<tr><td class="row1">';
-			echo '<input id="custom'.$i.'" class="formfield" name="custom'.$i.'" type="text" size="20" value="'.$row['NAME'].'"></td>'."\n";
+			echo '<input id="custom'.$i.'" class="formfield" name="custom'.$i.'" type="text" size="20" value="'.$row['name'].'"></td>'."\n";
 			echo '<td class="row1" align="center"><input id="mandatory'.$i.'" name="mandatory'.$i.'" type="checkbox" ';
-				if ($row['MANDATORY'] >0) {
+				if ($row['mandatory'] >0) {
 					echo 'checked="checked">';
 				} else {
 					echo '>';

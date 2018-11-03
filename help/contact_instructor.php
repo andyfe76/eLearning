@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 	$_include_path = '../include/';
 	require($_include_path.'vitals.inc.php');
 
@@ -31,12 +36,12 @@
 	}
 
 	$sql	= "SELECT login, email FROM members WHERE member_id=$_SESSION[member_id]";
-	$result = $db->query($sql);
-	if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$student_name = $row['LOGIN'];
-		//$student_name .= ($row['FIRST_NAME'] ? ', '.$row['FIRST_NAME'] : '');
+	$result = mysql_query($sql, $db);
+	if ($row = mysql_fetch_array($result)) {
+		$student_name = $row['login'];
+		//$student_name .= ($row['first_name'] ? ', '.$row['first_name'] : '');
 
-		$student_email = $row['EMAIL'];
+		$student_email = $row['email'];
 	} else {
 		$errors[]=AT_ERROR_STUD_INFO_NOT_FOUND;
 		print_errors($errors);
@@ -46,13 +51,13 @@
 
 	$sql	= "SELECT M.login, M.email FROM members M, courses C WHERE M.member_id=C.member_id AND C.course_id=$_SESSION[course_id]";
 
-	$result = $db->query($sql);
+	$result = mysql_query($sql, $db);
 
-	if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$instructor_name = $row['LOGIN'];
-		//$instructor_name .= ($row['FIRST_NAME'] ? ', '.$row['FIRST_NAME'] : '');
+	if ($row = mysql_fetch_array($result)) {
+		$instructor_name = $row['login'];
+		//$instructor_name .= ($row['first_name'] ? ', '.$row['first_name'] : '');
 
-		$instructor_email = $row['EMAIL'];
+		$instructor_email = $row['email'];
 	} else {
 		$errors[]=AT_ERROR_INST_INFO_NOT_FOUND;
 		print_errors($errors);

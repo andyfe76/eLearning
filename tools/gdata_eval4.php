@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 $_include_path = '../include/';
 require($_include_path.'vitals.inc.php');
@@ -20,9 +25,9 @@ require($_include_path.'header.inc.php');
 <?php
 
 $sql="SELECT tracking from courses where course_id=$_SESSION[course_id]";
-$result=$db->query($sql);
-while($row=$result->fetchRow(DB_FETCHMODE_ASSOC)){
-	if($row['TRACKING']== "off"){
+$result=mysql_query($sql, $db);
+while($row= mysql_fetch_array($result)){
+	if($row['tracking']== "off"){
 	if($_SESSION['is_admin']){
 		$infos[]=AT_INFOS_TRACKING_OFFIN;
 	}else{
@@ -49,18 +54,18 @@ if($_SESSION['is_admin']){
 //if it's an instructor, present the id picker
 	$sql="select DISTINCT member_id from g_click_data order by member_id DESC";
 	//$sql="select * from g_click_data";
-	$result=$db->query($sql);
+	$result=mysql_query($sql);
 	?>
 	<h4>Select a member to view</h4>
 	<form action="<?=$PHP_SELF?>">
 	<select name="member_id">
 	<?
-	while($row=$result->fetchRow(DB_FETCHMODE_ASSOC)){
+	while($row=mysql_fetch_array($result)){
 
-		if($row["MEMBER_ID"]== $member_id){
-		echo '<option selected>'.$row["MEMBER_ID"].'</option>'."\n";
+		if($row["member_id"]== $member_id){
+		echo '<option selected>'.$row["member_id"].'</option>'."\n";
 		}else{
-		echo '<option>'.$row["MEMBER_ID"].'</option>'."\n";
+		echo '<option>'.$row["member_id"].'</option>'."\n";
 		}
 
 	}
@@ -77,10 +82,10 @@ if($_SESSION['is_admin']){
 //Display the g_data bar chart for the member selected
 if($member_id && ($_SESSION[member_id] != $member_id)){
 	$sql5 = "select * from g_refs";
-	$result = $db->query($sql5);
+	$result = mysql_query($sql5);
 	$refs = array();
-	while ($row=$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$refs[$row['G_ID']] = $row['REFERENCE'];
+	while ($row= mysql_fetch_array($result)) {
+		$refs[$row['g_id']] = $row['reference'];
 	}
 
 	?>
@@ -91,21 +96,21 @@ if($member_id && ($_SESSION[member_id] != $member_id)){
 	<?
 
 	$sql2="select g, count(*) AS cnt from g_click_data where member_id=$member_id AND course_id='$_SESSION[course_id]' group by g";
-	if($result=$db->query($sql2)){
-			while($row=$result->fetchRow(DB_FETCHMODE_ASSOC)){
-				//echo '<option>'.$row["MEMBER_ID"].'</option>'."\n";
-				//echo $row["FROM_CID"]."\n";
-				//echo $row["TO_CID"]."\n";
+	if($result=mysql_query($sql2)){
+			while($row=mysql_fetch_array($result)){
+				//echo '<option>'.$row["member_id"].'</option>'."\n";
+				//echo $row["from_cid"]."\n";
+				//echo $row["to_cid"]."\n";
 				echo '<tr><td>';
 				foreach($refs AS $key => $value){
-					if($key==$row["G"]){
+					if($key==$row["g"]){
 						echo $value;
 					}
 				}
-				//echo $row["G"];
-				echo '</td><td><img src="images/bar.gif" height="12" width="'.($row["CNT"]*2).'" />'.$row["CNT"]."</td></tr>\n";
-				//echo '<tr><td>'.$row["REFERENCE"].'</td><td><img src="bar.gif" height="12" width="'.($row["CNT"]*2).'" />'.$row["CNT"]."</td></tr>\n";
-				//echo $row["TIMESTAMP"]."<br />\n";
+				//echo $row["g"];
+				echo '</td><td><img src="images/bar.gif" height="12" width="'.($row["cnt"]*2).'" />'.$row["cnt"]."</td></tr>\n";
+				//echo '<tr><td>'.$row["reference"].'</td><td><img src="bar.gif" height="12" width="'.($row["cnt"]*2).'" />'.$row["cnt"]."</td></tr>\n";
+				//echo $row["timestamp"]."<br />\n";
 			}
 
 	}else{
@@ -130,10 +135,10 @@ echo '</table>';
 <?
 
 $sql5 = "select * from g_refs";
-$result = $db->query($sql5);
+$result = mysql_query($sql5);
 $refs = array();
-while ($row=$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-	$refs[$row['G_ID']] = $row['REFERENCE'];
+while ($row= mysql_fetch_array($result)) {
+	$refs[$row['g_id']] = $row['reference'];
 }
 
 $sql3="select 
@@ -166,20 +171,20 @@ $sql4="select
 		AND
 		g_click_data.course_id=$_SESSION[course_id]";
 
-$result=$db->query($sql3);
+$result=mysql_query($sql3);
 if($result){
-	while($row=$result->fetchRow(DB_FETCHMODE_ASSOC)){
-		$this_data[$row["T"]]= $row;
+	while($row=mysql_fetch_array($result)){
+		$this_data[$row["t"]]= $row;
 	}
 
 }
 
 
-$result2=$db->query($sql4);
+$result2=mysql_query($sql4);
 echo '<br>';
 if($result2){
-	while($row=$result2->fetchRow(DB_FETCHMODE_ASSOC)){
-		$this_data[$row["T"]] = $row;
+	while($row=mysql_fetch_array($result2)){
+		$this_data[$row["t"]] = $row;
 	}
 	if($this_data){
 		echo '<br>';

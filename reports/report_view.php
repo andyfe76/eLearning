@@ -1,210 +1,181 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" content="text/html; charset=iso-8859-1">
+<TITLE>K-Lore Report Viewer</TITLE>
+<link rel="stylesheet" href="stylesheet.css" type="text/css" />
+<style>
+	* {font-size: 8pt;}
+</style>
+
+</HEAD>
+<BODY>
 <?php
 	$section = 'users';
 	$_include_path = '../include/';
 	require($_include_path.'vitals.inc.php');
 
-	function quote_csv($line) {
-		$line = str_replace('"', '""', $line);
-	
-		$line = str_replace("\n", '\n', $line);
-		$line = str_replace("\r", '\r', $line);
-		$line = str_replace("\x00", '\0', $line);
-	
-		return '"'.$line.'"';
-	}
 
 	$course_enrollment = false;
 	$course = false;
 	$test = false;
 	$members = false;
-	$sql_buf = "SELECT DISTINCT members.member_id, ";
-  	
+	$sql_buf = "SELECT ";
+
+	
+	
 	// columns:
 	$report_id = $_POST['report_id'];
 	if ($report_id == '') $report_id = $_GET['report_id'];
-
+		
 	$sql = "SELECT * FROM report_columns WHERE report=$report_id";
-	$res = $db->query($sql);
+	$res = mysql_query($sql);
 	$count = 0;
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		if ($row['ATTR'] == 'ENROLLED MEMBER') {
+	while ($row = mysql_fetch_array($res)) {
+		if ($count >0) $sql_buf .= ', ';
+		if ($row['attr'] == 'Enrolled member') {
 			$course_enrollment = true;
 			$members = true;
 		}
-		if ($row['CAT'] == 'COURSE') {
+		if ($row['cat'] == 'Course') {
 			$course = true;
 		}
-		
-		if ($row['CAT'] == 'TEST') {
+		 if ($row['cat'] == 'Test') {
 			$test = true;
 		} 
-		if ($row['CAT'] == 'STUDENT') {
+		if ($row['cat'] == 'Student') {
 			$members = true;
-			if ($row['ATTR'] == 'LOGIN') {
-				// $sql_buf .= "DISTINCT ";
-			}
 		}
-		
-		$sql = "SELECT * FROM report_definitions WHERE cat='$row[CAT]' AND attr='$row[ATTR]'";
-		$res2 = $db->query($sql);
-		if ( $row2 =$res2->fetchRow(DB_FETCHMODE_ASSOC) ) {
-			if ($row2['FIELD'] == 'MEMBER_ID'){
-				// $sql_buf .= 'DISTINCT MEMBERS.LOGIN';
-			} else {
-				if ($count >0) $sql_buf .= ',';
-				$sql_buf .= $row2['TBL'].'.'.$row2['FIELD'];
-			}
+		$sql = "SELECT * FROM report_definitions WHERE cat='$row[cat]' AND attr='$row[attr]'";
+		$res2 = mysql_query($sql);
+		if ( $row2 = mysql_fetch_array($res2) ) {
+			$all_tables .= $row2['tbl'];
+			$sql_buf .= $row2['tbl'].'.'.$row2['field'];
 		}
 		$count++;
 	}
 
 	// queries
 	$sql = "SELECT * FROM report_query WHERE report=$report_id";
-	$res = $db->query($sql);
+	$res = mysql_query($sql);
 	$q = '';
-	while( $row =$res->fetchRow(DB_FETCHMODE_ASSOC) ) {
-		if ($row['ATTR'] == "ENROLLED MEMBER") {
+	while( $row = mysql_fetch_array($res) ) {
+		if ($row['attr'] == "Enrolled member") {
 			$course_enrollment = true;
-			//$members = true;
-		}
-		if ($row['CAT'] == 'COURSE') {
-			$course = true;
-		} 
-		if ($row['CAT'] == 'TEST') {
-			$test = true;
-		}
-		if (($row['CAT'] == 'STUDENT') || ($row['ATTR']=='TRAINER') || ($row['ATTR']=='INSTRUCTOR')) {
 			$members = true;
 		}
-		
-		$sql = "SELECT tbl, field FROM report_definitions WHERE cat='$row[CAT]' AND attr='$row[ATTR]'";
-		$res2 = $db->query($sql);
+		if ($row['cat'] == 'Course') {
+			$course = true;
+		} 
+		if ($row['cat'] == 'Test') {
+			$test = true;
+		}
+		if (($row['cat'] == 'Student') || ($row['attr']=='Trainer') || ($row['attr']=='Instructor')) {
+			$members = true;
+		}
+		$sql = "SELECT * FROM report_definitions WHERE cat='$row[cat]' AND attr='$row[attr]'";
+		$res2 = mysql_query($sql);
 		if ($res2) {
-			$row2 =$res2->fetchRow(DB_FETCHMODE_ASSOC);
-			$q .=  ' '.$row['FUNCTION'].' '.$row2['TBL'].'.'.$row2['FIELD'].' '.$row['OP'];
-			if (($row['OP'] == 'LIKE') || ($row['OP'] == 'NOT LIKE')) {
-				$q .= ' \'%'.$row['VAL'].'%\'';
-			} else if (($row2['FIELD'] == 'DATE_TAKEN') || ($row2['FIELD']=='START_DATE')  || ($row2['FIELD']=='END_DATE')) {
-				// date format
-				$q .= ' \''.$row['VAL'].'\'';
-			} else if (($row['OP'] == '>') || ($row['OP'] == '<') || ($row2['FIELD']=='FINAL_SCORE')) {
-				// final_score, though it's a char record, it represents a numeric
-				// actually no. Oracle wants chars here.
-				$q .= ' \''.intval($row['VAL']).'\'';
-			} else {
-				$q .= ' \''.$row['VAL'].'\'';
-			}
+			$row2 = mysql_fetch_array($res2);
+			$q .=  ' '.$row['function'].' '.$row2['tbl'].'.'.$row2['field'].' '.$row['op'].' \''.$row['val'].'\'';
 		}
 		
 	}
-	//if ($_SESSION['debug']) echo '<br>course: '.$course.'; test: '.$test.'; members: '.$members.'<br>';
+
+	if ($_SESSION['debug']) echo '<br>course: '.$course.'; test: '.$test.'; members: '.$members.'<br>';
 	
 	$sql_buf .= " FROM ";
 	
 	$tables = '';
 	$sql = "SELECT * FROM report_query WHERE report=$report_id";
-	$res = $db->query($sql);
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$sql = "SELECT * FROM report_definitions WHERE cat='$row[CAT]' AND attr='$row[ATTR]'";
-		$res2 = $db->query($sql);
+	$res = mysql_query($sql);
+	while ($row = mysql_fetch_array($res)) {
+		$sql = "SELECT * FROM report_definitions WHERE cat=$row[cat] AND attr=$row[attr]";
+		$res2 = mysql_query($sql);
 		if ($res2) {
-			$row2 =$res2->fetchRow(DB_FETCHMODE_ASSOC);
-			$table = $row2['TBL'];
-			$field = $row2['FIELD'];
+			$row2 = mysql_fetch_array($res2);
+			$table = $row2['tbl'];
+			$field = $row2['field'];
 		}
 		$publish = true;
 		if (!$course_enrollment) {
-			if ($table == 'COURSE_ENROLLMENT') $publish = false;
-		} else {
-			if ( ($table == 'COURSES') && ($field == 'MEMBER_ID') ) $publish = false;
+			if ($table == 'course_enrollment') $publish = false;
 		}
 		if (!$course) {
-			if (($table=='COURSES') || ($table=='CREL_GROUPS') || ($table=='COURSE_GROUPS')) $publish = false;
+			if (($table=='courses') || ($table=='crel_groups') || ($table=='course_groups')) $publish = false;
 		}
 		if (!$test) {
-			if (($table=='TESTS') || ($table=='TESTS_RESULTS') || ($table=='TESTS_STATUS')) $publish = false;
+			if (($table=='test_results') || ($table=='test_status')) $publish = false;
 		}
 		if (!$members) {
-			if (($table=='MEMBERS') || ($table=='MREL_GROUPS') || ($table=='MEMBER_GROUPS') || ($table=='MEMBER_CATEG')) $publish = false;
+			if (($table=='members') || ($table=='mrel_groups') || ($table=='member_groups') || ($table=='member_categ')) $publish = false;
 		}
 		
-		if ($publish) $tables .= $table.',';
+		if ($publish) $tables .= $table.', ';
 	}
-	
+ 
 	// check table inter-relations
 	$sql = "SELECT * FROM report_links";
-	$res = $db->query($sql);
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$table = $row['CAT1'];
+	$res = mysql_query($sql);
+	while ($row = mysql_fetch_array($res)) {
+		$table = $row['cat1'];
 		$publish = true;
 		if (!$course_enrollment) {
-			if ($table=='COURSE_ENROLLMENT') $publish = false;
-		} else {
-			if ( ($table == 'COURSES') && ($field == 'MEMBER_ID') ) $publish = false;
+			if ($table=='course_enrollment') $publish = false;
 		}
 		if (!$course) {
-			if (($table=='COURSES') || ($table=='CREL_GROUPS') || ($table=='COURSE_GROUPS')) $publish = false;
+			if (($table=='courses') || ($table=='crel_groups') || ($table=='course_groups')) $publish = false;
 		}
 		if (!$test) {
-			if (($table=='TESTS') || ($table=='TESTS_RESULTS') || ($table=='TESTS_STATUS')) $publish = false;
+			if (($table=='test_results') || ($table=='test_status')) $publish = false;
 		}
 		if (!$members){
-			if (($table=='MEMBERS') || ($table=='MREL_GROUPS') || ($table=='MEMBER_GROUPS') || ($table=='MEMBER_CATEG')) $publish = false;
+			if (($table=='members') || ($table=='mrel_groups') || ($table=='member_groups') || ($table=='member_categ')) $publish = false;
 		}
-		if ($publish) $tables .= $table.',';
+		if ($publish) $tables .= $table.', ';
  
-		/*echo '<br>Q: '.$q;
-		echo 'Vars: '.$course_enrollment.': '.$course.': '.$test.': '.$members;
-		echo '<br>SQL so far: '.$sql_buf.'<br>';
-		echo '<br>tables: '.$tables.'<br><br>';*/
-		
-	  	$table = $row['CAT2'];
+	  	$table = $row['cat2'];
 	  	$publish = true;
 	  	if (!$course_enrollment) {
-			if ($table=='COURSE_ENROLLMENT') $publish = false; 
-	  	} else {
-			if ( ($table == 'COURSES') && ($field == 'MEMBER_ID') ) $publish = false;
+			if ($table=='course_enrollment') $publish = false;
 		}
 		if (!$course) {
-			if (($table=='COURSES') || ($table=='CREL_GROUPS') || ($table=='COURSE_GROUPS')) $publish = false;
+			if (($table=='courses') || ($table=='crel_groups') || ($table=='course_groups')) $publish = false;
 		}
 		if (!$test) {
-			if (($table=='TESTS') || ($table=='TESTS_RESULTS') || ($table=='TESTS_STATUS')) $publish = false;
+			if (($table=='test_results') || ($table=='test_status')) $publish = false;
 		}
 		if (!$members){
-			if (($table=='MEMBERS') || ($table=='MREL_GROUPS') || ($table=='MEMBER_GROUPS') || ($table=='MEMBER_CATEG')) $publish = false;
+			if (($table=='members') || ($table=='mrel_groups') || ($table=='member_groups') || ($table=='member_categ')) $publish = false;
 		}
-		if ($publish) $tables .= $table.',';
+		if ($publish) $tables .= $table.', ';
 	}
 	
 	$sql = "SELECT * FROM report_columns WHERE report=$report_id";
-	$res = $db->query($sql);
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$sql = "SELECT * FROM report_definitions WHERE cat='$row[CAT]' AND attr='$row[ATTR]'";
-		$res2 = $db->query($sql);
+	$res = mysql_query($sql);
+	while ($row = mysql_fetch_array($res)) {
+		$sql = "SELECT * FROM report_definitions WHERE cat=$row[cat] AND attr=$row[attr]";
+		$res2 = mysql_query($sql);
 		if ($res2) {
-			$row2 =$res2->fetchRow(DB_FETCHMODE_ASSOC);
-			$table = $row2['TBL'];
-			$field = $row2['FIELD'];
+			$row2 = mysql_fetch_array($res2);
+			$table = $row2['tbl'];
+			$field = $row2['field'];
 		}
 		$publish = true;
-		$cat = $row['CAT'];
-		$attr = $row['ATTR'];
+		$cat = $row['cat'];
+		$attr = $row['attr'];
 		if (!$course_enrollment) {
-			if ($cat=='COURSE_ENROLLMENT') $publish = false;
-		} else {
-			if ( ($cat == 'COURSES') && ($attr == 'MEMBER_ID') ) $publish = false;
+			if ($cat=='course_enrollment') $publish = false;
 		}
 		if (!$course) {
-			if (($cat=='COURSES') || ($cat=='CREL_GROUPS') || ($cat=='COURSE_GROUPS')) $publish = false;
+			if (($cat=='courses') || ($cat=='crel_groups') || ($cat=='course_groups')) $publish = false;
 		}
 		if (!$test) {
-			if (($table=='TESTS') || ($table=='TESTS_RESULTS') || ($table=='TESTS_STATUS')) $publish = false;
+			if (($cat=='test_results') || ($cat=='test_status')) $publish = false;
 		}
 		if (!$members) {
-			if (($cat=='MEMBERS') || ($cat=='MREL_GROUPS') || ($cat=='MEMBER_GROUPS') || ($cat=='MEMBER_CATEG')) $publish=false;
+			if (($cat=='members') || ($cat=='mrel_groups') || ($cat=='member_groups') || ($cat=='member_catg')) $publish=false;
 		}
-		if ($publish) $tables .= $table.',';
+		if ($publish) $tables .= $table.', ';
 	}
 	
 	$tables2 = '';
@@ -214,17 +185,12 @@
 	do {
 		$a2 = strpos($tables, ',', $a1);
 		$table_tmp = substr($tables, $a1, $a2-$a1);
-		ltrim($table_tmp);
-		rtrim($table_tmp);
 		if (strlen($table_tmp) >1) {
-			//if ($_SESSION['debug']) echo '<br>Found: '.$tables2. ' ---'.$table_tmp.'::: strpos: '.strpos('members, mrel_groups', $table_tmp, 0) ;
-			$spos = strpos($tables2, $table_tmp, 0);
-			if ($spos===false){
+			if (!strstr($tables2, $table_tmp) ) {
 				if (strlen($tables2) >1) {
-					$tables2 .= ",";
+					$tables2 .= ", ";
 				}
 				$tables2 .= $table_tmp;
-				//if ($_SESSION['debug']) echo '<br>tables2: '.$tables2.'<br>';
 			}
 		}
 		$a1 = $a2 +1;
@@ -237,31 +203,30 @@
 	
 	// links
 	$sql = "SELECT * FROM report_links";
-	$res = $db->query($sql);
+	$res = mysql_query($sql);
 	$count = 0;
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+	while ($row = mysql_fetch_array($res)) {
 		$publish = true;
 		if (!$course_enrollment) {
-			if (($row['CAT1']=='COURSE_ENROLLMENT') || ($row['CAT2']=='COURSE_ENROLLMENT')) $publish = false;
-		} else {
-			if ( (($row['CAT1']=='COURSES') && ($row['ATTR1']=='MEMBER_ID')) || (($row['CAT2']=='COURSES') && ($row['ATTR2']=='MEMBER_ID')) ) $publish = false;
+			if (($row['cat1']=='course_enrollment') || ($row['cat2']=='course_enrollment')) $publish = false;
 		}
 		if (!$course) {
-			if (($row['CAT1']=='COURSES') || ($row['CAT1']=='CREL_GROUPS') || ($row['CAT1']=='COURSE_GROUPS') ||
-			($row['CAT2']=='COURSES') || ($row['CAT2']=='CREL_GROUPS') || ($row['CAT2']=='COURSE_GROUPS')) $publish = false;
+			if (($row['cat1']=='courses') || ($row['cat1']=='crel_groups') || ($row['cat1']=='course_groups') ||
+			($row['cat2']=='courses') || ($row['cat2']=='crel_groups') || ($row['cat2']=='course_groups')) $publish = false;
 		}
 		if (!$test) {
-			if (($row['CAT1']=='TESTS') || ($row['CAT1']=='TESTS_RESULTS') || ($row['CAT1']=='TESTS_STATUS') || 
-			($row['CAT2']=='TESTS_RESULTS') || ($row['CAT2']=='TESTS_STATUS')) $publish=false;
+			if (($row['cat1']=='test_result') || ($row['cat1']=='test_status') || 
+			($row['cat2']=='test_result') || ($row['cat2']=='test_status')) $publish=false;
 		}
 		if (!$members) {
-			if (($row['CAT1']=='MEMBERS') || ($row['CAT1']=='MREL_GROUPS') || ($row['CAT1']=='MEMBER_GROUPS') || ($row['CAT1']=='MEMBER_CATEG') ||
-			($row['CAT2']=='MEMBERS') || ($row['CAT2']=='MREL_GROUPS') || ($row['CAT2']=='MEMBER_GROUPS') || ($row['CAT2']=='MEMBER_CATEG')) $publish=false;
+			if (($row['cat1']=='members') || ($row['cat1']=='mrel_groups') || ($row['cat1']=='member_groups') || ($row['cat1']=='member_categ') ||
+			($row['cat2']=='members') || ($row['cat2']=='mrel_groups') || ($row['cat2']=='member_groups') || ($row['cat2']=='member_categ')) $publish=false;
 		}
+
 
 		if ($publish) {
 			if ($count >0) $sql_buf .= ' AND ';
-			$sql_buf .= $row['CAT1'].'.'.$row['ATTR1'].'='.$row['CAT2'].'.'.$row['ATTR2'];
+			$sql_buf .= $row['cat1'].'.'.$row['attr1'].'='.$row['cat2'].'.'.$row['attr2'];
 			$count++;
 		}
 	}
@@ -270,85 +235,30 @@
 
  	$sql_buf .= $q;
 
-	//if ($_SESSION['debug']) echo $sql_buf;
-	
-	if($_GET['csv']=='1'){
-		$name=ereg_replace(" ", "_", $_SESSION['course_title']);
-		$name=ereg_replace("'", "", $name);
-		header('Content-Type: text/csv');
-		header('Content-Disposition: inline; filename="'.$name.'_report.csv"');
-		header('Expires: 0');
-		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-		header('Pragma: public');
-		
-		$sql = "SELECT * FROM report_columns WHERE report=$report_id";
-	 	$res = $db->query($sql);
-	 	$this_row = '';
-	 	while ($row = $res->fetchRow(DB_FETCHMODE_ASSOC)){
-	 		if ( ($row['ATTR'] != 'MEMBER_ID') ) {
-	 		$this_row .= quote_csv($row['CAT'].".".$row['ATTR']).",";
-	 	}
-	 	$this_row .= "\n";
-	 
-	 	$res = $db->query($sql_buf);
-	 	while ($row = $res->fetchRow(DB_FETCHMODE_ASSOC)){
-	 		foreach ($row as $f=>$fv) {
-	 			if ( !is_int($f) && ($f != 'MEMBER_ID') ) {
-	 				$this_row .= quote_csv($fv).",";
-	 			}
-	 		}
-	 		$this_row .= "\n";
-	 	}
-	
-	 	$fp = @unlink('../content/export/'.$name.'_reporting.csv');
-		$fp = @fopen('../content/export/'.$name.'_reporting.csv', 'w');
-		if (!$fp) {
-			$errors[]=array(AT_ERROR_CSV_FAILED, $name);
-			print_errors($errors);
-			exit;
-		}
-		@fputs($fp, $this_row); @fclose($fp);
-		@readfile('../content/export/'.escapeshellcmd($name).'_reporting.csv');
-		@unlink('../content/export/'.escapeshellcmd($name).'_reporting.csv');
-		exit;
-	}
+if ($_SESSION['debug']) echo $sql_buf;
  	?>
- 	<?php
- 	require($_include_path.'cc_html/header.inc.php');
- 	?>
- 	 	
+ 	
+ 	
  <TABLE class="bodyline" border="0" cellpadding="0" cellspacing="1" align="center" width="75%">
   <?php
  
  	$sql = "SELECT * FROM report_columns WHERE report=$report_id";
- 	$res = $db->query($sql);
+ 	$res = mysql_query($sql);
  	echo '<tr>';
- 	$cols = 0;
- 	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)){
- 		echo '<th>'.$row['CAT'].'.'.$row['ATTR'].'</th>';
- 		$cols++;
+ 	while ($row = mysql_fetch_array($res)){
+ 		echo '<th>'.$row['cat'].'.'.$row['attr'].'</th>';
  	}
  	echo '</tr>';
- 	echo '<tr><td colspan="'.$cols.'"><hr></td></tr>';
  
- 	$res = @$db->query($sql_buf);
- 	if (PEAR::isError($res)){
- 		$_errors[] = AT_ERROR_SQL_BAD_DEFINITION;
-		print_errors($_errors);
-		echo '<br>'.$sql_buf;
- 	} else {
-		$alternate = 1;
-	 	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)){
-	 		echo '<tr>';
-	 		foreach ($row as $f=>$fv) {
-	 			if ( !is_int($f) && ($f != 'MEMBER_ID') ) {
-	 				echo '<td class="rowa'.$alternate.'">'.$fv.'&nbsp;</td>';
-	 			}
-	 		}
-			$alternate++;
-			if ($alternate > 2) $alternate = 1;
-	 		echo '</tr>';
-	 	}
+ 	$res = mysql_query($sql_buf);
+ 	while ($row = mysql_fetch_array($res)){
+ 		echo '<tr>';
+ 		foreach ($row as $f=>$fv) {
+ 			if ( !is_int($f) ) {
+ 				echo '<td>'.$fv.'&nbsp;</td>';
+ 			}
+ 		}
+ 		echo '</tr>';
  	}
  ?>
  </TABLE>
@@ -358,13 +268,14 @@
 <center>
 <table border="0" align="center" width="75%">
 <tr><td>
-	<a href='reports/report_view.php?report_id=<?php echo $report_id; ?>&csv=1'>Export To Excel</a></td>
+	<input type="button" class="button" name="export" value="Export to Excel" onclick="javascript:void(window.location='export.php?report_id=<%=report_id%>');"></td>
 <td>
-	<A href="reports/index.php">Return to Reports Home</a>
+	<A href="index.php">Return to Reports Home</a>
 </td><td>
 	<input type="button" class="button" name="print" value="Print" onclick="javascript:void(window.print());">
 </td>
 </tr></table>
-<?php
-	require($_include_path.'cc_html/footer.inc.php');
-?>
+<BR>
+</center>
+</BODY>
+</HTML>

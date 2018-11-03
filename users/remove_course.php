@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 $section = 'users';
 $_include_path = '../include/';
@@ -27,7 +32,7 @@ require($_include_path.'cc_html/header.inc.php');
 	} else {
 		$sql	= "DELETE FROM course_enrollment WHERE member_id=$_SESSION[member_id] AND course_id=$course";
 
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 		
 
 		if ($result) {

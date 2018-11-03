@@ -16,10 +16,10 @@ define('DB_NAME',		'');
 
 /* your (klore system admin) password to let you add			*/
 /* new instructors												*/
-define('ADMIN_PASSWORD', '');
+define('ADMIN_PASSWORD', 'admin');
 
 /* yourIIS														*/
-define('SERVER_IIS', '');
+define('SERVER_IIS', 'http://amio/K-Lore%20reports');
 
 /* your (admin) email address									*/
 define('ADMIN_EMAIL',	'');
@@ -58,13 +58,10 @@ $IllegalExtentions	= array('exe', 'asp', 'php', 'bat', 'cgi', 'pl');
 /* of uploading course content.									*/
 define('ALLOW_IMPORT_CONTENT',	 true);
 
-/* Allow instructors to import users from the tar.gz exported 	*/
-/* file.														*/
-define('ALLOW_IMPORT_USERS',	 true);
 
 /* The name of your course website.								*/
 /* Example: Acme University's Course Server						*/
 /* Double quotes will have to be escaped with a slash: \".		*/
-define('SITE_NAME',	"Learning Server");
+define('SITE_NAME',	"KONCEPT Learning Server");
 
 ?>

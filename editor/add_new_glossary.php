@@ -3,7 +3,12 @@
 /* klore														*/
 /****************************************************************/
 /* Copyright (c) 2002 ,2003 by Greg Gay & Joel Kronenberg       */
-
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 	$_include_path = '../include/';
 	require($_include_path.'vitals.inc.php');
@@ -44,30 +49,17 @@
 				/* for each item check if it exists: */
 
 				if ($glossary[$_POST[word][$i]] != '' ) {
-					$feedback[] = array(AT_ERROR_TERM_EXISTS, $_POST[word][$i]);
+					$errors[] = array(AT_ERROR_TERM_EXISTS, $_POST[word][$i]);
 				}
-				
-				$pword = $_POST['word'][$i];
-				$sql = "SELECT word_id FROM glossary WHERE word='$pword'";
-				$res = $db->query($sql);
-				$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-				$countres = $db->query($countsql);
-				$count0 = $countres->fetchRow();
 
-				if ($count0[0] >0) {
-					$row = $res->fetchRow(DB_FETCHMODE_ASSOC);
-					$wid = $row['WORD_ID'];
-				} else {
-					$wid = $db->nextId("AUTO_GLOSSARY_WORDID_SEQ");
-				}
-				$terms_sql .= "($wid, $_SESSION[course_id], '{$_POST[word][$i]}', '{$_POST[definition][$i]}', {$_POST[related_term][$i]})";
+				$terms_sql .= "(0, $_SESSION[course_id], '{$_POST[word][$i]}', '{$_POST[definition][$i]}', {$_POST[related_term][$i]})";
 			}
 		}
 
 
 		if ($errors == '') {
 			$sql = "INSERT INTO glossary VALUES $terms_sql";
-			$result = $db->query($sql);
+			$result = mysql_query($sql);
 			
 			if ($_POST['pcid'] != '') {
 				Header('Location: ../index.php?cid='.$_POST['pcid'].SEP.'f='.urlencode_feedback(AT_FEEDBACK_CONTENT_UPDATED));
@@ -102,14 +94,8 @@
 		/* we're entering terms from a content page */
 		$result =& $contentManager->getContentPage($_GET['pcid']);
 
-		if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-			//***
-			 	$fh = fopen('../'.$row['TEXT'], 'r');   
-        		$chf_text = fread($fh, filesize('../'.$row['TEXT']));
-        		fflush($fh);
-     			fclose($fh);
-		 	//***
-			$num_terms = preg_match_all("/(\[\?\])([\s\w\d])*(\[\/\?\])/i", $chf_text, $matches, PREG_PATTERN_ORDER);
+		if ($row =& mysql_fetch_array($result)) {
+			$num_terms = preg_match_all("/(\[\?\])([\s\w\d])*(\[\/\?\])/i", $row['text'], $matches, PREG_PATTERN_ORDER);
 
 			$matches = $matches[0];
 			$word = str_replace(array('[?]', '[/?]'), '', $matches);
@@ -183,13 +169,13 @@
 			<td class="row1"><?php
 				
 					$sql = "SELECT * FROM glossary WHERE course_id=$_SESSION[course_id] ORDER BY word";
-					$result = $db->query($sql);
-					if ($row_g =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+					$result = mysql_query($sql);
+					if ($row_g = mysql_fetch_array($result)) {
 						echo '<select name="related_term['.$i.']">';
 						echo '<option value="0"></option>';
 						do {
-							echo '<option value="'.$row_g[WORD_ID].'">'.$row_g[WORD].'</option>';
-						} while ($row_g =$result->fetchRow(DB_FETCHMODE_ASSOC));
+							echo '<option value="'.$row_g[word_id].'">'.$row_g[word].'</option>';
+						} while ($row_g = mysql_fetch_array($result));
 						echo '</select>';
 					} else {
 						echo $_template['none_available'];

@@ -27,7 +27,9 @@
   <select name="FileType">
    <option value="Folder"><?php echo $_MSG_TCPE_COMMON["Folder"] ?></option>
    <option value="Document"><?php echo $_MSG_TCPE_COMMON["Document"] ?></option>
+   <option value="Image"><?php echo $_MSG_TCPE_COMMON["Image"] ?></option>
    <option value="Link"><?php echo $_MSG_TCPE_COMMON["Link"] ?></option>
+   <option value="Article"><?php echo $_MSG_TCPE_COMMON["Article"] ?></option>
   </select>
  </td>
 </tr>

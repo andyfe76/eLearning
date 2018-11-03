@@ -24,7 +24,7 @@ $_template['close_menu'] = 'Close Menu';
 $_template['open_menus'] = 'Open Menus';
 $_template['login'] = 'Login';
 $_template['guest'] = 'Guest';
-$_template['password_expired'] = 'Your password has expired. Please contact the trainer to change your password (<a href="mailto:name@mail.com">name@mail.com</a>).';
+$_template['password_expired'] = 'Your password has expired. Please contact the site administrator to change your password.';
 $_template['to1'] = ' to ';
 $_template['to_control'] = 'to Control Centre';
 $_template['logout'] = 'Log-out';
@@ -45,16 +45,16 @@ $_template['apply'] = 'Apply';
 $_template['open_glossary_terms'] = 'Open Glossary Terms';
 $_template['close_glossary_terms'] = 'Close Glossary Terms';
 $_template['history'] = 'History';
-$_template['close_local_menu'] = 'Close Chapter';
+$_template['close_local_menu'] = 'Close Chapter Menu';
 $_template['previous_topic'] = 'Previous Chapter';
 $_template['none'] = 'None';
 $_template['next_topic'] = 'Next Chapter';
 $_template['select_topic_first'] = 'Select Topic First';
-$_template['open_local_menu'] = 'Open Chapter';
-$_template['close_global_menu'] = 'Close Course';
+$_template['open_local_menu'] = 'Open Chapter Menu';
+$_template['close_global_menu'] = 'Close Global Menu';
 $_template['add_top_level_page'] = 'Add Chapter Page';
 $_template['glossary'] = 'Glossary';
-$_template['open_global_menu'] = 'Open Course';
+$_template['open_global_menu'] = 'Open Global Menu';
 $_template['close_related_topics'] = 'Close Related Topics';
 $_template['open_related_topics'] = 'Open Related Topics';
 $_template['sequence'] = 'Sequence';
@@ -99,19 +99,18 @@ $_template['forgot'] = 'Forgot your password or login?';
 $_template['click_here'] = '<b>Click here</b>';
 $_template['free_account'] = ' Create an account here';
 $_template['no_account'] = 'Don\'t have an account?';
-//$_template['password_blurb'] = 'Enter your email address below and your login and password will be sent to you. The email address must be the same as the one you used when creating your account.';
-$_template['password_blurb'] = 'Enter your login name below and your password will be sent to the email you used when creating your <a href="">account</a>.';
+$_template['password_blurb'] = 'Enter your email address below and your login and password will be sent to you. The email address must be the same as the one you used when creating your <a href="registration.php">account</a>.';
 $_template['password_success'] = 'Your login and password have been successfully emailed.';
 $_template['contain_only'] = 'May contain only letters, numbers, or underscores.';
 $_template['20_max_chars'] = '20 character maximum';
-$_template['combination'] = 'Use a combination of letters, numbers and symbols.'; 
-$_template['15_max_chars'] = 'Use at least one number and one lower case letter. Minimum 6 characters - 19 characters maximum.'; // modif
+$_template['combination'] = 'Use a combination of letters, numbers and symbols.';
+$_template['15_max_chars'] = '15 character maximum.';
 $_template['welcome_to_klore'] = 'Welcome to K-Lore!';
 $_template['klore_is'] = 'K-Lore is a Web-based Learning Content Management System (LCMS). It allows instructors to easily develop online content to be presented in a structured adaptable learning environment. It allows online learners to navigate through content in many different ways, adapting it to their preferred style, or method, of learning Web-based instructional material.';
 $_template['acquiring_klore'] = 'Acquiring ATUTOR';
-$_template['klore_available'] = 'Inquiries concerning commercial use of K-Lore should be directed to <a href=""></a>.';
+$_template['klore_available'] = 'Inquiries concerning commercial use of K-Lore should be directed to <a href="mailto:info@koncept.ro">info@koncept.ro</a>.';
 $_template['more_information'] = 'More Information';
-$_template['find_latest'] = 'You will find the latest information about K-Lore development, and find help on installing and configuring K-Lore, on the <a href="">K-Lore Web Site</a>. Browse the official <a href="">K-Lore <i>How To</i> 1.1 course</a> for general help on using K-Lore.';
+$_template['find_latest'] = 'You will find the latest information about K-Lore development, and find help on installing and configuring K-Lore, on the <a href="http://www.koncept.ro/K-Lore">K-Lore Web Site</a>. Browse the official <a href="http://www.koncept.ro/K-Lore/howto.php">K-Lore <i>How To</i> 1.1 course</a> for general help on using K-Lore.';
 
 // REPORTS:
 $_template['report'] = 'Report';
@@ -166,8 +165,6 @@ $_template['deleted_users'] = 'Deleted Users';
 $_template['assign_users_to_group'] = 'Assign users to group';
 $_template['dynamic_group'] = 'Dynamic Group';
 
-$_template['p_start_date']='Password start date';
-
 // COURSE MANAGEMENT:
 $_template['module'] = 'Module';
 $_template['course_management'] = 'Course management';
@@ -189,13 +186,9 @@ $_template['course_expired'] = 'Course expired';
 $_template['deleted_courses'] = 'Deleted courses';
 $_template['restore'] = 'Restore';
 $_template['restoring_course'] = 'Restoring Course';
-	$_template['download_pdf']='Download PDF';
-	$_template['export_pdf']='Export PDF';
-
 
 $_template['profile'] = 'Profile';
 $_template['status'] = 'Status';
-$_template['role'] = 'Role';
 $_template['login_name'] = 'Login Name';
 $_template['login_into_klore'] = 'Log into your K-Lore Account';
 $_template['auto_login2'] = '<b>Auto Login:</b> Next time log me in automatically.';
@@ -203,7 +196,7 @@ $_template['password_request'] = 'Someone, presumably yourself, requested that y
 $_template['password_request2'] = 'The login and password information is listed directly below:';
 $_template['hello'] = 'Hello';
 //include/html/copyright.php
-$_template['general_help'] = 'For general help with using the K-Lore system see the official <a href="">K-Lore <em>How To</em> 1.1 course</a>.';
+$_template['general_help'] = 'For general help with using the K-Lore system see the official <a href="http://k-lore.koncept.ro/howto.php">K-Lore <em>How To</em> 1.1 course</a>.';
 $_template['version'] = 'Version ';
 $_template['copyright'] = 'Copyright ';
 //browse.php
@@ -242,10 +235,8 @@ $_template['req_message7'] = 'users/admin.php.) ';
 $_template['req_message8'] = 'login: admin\npassword: [the Admin password you chose in the config.inc.php file]';
 $_template['req_message9'] = 'K-Lore Instructor Request';
 $_template['administrator'] = 'Administrator';
-$_template['trainer'] = 'Trainer';
+$_template['instructor'] = 'Instructor';
 $_template['student'] = 'Regular user';
-$_template['coordinator'] = 'Coordinator';
-$_template['group_manager'] = 'Group Manager';
 $_template['auto_login1'] = 'Auto-Login';
 $_template['auto_enable'] = 'Enabled - <a href="users/index.php?auto=disable">disable auto-login</a>';
 $_template['auto_disable'] = 'Disabled - <a href="users/index.php?auto=enable">enable auto-login</a>';
@@ -266,12 +257,9 @@ $_template['import_export'] = 'Import/Export';
 $_template['not_teacher'] = 'You do not teach any courses.';
 $_template['give_description'] = 'Brief description of your proposed course (REQUIRED):';
 $_template['request_instructor_account'] = 'Request Instructor Account';
-$_template['control_centre'] = 'Welcome to KLore Learning Management System';
+$_template['control_centre'] = 'Control Centre';
 $_template['edit_preferences'] = 'Edit Preferences';
 $_template['edit_profile']= 'Edit Profile';
-$_template['lock']= 'Lock';
-$_template['unlock']= 'Unlock';
-
 //private_enrol.php 
 $_template['request_enrolment'] = 'Request Enrolment';
 $_template['course_enrolment'] = 'Course Enrolment';
@@ -312,13 +300,12 @@ $_template['enrol_message2'] = ' has been approved. To access the course go to';
 $_template['enrol_message2'] = 'and login.';
 $_template['enrol_message3'] = 'K-Lore Course Enrollment';
 $_template['send_course_email'] = 'Send Course Email';
-$_template['login_id'] = 'Login';
+$_template['login_id'] = 'Login (ID)';
 $_template['enrolment'] = 'Enrolment';
 $_template['approve'] = 'Approve';
 $_template['disapprove'] = 'Disapprove';
 $_template['remove'] = 'Remove';
 $_template['done'] = 'Done';
-$_template['dynamic_group'] = 'Dynamic Group';
 
 //users/course_email.php
 $_template['send_to'] = 'Send email message to ';
@@ -337,10 +324,11 @@ $_template['export'] = 'Export';
 $_template['import_file'] = 'Import File';
 
 // date formats
+$_template['announcement_date_format'] = '%l %F %j at %g:%i%a';
 $_template['inbox_date_format'] = '%l %M %j, %Y - %H:%i';
 $_template['forum_date_format'] = '%D %M %j - %H:%i';
 $_template['filemanager_date_format'] = '%M %j \'%y %H:%i';
-$_template['announcement_date_format'] = '%D %d%S of %F, %Y';
+$_template['announcement_date_format'] = '%l %F %j<sup>%S</sup>, %Y';
 
 // instructor contact form
 $_template['instructor_contact_form'] = 'Instructor Contact Form';
@@ -354,119 +342,7 @@ $_template['subject'] = 'Subject';
 $_template['body'] = 'Body';
 $_template['send'] = 'Send';
 
-// Enrollment notification messages
-$_template['you_have_been_enrolled'] = 'Dear user. You have been enrolled to the following course on the eLearning platform: ';
-
-
 $_template['newest_links'] = 'Newest Links';
 $_template['language'] = 'Language';
-$_template['max_number_of_students'] = 'Maximum number of students';
-$_template['test_results'] = 'Test results';
-$_template['test_results_for_completed_courses'] = 'Test results for completed courses';
-$_template['manage'] = 'Manage';
-$_template['delete_module'] = 'Delete Module';
-$_template['number_of_licenses'] = 'Number of user licenses left';
-$_template['coordinator_management'] = 'Coordinator Management';
-$_template['coordinator_assigned_groups'] = 'Coordinator Assigned Groups';
-$_template['coordinator_assigned_courses'] = 'Coordinator Assigned Courses';
-$_template['gmng_assigned_courses'] = 'Group Manager Assigned Courses';
-$_template['assign'] = 'Assign';
-$_template['unassign'] = 'Remove';
-$_template['multiple_select'] = 'To select multiple groups from the list, hold down CRTL or SHIFT while clicking.';
-$_template['save_coordinator_configuration'] = 'Save Configuration';
-$_template['save_gmng_configuration'] = 'Save Configuration';
 
-// Translation phase
-$_template['test_passed'] = 'Passed';
-$_template['yes'] = 'Yes';
-$_template['no'] = 'No';
-$_template['create_module'] = 'Create Module';
-$_template['existing_modules'] = 'Existing Modules';
-$_template['final_score'] = 'Final score';
-$_template['print_this_page'] = 'Print this page';
-$_template['test_title'] = 'Test title';
-$_template['export_users'] = 'Export users';
-$_template['import_users'] = 'Import users';
-$_template['pdf_export'] = 'PDF Export';
-$_template['export_course_to_pdf'] = 'Export course to PDF';
-$_template['course_modules'] = 'Course modules';
-$_template['modules'] = 'Modules';
-$_template['none_defined'] = 'None defined';
-$_template['delete_group'] = 'Delete group';
-$_template['delete_user_group'] = 'Delete entire user group ?';
-$_template['completed_course'] = 'Completed course';
-$_template['report_name'] = 'Report name';
-$_template['student1'] = 'Participant';
-$_template['all_courses'] = 'All courses';
-$_template['any_course'] = 'Any course';
-$_template['test'] = 'Test';
-$_template['no_condition'] = 'No condition';
-$_template['all_modules'] = 'All modules';
-$_template['all_categories'] = 'All categories';
-$_template['all_groups'] = 'All groups';
-$_template['course_trainer'] = 'Course trainer';
-$_template['any_trainer'] = 'Any trainer';
-$_template['individual_test'] = 'Individual test';
-$_template['average_mark'] = 'Overall qualification';
-$_template['report_description'] = 'Description';
-$_template['date'] = 'Date';
-$_template['retries'] = 'Retries';
-$_template['add_query'] = 'Save report';
-$_template['user_in_category'] = 'User in category';
-$_template['user_in_group'] = 'User in group';
-$_template['enrolled_to_any_course_in'] = 'Enrolled to any course in';
-$_template['completed_any_course_in'] = 'Completed any course in';
-$_template['test_taken'] = 'Test taken';
-$_template['retries_until_passed'] = 'Retries until passed';
-$_template['pick_up_timestamp'] = 'Click Here to Pick up the timestamp';
-$_template['enrolled_date'] = 'Enrolled date';
-$_template['completion_date'] = 'Course completion date';
-$_template['test_date'] = 'Test date';
-$_template['return_to_reports_index'] = 'Return to reports index';
-$_template['current_query'] = 'Current query';
-$_template['course_qualificative'] = 'Course qualificative';
-$_template['new_query'] = 'New query';
-$_template['create_dynamic_group'] = 'Create dynamic group';
-$_template['view_report'] = 'Run this report';
-$_template['create_report'] = 'Create a new report';
-$_template['user_details'] = 'User details';
-$_template['course_details'] = 'Course details';
-$_template['test_details'] = 'Test details';
-$_template['test_name'] = 'Test name';
-$_template['test_mark'] = 'Test mark';
-
-// REPORT COLUMNS:
-$_template['ud_login'] = 'Login';
-$_template['ud_first_name'] = 'First name';
-$_template['ud_last_name'] = 'Last name';
-$_template['ud_category'] = 'Category';
-$_template['ud_group'] = 'Group';
-$_template['cd_title'] = 'Course title';
-$_template['cd_module'] = 'Course module';
-$_template['cd_trainer'] = 'Course trainer';
-$_template['cd_avmark'] = 'Final mark';
-$_template['td_name'] = 'Test name';
-$_template['td_testmark'] = 'Test mark';
-$_template['td_retries'] = 'Test retries';
-
-$_template['report_columns'] = 'Report columns';
-
-$_template['save_report'] = 'Save report';
-$_template['any_course'] = 'Any course';
-$_template['update_group'] = 'Update group';
-$_template['delete_selected_users'] = 'Delete selected users';
-
-$_template['about_elearning'] = 'About eLearning';
-
-$_template['enrol_notif'] = 'Enroll notification text'; 
-
-$_template['course_not_passed'] = 'Not passed';
-$_template['course_passed'] = 'Passed';
-$_template['please_change_password'] = 'Please change your password';
-
-//import_usr.php 
-$_template['import_usr_about']='You can import user files created by the "Export Users" tool below. (NOTE: Users may take some time to import, depending on the number of users and your Internet connection speed. Please be patient.)<br><font color=red>WARNNING : All existent users will be deleted !</font>';
-
-	$_template['simple_view']='Printer friendly';
-	$_template['normal_view']='Normal view';
 ?>

@@ -22,17 +22,17 @@
 	$report_id = $_GET['report_id'];
 	
 	$sql = "SELECT * FROM report_columns WHERE report=$report_id";
-	$res = $db->query($sql);
+	$res = mysql_query($sql);
 	$c = 0;
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+	while ($row = mysql_fetch_array($res)) {
 		if ($c >0) $sql_buf .= ',';
-		$cat = $row['CAT'];
-		$attr = $row['ATTR'];
+		$cat = $row['cat'];
+		$attr = $row['attr'];
 		$sql = "SELECT * FROM report_definitions WHERE cat='$cat' AND attr='$attr'";
-		$res1 = $db->query($sql);
-		if ($row1 =$res1->fetchRow(DB_FETCHMODE_ASSOC)) {
-			$table = $row1['TBL'];
-			$field = $row1['FIELD'];
+		$res1 = mysql_query($sql);
+		if ($row1 = mysql_fetch_array($res1)) {
+			$table = $row1['tbl'];
+			$field = $row1['field'];
 		}
 		$sql_buf .= $table.'.'.$field;
 		$c++;
@@ -41,39 +41,39 @@
 	$sql_buf .= ' FROM ';
 	$tables = '';
 	$sql = "SELECT * FROM report_query WHERE report=$report_id";
-	$res = $db->query($sql);
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+	$res = mysql_query($sql);
+	while ($row = mysql_fetch_array($res)) {
 		$sql = "SELECT * FROM report_definitions WHERE cat='$cat' AND attr='$attr'";
-		$res1 = $db->query($sql);
-		if ($row1 =$res1->fetchRow(DB_FETCHMODE_ASSOC)) {
-			$table = $row1['TBL'];
-			$field = $row1['FIELD'];
+		$res1 = mysql_query($sql);
+		if ($row1 = mysql_fetch_array($res1)) {
+			$table = $row1['tbl'];
+			$field = $row1['field'];
 		}
 		$tables .= $table.',';
 	}
 
 	$sql = "SELECT * FROM report_links";
-	$res = $db->query($sql);
+	$res = mysql_query($sql);
 	$c = 0;
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+	while ($row = mysql_fetch_array($res)) {
 		if ($c >0) $tables .= ',';
-		$tables .= $row['CAT1'].','.$row['CAT2'];
+		$tables .= $row['cat1'].','.$row['cat2'];
 		$c++;
 		
 	}
 
 	$sql = "SELECT * FROM report_columns WHERE report=$report_id";
-	$res = $db->query($sql);
+	$res = mysql_query($sql);
 	$c = 0;
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+	while ($row = mysql_fetch_array($res)) {
 		if ($c >0) $tables .= ',';
-		$cat = $row['CAT'];
-		$attr = $row['ATTR'];
+		$cat = $row['cat'];
+		$attr = $row['attr'];
 		$sql = "SELECT * FROM report_definitions WHERE cat='$cat' AND attr='$attr'";
-		$res1 = $db->query($sql);
-		if ($row1 =$res1->fetchRow(DB_FETCHMODE_ASSOC)) {
-			$table = $row1['TBL'];
-			$field = $row1['FIELD'];
+		$res1 = mysql_query($sql);
+		if ($row1 = mysql_fetch_array($res1)) {
+			$table = $row1['tbl'];
+			$field = $row1['field'];
 		}
 		$tables .= $table;
 	}
@@ -97,27 +97,27 @@
 	$sql_buf .= $tables2.' WHERE ';
 
 	$sql = "SELECT * FROM report_links";
-	$res = $db->query($sql);
+	$res = mysql_query($sql);
 	$c = 0;
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+	while ($row = mysql_fetch_array($res)) {
 		if ($c >0) $sql_buf .= ' AND ';
-		$sql_buf .= $row['CAT1'].'.'.$row['ATTR1'].'='.$row['CAT2'].'.'.$row['ATTR2'];
+		$sql_buf .= $row['cat1'].'.'.$row['attr1'].'='.$row['cat2'].'.'.$row['attr2'];
 		$c++;
 	}
 	
 	$sql = "SELECT * FROM report_query WHERE report=$report_id";
-	$res = $db->query($sql);
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$cat = $row['CAT'];
-		$attr = $row['ATTR'];
-		$op = $row['OP'];
-		$val = $row['VAL'];
-		$func = $row['FUNCTION'];
+	$res = mysql_query($sql);
+	while ($row = mysql_fetch_array($res)) {
+		$cat = $row['cat'];
+		$attr = $row['attr'];
+		$op = $row['op'];
+		$val = $row['val'];
+		$func = $row['function'];
 		$sql = "SELECT * FROM report_definitions WHERE cat='$cat' AND attr='$attr'";
-		$res1 = $db->query($sql);
-		if ($row1 =$res1->fetchRow(DB_FETCHMODE_ASSOC)) {
-			$table = $row1['TBL'];
-			$field = $row1['FIELD'];
+		$res1 = mysql_query($sql);
+		if ($row1 = mysql_fetch_array($res1)) {
+			$table = $row1['tbl'];
+			$field = $row1['field'];
 		}
 		$sql_buf .= ' '.$func.' '.$table.'.'.$field.' '.$op.' \''.$val.'\'';
 	}
@@ -128,13 +128,13 @@
  	$excelBook = $excelApp->Workbooks->Add();
  	$index = 1;
  	$sql = "SELECT * FROM report_columns WHERE report=$report_id";
- 	$res = $db->query($sql);
+ 	$res = mysql_query($sql);
  	$col = 1;
- 	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+ 	while ($row = mysql_fetch_array($res)) {
  		$tmp = '';
- 		$tmp .= $row['CAT'];
+ 		$tmp .= $row['cat'];
  		$tmp .= '.';
- 		$tmp .= $row['ATTR'];
+ 		$tmp .= $row['attr'];
  		$excelApp->Workbooks(1)->Worksheets(1)->cells($index, $col)->set($tmp);
  		$excelBook->Worksheets(1)->cells($index, $col)->font->bold = true;
  		$excelBook->Worksheets(1)->cells($index, $col)->interior->color = rgb(200, 200, 200);
@@ -142,8 +142,8 @@
  	}
  	
  	$index++;
- 	$res = $db->query($sql_buf);
- 	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+ 	$res = mysql_query($sql_buf);
+ 	while ($row = mysql_fetch_array($res)) {
  		$col = 1;
  		foreach ($row) {
  			

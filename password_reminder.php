@@ -14,24 +14,17 @@ require ($_include_path.'lib/klore_mail.inc.php');
 
 if ($form_password_reminder)
 {
-	$sql	= "SELECT login, email FROM members WHERE login='$form_login'";
-	$result = $db->query($sql);
-	$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-	$countres = $db->query($countsql);
-	$count0 = $countres->fetchRow();
-	if ($count0[0] == 0)
+	$sql	= "SELECT login, password, email FROM members WHERE email='$form_email'";
+	$result = mysql_query($sql,$db);
+	if (mysql_num_rows($result) == 0)
 	{
-		$errors[]=AT_ERROR_LOGIN_NOT_FOUND;
+		$errors[]=AT_ERROR_EMAIL_NOT_FOUND;
 		
 	} else {
-		$row =$result->fetchRow(DB_FETCHMODE_ASSOC);
-		$r_login = $row['LOGIN'];	
-		$r_passwd= 'tmp'.rand(100,999).chr(rand(65,90));
-
-		$sql="UPDATE members SET password='".hash_pass($r_passwd)."' WHERE login='$form_login'";//**
-		$result=$db->query($sql);
-
-		$r_email = $row['EMAIL'];		
+		$row = mysql_fetch_array($result);
+		$r_login = $row['login'];	
+		$r_passwd= $row['password'];
+		$r_email = $row['email'];
 
 		$message = $_template['hello'].','."\n".$_template['password_request'].' '.$HTTP_SERVER_VARS["REMOTE_ADDR"].'. '.$_template['password_request2'].'.'."\n";
 		$message .= $_template['login'].': '.$r_login."\n".$_template['password'].': '.$r_passwd."\n";
@@ -52,8 +45,8 @@ echo '<TR><TD COLSPAN="5">';
 ?>
 <form action="<?php echo $PHP_SELF; ?>" method="post">
 <input type="hidden" name="form_password_reminder" value="true" />
-<br><br>
-<table cellspacing="1" cellpadding="0" border="0" class="framework" align="center" width="60%" summary="">
+
+<table cellspacing="1" cellpadding="0" border="0" class="bodyline" align="center" width="60%" summary="">
 <tr>
 	<td class="cat" colspan="2"><h4><?php echo $_template['password_reminder']; ?></h4></td>
 </tr>
@@ -65,8 +58,8 @@ echo '<TR><TD COLSPAN="5">';
 </tr>
 <tr><td height="1" class="row2" colspan="2"></td></tr>
 <tr>
-	<td valign="top" align="right" class="row1"><label for="login"><b><?php echo $_template['login']; ?></b></label></td>
-	<td valign="top" align="left" class="row1"><input type="text" class="formfield" name="form_login" id="login" /><br /><br /></td>
+	<td valign="top" align="right" class="row1"><label for="email"><b><?php echo $_template['email_address']; ?></b></label></td>
+	<td valign="top" align="left" class="row1"><input type="text" class="formfield" name="form_email" id="email" /><br /><br /></td>
 </tr>
 <tr><td height="1" class="row2" colspan="2"></td></tr>
 <tr><td height="1" class="row2" colspan="2"></td></tr>
@@ -83,7 +76,6 @@ echo '<TR><TD COLSPAN="5">';
 	}
 ?>
 </table>
-<br><br>
 </form>
 <?php
 	require($_include_path.'basic_html/footer.php');

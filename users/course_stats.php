@@ -8,14 +8,14 @@
 
 	$course = intval($_GET['course']);
 
-	/*$sql	= "SELECT * FROM courses WHERE member_id=$_SESSION[member_id] AND course_id=$course";
-	$result = $db->query($sql);
-	if (!($row =$result->fetchRow(DB_FETCHMODE_ASSOC))) {
+	$sql	= "SELECT * FROM courses WHERE member_id=$_SESSION[member_id] AND course_id=$course";
+	$result = mysql_query($sql,$db);
+	if (!($row = mysql_fetch_array($result))) {
 		$errors[] = AT_ERROR_NOT_OWNER;
 		print_errors($errors);
 		require ($_include_path.'cc_html/footer.inc.php');
 		exit;
-	}*/
+	}
 
 	$month_names = $month_name_ext['en'];
 	$year  = intval($_GET['year']);
@@ -27,18 +27,17 @@
 	}
 
 	$days	= array();
-	$sql	= "SELECT * FROM course_stats WHERE course_id=$course AND TO_CHAR(login_date, 'MM')=$month AND TO_CHAR(login_date, 'YYYY')=$year ORDER BY login_date ASC";
-	$result = $db->query($sql);
+	$sql	= "SELECT * FROM course_stats WHERE course_id=$course AND MONTH(login_date)=$month AND YEAR(login_date)=$year ORDER BY login_date ASC";
+	$result = mysql_query($sql, $db);
 	$today  = 1; /* we start on the 1st of the month */
 	$max_total_logins = 0;
 	$min_total_logins = (int) 99999999;
 	$total_logins = 0;
 
 	$empty = true;
-	
-	while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+	while ($row = mysql_fetch_array($result)) {
 		$empty = false;
-		$row_day = substr($row['LOGIN_DATE'], 8, 2);
+		$row_day = substr($row['login_date'], 8, 2);
 
 		if (substr($row_day, 0,1) == '0') {
 			$row_day = substr($row_day, 1, 1);
@@ -52,17 +51,17 @@
 
 		$today = $row_day; /* skip this day in the fill-in-the-blanks-loop */
 				
-		$days[$row_day] = array($row['GUESTS'], $row['MEMBERS']);
+		$days[$row_day] = array($row['guests'], $row['members']);
 
-		if ($max_total_logins < $row['GUESTS']+$row['MEMBERS']) {
-			$max_total_logins = $row['GUESTS']+$row['MEMBERS'];
+		if ($max_total_logins < $row['guests']+$row['members']) {
+			$max_total_logins = $row['guests']+$row['members'];
 		}
 
-		if ($min_total_logins > $row['GUESTS']+$row['MEMBERS']) {
-			$min_total_logins = $row['GUESTS']+$row['MEMBERS'];
+		if ($min_total_logins > $row['guests']+$row['members']) {
+			$min_total_logins = $row['guests']+$row['members'];
 		}
 
-		$total_logins += $row['GUESTS']+$row['MEMBERS'];
+		$total_logins += $row['guests']+$row['members'];
 	}
 
 	/* add zeros to the end of the month, only if it isn't the current month */
@@ -161,7 +160,7 @@
 <?php
 			foreach ($days as $day => $logins) {
 				echo '<td valign="bottom" class="graph"><img src="images/clr.gif" height="'.(($max_total_logins*$multiplyer_height) % $block_height + $block_height).'" width="10" alt="" /><br /><img src="images/blue.gif" height="'.($logins[0]*$multiplyer_height).'" width="9" alt="'.$logins[0].' '.$_template['guests'].' ('.($logins[0]+$logins[1]).' '.$_template['total'].')" /><br /><img src="images/red.gif" height="'.($logins[1]*$multiplyer_height).'" width="9" alt="'.$logins[1].' '.$_template['members'].' ('.($logins[1]+$logins[0]).' '.$_template['total'].')" /></td>';
-			} while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC));
+			} while ($row = mysql_fetch_array($result));
 ?>
 
 			</tr>

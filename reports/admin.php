@@ -1,3 +1,10 @@
+
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" content="text/html; charset=iso-8859-1">
+<TITLE>KLore Reports</TITLE>
+</HEAD>
+<BODY>
 <?php
 
 	$section = 'users';
@@ -8,9 +15,9 @@
 	if ($action == '') $action = $_GET['action'];
 
 	if ($action == 'Add Report') {
-		$id = $db->nextId("AUTO_REPORT_REPORTS_ID");
 		$sql = "INSERT INTO report_reports (name, description) VALUES ('test', 'test')";
-		$res = $db->query($sql);
+		$res = mysql_query($sql);
+		$id = mysql_insert_id();
 		Header("Location: report_build.php?report_id=$id");
 	}
 	
@@ -19,7 +26,7 @@
 	
 	if ($action == "Delete Report") {
 		$sql = "DELETE FROM report_reports WHERE ID=$report_id";
-		$res = $db->query($sql);
+		$res = mysql_query($sql);
 	}
 ?>
  
@@ -35,15 +42,15 @@
 <?php
 
 	$sql = "SELECT * FROM report_reports";
-	$res = $db->query($sql);
+	$res = mysql_query($sql);
 	echo '<table border="1"><tr><td>Name</td><td>Desription</td><td>&nbsp</td></tr>';
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+	while ($row = mysql_fetch_array($res)) {
 		?>
 		<tr>
-		<td><A href="report_build.php?report_id=<?php echo $row['ID']; ?>"><?php echo $row['NAME']; ?></a></td>
-		<td><A href="report_build.php?report_id=<?php echo $row['ID']; ?>"><?php echo $row['DESCRIPTION']; ?></a></td>
-		<td><A href="index.php?action=Delete Report&report_id=<?php echo $row['ID']; ?>">Delete</a></td>
-		<td><A href="report_view.php?report_id=<?php echo $row['ID']; ?>">View</a></td>
+		<td><A href="report_build.php?report_id=<?php echo $row['id']; ?>"><?php echo $row['name']; ?></a></td>
+		<td><A href="report_build.php?report_id=<?php echo $row['id']; ?>"><?php echo $row['description']; ?></a></td>
+		<td><A href="index.php?action=Delete Report&report_id=<?php echo $row['id']; ?>">Delete</a></td>
+		<td><A href="report_view.php?report_id=<?php echo $row['id']; ?>">View</a></td>
 		</tr>
 		<?php
 	}

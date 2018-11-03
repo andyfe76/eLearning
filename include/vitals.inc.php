@@ -3,7 +3,6 @@
 /* system configuration options: */
 require($_include_path.'config.inc.php');
 require($_include_path.'constants.inc.php');
-require_once('DB.php');
 
 require($_include_path.'grab_globals.lib.php');
 
@@ -17,15 +16,14 @@ require($_include_path.'session.inc.php');
 require($_include_path.'lib/lang_constants.inc.php');
 
 /* template language variables */
-if ($_POST['lang']) $_SESSION['lang'] = $_POST['lang'];
-if (isset($_SESSION) && ($_SESSION['lang'] == 'en')){
-	require($_include_path.'language/template_en.inc.php');
-	require($_include_path.'language/tools_en.inc.php');
-} else {
-	$_SESSION['lang'] = 'ro';
-	//require($_include_path.'language/en_lang.inc.php');
+if (isset($_SESSION) && ($_SESSION['lang'] == 'ro')){
 	require($_include_path.'language/template_ro.inc.php');
 	require($_include_path.'language/tools_ro.inc.php');
+} else {
+	$_SESSION['lang'] = 'en';
+	//require($_include_path.'language/en_lang.inc.php');
+	require($_include_path.'language/template_en.inc.php');
+	require($_include_path.'language/tools_en.inc.php');
 }
 
 /* date functions */
@@ -34,16 +32,14 @@ require($_include_path.'lib/date_functions.inc.php');
 /* browser detector: */
 require($_include_path.'AEBrowser.php');
 
-$dsn = "oci8://klore:k@KLORE";
 
-$db = DB::connect($dsn);
-if (DB::isError($db)) {
-	$_errors[] = AT_ERROR_NO_DB_CONNECT;
-	print_errors($_errors);
+$db = @mysql_connect(DB_HOST, DB_USER, DB_PASSWORD);
+@mysql_select_db(DB_NAME, $db);
+if (!$db) {
+	$errors[] = AT_ERROR_NO_DB_CONNECT;
+	print_errors($errors);
 	exit;
 }
-
-global $db;
 
    if (isset($_REQUEST['jump']) && $_REQUEST['jump'] && $_POST['form_course_id']) {
 		if ($_POST['form_course_id'] == 0) {
@@ -54,7 +50,7 @@ global $db;
 		Header('Location: bounce.php?course='.$_POST['form_course_id']);
 		exit;
    }
-   
+
 /* cache library: */
 include($_include_path.'phpCache/phpCache.inc.php');
 
@@ -89,11 +85,11 @@ $system_courses = array();
 if ( !($et_l=cache(CACHE_TIME_OUT, 'system_courses', 'system_courses')) ) {
 
 	$sql = "SELECT * FROM courses ORDER BY title";
-	$result = $db->query($sql);
-	while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$system_courses[$row['COURSE_ID']] = array(	'title' => $row['TITLE'], 
-													'description' => $row['DESCRIPTION'], 
-													'subject' => $row['SUBJECT']);
+	$result = mysql_query($sql, $db);
+	while ($row = mysql_fetch_array($result)) {
+		$system_courses[$row['course_id']] = array(	'title' => $row['title'], 
+													'description' => $row['description'], 
+													'subject' => $row['subject']);
 	}
 
 	cache_variable('system_courses');
@@ -105,12 +101,12 @@ if ( !($et_l=cache(CACHE_TIME_OUT, 'system_courses', 'system_courses')) ) {
 
 if ($_SESSION['course_id'] != 0) {
 	$sql = "SELECT * FROM glossary WHERE course_id=$_SESSION[course_id] ORDER BY word";
-	$result = $db->query($sql);
+	$result = mysql_query($sql);
 	$glossary = array();
 	$glossary_ids = array();
-	while ($row_g =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$glossary[$row_g['WORD']] = str_replace("'", "\'",$row_g['DEFINITION']);
-		$glossary_ids[$row_g['WORD_ID']] = $row_g['WORD'];
+	while ($row_g = mysql_fetch_array($result)) {
+		$glossary[$row_g['word']] = str_replace("'", "\'",$row_g['definition']);
+		$glossary_ids[$row_g['word_id']] = $row_g['word'];
 	}
 }
 
@@ -273,11 +269,7 @@ function print_warnings( $warnings ) {
 	}
 
 	global $_include_path;
-	if ($_SESSION['lang'] == 'en') {
-		include($_include_path.'language/en_lang.inc.php');
-	} else {
-		include($_include_path.'language/ro_lang.inc.php');
-	}
+	include($_include_path.'language/en_lang.inc.php');
 
 	?>	<br />
 	<table border="0" class="wrnbox" cellpadding="3" cellspacing="2" width="90%" summary="" align="center">
@@ -366,11 +358,7 @@ function print_popup_help($help, $align='left') {
 	}
 
 	global $_include_path;
-	if ($_SESSION['lang'] == 'en') {
-		include($_include_path.'language/help_en.inc.php');
-	} else {
-		include($_include_path.'language/help_ro.inc.php');
-	}
+	include($_include_path.'language/help_en.inc.php');
 
 	if (!is_array($help)) {
 		$text = $_help[$help];
@@ -381,7 +369,7 @@ function print_popup_help($help, $align='left') {
 		$text = str_replace('>','&gt;',$text);
 
 		$align="left";
-		echo '<a href="popuphelp.php?h='.$help.'" target="_'.$help.'" onmouseover="return overlib(\'&lt;small&gt;'.$text.'&lt;/small&gt;\', CSSCLASS, FGCLASS, \'row1ph\', BGCLASS, \'cat2ph\', TEXTFONTCLASS, \'row1ph\', CENTER, OFFSETY, 20);" onmouseout="return nd();"><img src="images/help3.gif" border="0" align="'.$align.'"/></a>';
+		echo '<a href="popuphelp.php?h='.$help.'" target="_'.$help.'" onmouseover="return overlib(\'&lt;small&gt;'.$text.'&lt;/small&gt;\', CAPTION, \'Help\', CSSCLASS, FGCLASS, \'row1ph\', BGCLASS, \'cat2ph\', TEXTFONTCLASS, \'row1ph\', CENTER);" onmouseout="return nd();"><img src="images/help3.gif" border="0" align="'.$align.'"/></a>';
 	}
 }
 
@@ -392,26 +380,18 @@ function add_user_online() {
 	global $db;
 
     $expiry = time() + 900; // 15min
-    $sql = "SELECT COUNT(member_id) FROM users_online WHERE member_id=$_SESSION[member_id]";
-    $res = $db->query($sql);
-    $row = $res->fetchRow();
-    if ($row[0] >0) {
-    	$sql = "UPDATE users_online SET course_id=$_SESSION[course_id], expiry=$expiry WHERE member_id=$_SESSION[member_id]";
-    	$res = $db->query($sql);
-    } else {
-	    $sql    = "INSERT INTO users_online VALUES ($_SESSION[member_id], $_SESSION[course_id], '$_SESSION[login]', $expiry)";
-    	$result = $db->query($sql);
-    }
+    $sql    = "REPLACE INTO users_online VALUES ($_SESSION[member_id], $_SESSION[course_id], '$_SESSION[login]', $expiry)";
+    $result = mysql_query($sql, $db);
 
 	/* should garbage collect and optimize the table every so often */
 	mt_srand((double) microtime() * 1000000);
 	$rand = mt_rand(1, 20);
 	if ($rand == 1) {
 		$sql = 'DELETE FROM users_online WHERE expiry<'.time();
-		$result = @$db->query($sql);
+		$result = @mysql_query($sql, $db);
 
 		$sql = "OPTIMIZE TABLE users_online";
-		$result = @$db->query($sql);
+		$result = @mysql_query($sql, $db);
 	}
 }
 
@@ -421,10 +401,10 @@ function get_login($id){
 	$id		= intval($id);
 
 	$sql	= "SELECT login FROM members WHERE member_id=$id";
-	$result	= $db->query($sql);
-	$row	=$result->fetchRow(DB_FETCHMODE_ASSOC);
+	$result	= mysql_query($sql, $db);
+	$row	= mysql_fetch_array($result);
 
-	return $row['LOGIN'];
+	return $row['login'];
 }
 
 function get_forum($fid){
@@ -433,10 +413,10 @@ function get_forum($fid){
 	$fid = intval($fid);
 
 	$sql	= "SELECT title FROM forums WHERE forum_id=$fid AND course_id=$_SESSION[course_id]";
-	$result	= $db->query($sql);
-	$row	=$result->fetchRow(DB_FETCHMODE_ASSOC);
+	$result	= mysql_query($sql, $db);
+	$row	= mysql_fetch_array($result);
 
-	return $row['TITLE'];
+	return $row['title'];
 }
 
 /* this function will be removed soon. and replaced with usage of AT_date() */
@@ -462,12 +442,12 @@ $learning_concept_tags = array();
 if ($_SESSION['course_id'] != '') {
 	if ( !($et_l=cache(0, 'learning_concepts', $_SESSION['course_id'])) ) {
 		$sql = "SELECT * FROM learning_concepts ORDER BY title";
-		$result = $db->query($sql);
-		while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-			$learning_concept_tags[$row['TAG']] = array('concept_id'  => $row['CONCEPT_ID'],
-														'title'		  => $row['TITLE'],
-														'description' => $row['DESCRIPTION'],
-														'icon_name'	  => $row['ICON_NAME']);
+		$result = mysql_query($sql,$db);
+		while ($row = mysql_fetch_array($result)) {
+			$learning_concept_tags[$row['tag']] = array('concept_id'  => $row['concept_id'],
+														'title'		  => $row['title'],
+														'description' => $row['description'],
+														'icon_name'	  => $row['icon_name']);
 		}
 
 		cache_variable('learning_concept_tags');
@@ -503,10 +483,10 @@ if ($_SESSION['course_id'] != '') {
 		global $db;
 
 		$sql	= "SELECT preferences FROM theme_settings WHERE theme_id=$pref_id";
-		$result	= $db->query($sql);
+		$result	= mysql_query($sql, $db);
 
-		if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-			return unserialize(stripslashes($row['PREFERENCES']));
+		if ($row = mysql_fetch_array($result)) {
+			return unserialize(stripslashes($row['preferences']));
 		}
 
 		return false;
@@ -540,18 +520,18 @@ function save_prefs($override = false) {
 		// save for this course only
 		$data	= addslashes(serialize($_SESSION['prefs']));
 		$sql	= "REPLACE INTO preferences VALUES ($_SESSION[member_id], $_SESSION[course_id], '$data')";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 
 	} else if ($_SESSION['valid_user']) {
 
 		$data	= addslashes(serialize($_SESSION['prefs']));
 		$sql	= "UPDATE members SET preferences='$data' WHERE member_id=$_SESSION[member_id]";
-		$result = $db->query($sql); 
+		$result = mysql_query($sql, $db); 
 
 		/* these prefs will become global, but must also override this course's prefs	*/
 		/* to override this course's prefs, just delete it to take the global.			*/
 		$sql	= "DELETE FROM preferences WHERE member_id=$_SESSION[member_id]";
-		$result	= $db->query($sql);
+		$result	= mysql_query($sql, $db);
 	}
 
 	/* else, we're not a valid user so nothing to save. */
@@ -568,77 +548,72 @@ function urlencode_feedback($f) {
 /* check the availability of course/page			*/
 function check_availability($row, $start){
 	$ret = 0;
-	global $db;
 	
-	$t_index = $db->nextId("AUTO_TMP_DATE_TMP");
-	$sql = "INSERT INTO tmp_date VALUES(SYSDATE, $t_index)";
-	$result = $db->query($sql);
-	$sql = "SELECT TO_CHAR(data, 'DD/MM/YYYY HH24:MI:SS') AS data FROM tmp_date WHERE tmp=$t_index";
-	$result = $db->query($sql);
-	$row1 =$result->fetchRow(DB_FETCHMODE_ASSOC);
-	$now_mysql = $row1['DATA'];
+	$sql = "INSERT INTO tmp_date VALUES(NOW(), NULL)";
+	$result = mysql_query($sql);
+	$t_index = mysql_insert_id();
+	$sql = "SELECT * FROM tmp_date WHERE tmp=$t_index";
+	$result = mysql_query($sql);
+	$row1 = mysql_fetch_array($result);
+	$now_mysql = $row1['date'];
 	
 	$timestamp 	= $now_mysql;
 	$hour		= substr($timestamp,11,2);
     $minute		= substr($timestamp,14,2);
     $second		= substr($timestamp,17,2);
-    $month		= substr($timestamp,3,2);
-    $day		= substr($timestamp,0,2);
-    $year		= substr($timestamp,6,4);
+    $month		= substr($timestamp,5,2);
+    $day		= substr($timestamp,8,2);
+    $year		= substr($timestamp,0,4);
     $now		= mktime($hour, $minute, $second, $month, $day, $year); 
-    
-	$timestamp = $row['START_DATE'];
+	
+	$timestamp = $row['start_date'];
 	
 	$hour		= substr($timestamp,11,2);
     $minute		= substr($timestamp,14,2);
     $second		= substr($timestamp,17,2);
-    $month		= substr($timestamp,3,2);
-    $day		= substr($timestamp,0,2);
-    $year		= substr($timestamp,6,4);
+    $month		= substr($timestamp,5,2);
+    $day		= substr($timestamp,8,2);
+    $year		= substr($timestamp,0,4);
     $start_date	= mktime($hour, $minute, $second, $month, $day, $year); 
     
-    $timestamp = $row['END_DATE'];
-    
+    $timestamp = $row['end_date'];
+	
 	$hour		= substr($timestamp,11,2);
     $minute		= substr($timestamp,14,2);
     $second		= substr($timestamp,17,2);
-    $month		= substr($timestamp,3,2);
-    $day		= substr($timestamp,0,2);
-    $year		= substr($timestamp,6,4);
+    $month		= substr($timestamp,5,2);
+    $day		= substr($timestamp,8,2);
+    $year		= substr($timestamp,0,4);
     $end_date	= mktime($hour, $minute, $second, $month, $day, $year); 
 
-    //echo 'END: '.$end_date.': now='.$now.' -- checked: '.($row['END_DATE']<>0).'<br>';
+    //echo 'END: '.$end_date.': now='.$now.' -- checked: '.($row['end_date']<>0).'<br>';
 		
-	if (($row['START_DATE']<>0) && ($start_date >$now)) {
-		$sql = "DELETE FROM tmp_date WHERE tmp=$t_index";
-		$res = $db->query($sql);
+	if (($row['start_date']<>0) && ($start_date >$now)) {
 		$ret = -1;
 	} 
 	//echo 'exp: '.($end_date <$now).'end: '.$end_date.' - '.$now.'<br>';
-	if (($row['END_DATE']<>0) && ($end_date <$now)) {
+	if (($row['end_date']<>0) && ($end_date <$now)) {
 		//echo 'ok. Ret =1';
-		$sql = "DELETE FROM tmp_date WHERE tmp=$t_index";
-		$res = $db->query($sql);
 		$ret = 1;
 	}
 	
-	$timestamp = $row['START_DATE'];
+	$timestamp = $row['start_date'];
 	
 	$hour		= substr($timestamp,11,2);
     $minute		= substr($timestamp,14,2);
     $second		= substr($timestamp,17,2);
-    $month		= substr($timestamp,3,2);
-    $day		= substr($timestamp,0,2);
-    $year		= substr($timestamp,6,4);
-    
-    $p_day 	= mktime($hour, $minute, $second, $month, $day +intval($row['PERIOD']), $year);
+    $month		= substr($timestamp,5,2);
+    $day		= substr($timestamp,8,2);
+    $year		= substr($timestamp,0,4);
+   
+    $p_day 	= mktime($hour, $minute, $second, $month, $day +intval($row['period']), $year);
     //echo 'A: '.$now.': '.$start_date.'<br>';
             
 	if (($start>0) && ($now >$p_day)) {
 		$ret = 1;
 	}
 	$sql = "DELETE FROM tmp_date WHERE tmp=$t_index";
-	$res = $db->query($sql);
+	$res = mysql_query($sql);
 	
 	return $ret;
 }
@@ -650,35 +625,29 @@ function check_availability($row, $start){
 /* 		 date part, while time is of no importance	*/
 function passwd_expired($status, $created, $modified){
 	$ret = 0;
-	global $db;
-
-	$t_index = $db->nextId("AUTO_TMP_DATE_TMP");
-	$sql = "INSERT INTO tmp_date VALUES(SYSDATE, $t_index)";
-	$result = $db->query($sql);
-	$sql = "SELECT TO_CHAR(data, 'DD/MM/YYYY HH24:MM:SS') AS data FROM tmp_date WHERE tmp=$t_index";
-	$result = $db->query($sql);
-	$row1 = $result->fetchRow(DB_FETCHMODE_ASSOC);
-	$now_mysql = $row1['DATA'];
+	
+	$sql = "INSERT INTO tmp_date VALUES(NOW(), NULL)";
+	$result = mysql_query($sql);
+	$t_index = mysql_insert_id();
+	$sql = "SELECT * FROM tmp_date WHERE tmp=$t_index";
+	$result = mysql_query($sql);
+	$row1 = mysql_fetch_array($result);
+	$now_mysql = $row1['date'];
 	$status++; // the status is recorded in older versions as 0 based index. TBC.
 	$sql = "SELECT pass_expiry FROM mpass WHERE status=$status";
-	$res = $db->query($sql);
-	$p_row =$res->fetchRow(DB_FETCHMODE_ASSOC);
-	$p_day = intval($p_row['PASS_EXPIRY']);
-	
-	/* DEBUG: 
-	echo 'NOW: '.$now_mysql.'<br>';
-	echo 'Created: '.$created.'<br>';
-	echo 'Modified: '.$modified.'<br>';*/
+	$res = mysql_query($sql);
+	$p_row = mysql_fetch_array($res);
+	$p_day = intval($p_row['pass_expiry']);
 	
 	$timestamp 	= $now_mysql;
 	$hour		= substr($timestamp,11,2);
     $minute		= substr($timestamp,14,2);
     $second		= substr($timestamp,17,2);
-    $month		= substr($timestamp,3,2);
-    $day		= substr($timestamp,0,2);
-    $year		= substr($timestamp,6,4);
+    $month		= substr($timestamp,5,2);
+    $day		= substr($timestamp,8,2);
+    $year		= substr($timestamp,0,4);
     $now		= mktime($hour, $minute, $second, $month, $day, $year); 
-    // DEBUG: echo '<br>NOW: '.$now.' (mysql: '.$timestamp.' = '.$day.'-'.$month.'-'.$year.' - '.$hour.':'.$minute.':'.$second.')';
+    //echo '<br>NOW: '.$now.' (mysql: '.$timestamp.' = '.$day.'-'.$month.'-'.$year.' - '.$hour.':'.$minute.':'.$second.')';
     
 	$timestamp = $modified;
 	if ($timestamp == 0) {
@@ -688,19 +657,18 @@ function passwd_expired($status, $created, $modified){
 	$hour		= intval(substr($timestamp,11,2));
     $minute		= intval(substr($timestamp,14,2));
     $second		= intval(substr($timestamp,17,2));
-    $month		= intval(substr($timestamp,3,2));
-    $day		= intval(substr($timestamp,0,2));
-    $year		= intval(substr($timestamp,6,4));
+    $month		= intval(substr($timestamp,5,2));
+    $day		= intval(substr($timestamp,8,2));
+    $year		= intval(substr($timestamp,0,4));
     $modif_date	= mktime($hour, $minute, $second, $month, $day, $year); 
     $plus_date	= add_time($timestamp, 0, 0, 0, $p_day, 0, 0);
     $exp_date	= $modif_date + $plus_date;
-    /* DEBUG: 
-    echo '<BR>MOD: '.$modif_date.' (mysql: '.$timestamp.' = '.$day.'-'.$month.'-'.$year.')';
-    echo '<BR>PLUS: '.$plus_date.' (days: '.$p_day.')';
-    echo '<BR>EXPR: '.$exp_date;  */
+    //echo '<BR>MOD: '.$modif_date.' (mysql: '.$timestamp.' = '.$day.'-'.$month.'-'.$year.')';
+    //echo '<BR>PLUS: '.$plus_date.' (days: '.$p_day.')';
+    //echo '<BR>EXPR: '.$exp_date;
     
     //$diff = $exp_date - $now;
-    // DEBUG: echo 'NOW - EXP = '.$diff.'<br>';
+    //echo 'NOW - EXP = '.$diff.'<br>';
     if ($now <= $exp_date) {
     	if (($exp_date - $now) < (3*86400)) {
     		$ret = 1; // warn the user to change passwd
@@ -712,7 +680,7 @@ function passwd_expired($status, $created, $modified){
 	}
 	
 	$sql = "DELETE FROM tmp_date WHERE tmp=$t_index";
-	$res = $db->query($sql);
+	$res = mysql_query($sql);
 	
 	return $ret;
 }
@@ -794,7 +762,7 @@ if (!isset($_GET['g'])) {
 	if ($g === 0) {
 		$g = intval($_GET['g']);
 	}
-	;
+
 	if ($_SESSION['track_me']
 		&& $_SESSION['valid_user']
 		&& !$_SESSION['is_admin'] 
@@ -809,7 +777,8 @@ if (!isset($_GET['g'])) {
 					$g,
 					$now,
 					0)";
-		$result = @$db->query($sql);
+
+		$result = @mysql_query($sql, $db);
 		//calculate duration and update the previous record
 		if($_SESSION['pretime']){
 			$duration = ($now-$_SESSION['pretime']);
@@ -818,10 +787,9 @@ if (!isset($_GET['g'])) {
 			$duration = 0;
 		}
 
-		if (!$_SESSION['pretime']) $_SESSION['pretime'] = '0';
 		$sql2 = "UPDATE g_click_data SET duration=$duration WHERE timestamp=$_SESSION[pretime] AND member_id=$_SESSION[member_id]";
 		$_SESSION['pretime'] = $now;
-		if(!$result2 = @$db->query($sql2)){
+		if(!$result2 = @mysql_query($sql2, $db)){
 			$errors[]="Database was not updated";
 		}
 	}
@@ -861,29 +829,4 @@ if (!isset($_SESSION['prefs'][PREF_STACK])) {
 }
 
 $_stacks = array('local_menu', 'menu_menu', 'related_topics', 'users_online', 'glossary');
-
-
-/**
- * @return md5($pass.KEY) 
- * @desc encrytps the password 
- */
-function hash_pass($pass) {
-	
-	if (isset($pass)) {
-			return md5($pass.'KPass');
-	}else return false;
-}
-
-function check_pass($mid,$pass) {
-		
-	$sql='SELECT password FROM members WHERE member_id='.$mid;
-	$result =@$db->query($sql);
-	$row =$result->fetchRow();
-	if (md5($pass.'KPass')==$row[0]) {return true;}
-	else {return false;}
-}
-
-
-include ($_include_path.'policy_check.inc.php');
-// error_reporting(E_NOTICE | E_WARNNING | E_PARSE | E_ERROR );
 ?>

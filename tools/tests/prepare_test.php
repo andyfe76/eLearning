@@ -3,35 +3,6 @@
 	$_include_path	='../../include/';
 	require($_include_path.'vitals.inc.php');
 	
-	if ($_POST['submit']) {
-		$tid = intval($_POST['tid']);
-		
-		
-		$sql = "SELECT * FROM test_process WHERE member_id=$_SESSION[member_id] AND test_id=$tid";
-		$res = $db->query($sql);
-		$row = $res->fetchRow(DB_FETCHMODE_ASSOC);
-		$retries = $row['RETRIES'];
-		
-		if ($retries >0) {
-			// decrease the number of retries
-			if ($_SESSION['test_timing'] >0) {
-				// keep the retries if reentry
-			} else {
-				$retries--;
-			}
-		}
-		if ($_SESSION['test_timing'] >0) {
-			// nothing
-		} else {
-			$_SESSION['test_timing'] = time();
-		}
-
-		$sql = "UPDATE test_process SET retries=$retries, S_TIME=$_SESSION[test_timing] WHERE member_id=$_SESSION[member_id] AND test_id=$tid";
-		$res = $db->query($sql);
-		Header('Location: ../take_test.php?tid='.$tid);
-		exit;
-	}
-	
 	if ($_GET['cid'] == '') {
 		$errors[] = AT_ERROR_UNKNOWN;
 	}
@@ -47,13 +18,13 @@
 	
 	if ($cid>0) {
 		$sql = "SELECT text, course_id FROM content WHERE content_id=$cid";
-		$res = $db->query($sql);
-		$row =$res->fetchRow(DB_FETCHMODE_ASSOC);
-		$tid = intval($row['TEXT']);
+		$res = mysql_query($sql);
+		$row = mysql_fetch_array($res);
+		$tid = intval($row['text']);
 		
 		$sql = "SELECT * FROM tests WHERE test_id=$tid";
-		$res1 = $db->query($sql);
-		$row_t =$res1->fetchRow(DB_FETCHMODE_ASSOC);
+		$res1 = mysql_query($sql);
+		$row_t = mysql_fetch_array($res1);
 	} else {
 		require($_include_path.'header.inc.php');
 		echo '<h2><a href="tools/?g=11">'.$_template['tools'].'</a></h2>';
@@ -64,30 +35,28 @@
 		require ($_include_path.'footer.inc.php');
 		exit;
 	}
-	
 	// check -> if instructor of this course --> edit test instead of taking it
-	$course_id = intval($row['COURSE_ID']);
+	$course_id = intval($row['course_id']);
 	$sql = "SELECT member_id FROM courses WHERE course_id=$course_id";
 	//echo $sql.'<br>';
-	$res = $db->query($sql);
-	$row_c =$res->fetchRow(DB_FETCHMODE_ASSOC);
-	$mid = $row_c['MEMBER_ID'];
+	$res = mysql_query($sql);
+	$row_c = mysql_fetch_array($res);
+	$mid = $row_c['member_id'];
 	
 	//echo 's_mid: '.$_SESSION['member_id'].': '.$mid;
 	//if ($_SESSION['member_id'] == $mid) {
 	if ($_SESSION['c_instructor']) {
 		// this is the instructor of this course
-		Header('Location: edit_test.php?tid='.$tid.SEP.'tt='.$row_t['TITLE']);
+		Header('Location: edit_test.php?tid='.$tid.SEP.'tt='.$row_t['title']);
 		exit;
 	} else {
 		// regular user
 		$test_action = 'tools/take_test.php';
 	}
-	
-	if ($row_t['DURATION'] == 0) {
+	if ($row_t['duration'] == 0) {
 		$t_duration = $_template['unlimited_2'];
 	} else {
-		$t_duration = $row_t['DURATION'].' min';
+		$t_duration = $row_t['duration'].' min';
 	}
 	
 	require($_include_path.'header.inc.php');
@@ -97,73 +66,47 @@
 
 	print_errors($errors);
 	
-	echo '<form action="'.$PHP_SELF.'" method="post" name="form">';
+	echo '<form action="tools/take_test.php" method="post" name="form">';
 	echo '<input type="hidden" name="tid" value="'.$tid.'">';
-	echo '<input type="hidden" name="tt" value="'.$row_t['TITLE'].'">';
-	
-	//***
-	
-	$sql="SELECT COUNT(member_id) FROM tests_status WHERE passed='yes' AND member_id=$_SESSION[member_id] AND test_id=$tid";
-	$tres=$db->query($sql);
-	$trow =$tres->fetchRow();
-	if ($trow[0]>0) {
-		//test already passed 
-		print_feedback(AT_FEEDBACK_TEST_ALREADY_PASSED);
-		require($_include_path.'footer.inc.php');
-		exit;
-	}
-		
-	//***
+	echo '<input type="hidden" name="tt" value="'.$row_t['title'].'">';
 	
 	$sql = "SELECT * FROM test_process WHERE test_id=$tid AND member_id=$_SESSION[member_id]";
-	$pres = $db->query($sql);
-	$row_p =$pres->fetchRow(DB_FETCHMODE_ASSOC);
-	$_SESSION['test_timing'] = $row_p['S_TIME'];
-			
+	$pres = mysql_query($sql, $db);
+	$row_p = mysql_fetch_array($pres);
+
 	if ($_SESSION['test_timing'] >0) {
-		$duration = $row_t['DURATION']*60 - (time() - $_SESSION['test_timing']);
+		$duration = $duration - (time() - $_SESSION['test_timing']);
 		if ($duration <0) {
-			if ($row_p['RETRIES'] >0) {
-				$retries = $row_p['RETRIES'] -1;
-				$sql = "UPDATE test_process SET s_time=0, retries=$retries WHERE test_id=$tid AND member_id=$_SESSION[member_id]";
-				$res = $db->query($sql);
+			if ($row_p['retries'] >0) {
+				$retries = $row_p['retries'];
 			} else {
-				print_feedback(AT_FEEDBACK_TEST_RETRIES_NOMORE); 
+				print_feedback(AT_FEEDBACK_TEST_RETRIES_NOMORE);
 			}
 		} else {
 			$reentry = true;
-			$retries = $row_p['RETRIES'];
-			echo '<br><span class="small_red">'.$_template['test_reentry'].'</span><br>';
+			echo '<span class="small_red">'.$_template['test_reentry'].'</span><br>';
 		}
 	} else {
-		//$_SESSION['test_timing'] = time(); -- not here, but only after submit
-		if ($row_p['TEST_ID'] ==0) {
+		//$_SESSION['test_timing'] = time();
+		if ($row_p['test_id'] ==0) {
 			/* it means the student is first time here */
-			$retries = $row_t['RETRIES'];
-			if ($_SESSION['test_timing'] == '') $_SESSION['test_timing'] = 0;
-			$sql = "INSERT INTO test_process VALUES ($tid, $_SESSION[member_id], $retries, $_SESSION[test_timing])";
-			$res = $db->query($sql);
-			if (PEAR::isError($res)) {
-				print_r($res);
-				exit;
-			}
+			$retries = $row_t['retries'];
+			$sql = "INSERT INTO test_process VALUES ($tid, $_SESSION[member_id], $retries)";
+			$res = mysql_query($sql, $db);
 		} else {
-			$retries = $row_p['RETRIES'];
+			$retries = $row_p['retries'];
 			if ($retries == 0) {
 				print_feedback(AT_FEEDBACK_TEST_RETRIES_NOMORE);
-				require($_include_path.'footer.inc.php');
-				exit;
 			} else {
-				//$retries--; -- after submitting do decrease it in the DB. Not here.
+				$retries--;
 			}
 		}
 	}
-	
 ?>
 <table cellspacing="1" cellpadding="0" border="0" class="bodyline" summary="" align="center" width="80%">
 <tr>
 	<th colspan="2" class="left">
-&nbsp;<?php echo $row_t['TITLE'];  ?></th>
+&nbsp;<?php echo $row_t['title'];  ?></th>
 </tr>
 
 <tr><td height="1" class="row2" colspan="2"></td></tr>
@@ -175,7 +118,7 @@
 <tr><td height="1" class="row2" colspan="2"></td></tr>
 <tr>
 	<td class="row1"><b><?php echo $_template['special_instructions']; ?>: </b></td>
-	<td class="row1"><?php echo $row_t['INSTRUCTIONS']; ?></td>
+	<td class="row1"><?php echo $row_t['instructions']; ?></td>
 </tr>
 
 <tr><td height="1" class="row2" colspan="2"></td></tr>
@@ -185,21 +128,10 @@
 </tr>
 
 <tr><td height="1" class="row2" colspan="2"></td></tr>
-<?php 
-	if ($retries >0) {
-?>
-	<tr>
-		<td class="row1" colspan="2" align="center"><input type="submit" name="submit" class="button" value="<?php echo $_template['take_test']; ?>"></td>
-	</tr>
-<?php
-	} else if ($reentry) {
-	// for now just keep the same button / message. TBC
-?>
-	<tr>
-		<td class="row1" colspan="2" align="center"><input type="submit" name="submit" class="button" value="<?php echo $_template['continue_test']; ?>"></td>
-	</tr>
-<?php
-	}?>
+<tr>
+	<td class="row1" colspan="2" align="center"><input type="submit" class="button" name="ok" value="<?php echo $_template['take_test']; ?>"></td>
+</tr>
+
 
 </table>
 

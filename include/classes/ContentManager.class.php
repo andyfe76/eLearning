@@ -1,8 +1,11 @@
 <?php
+
+
+
 class ContentManager
 {
 	/* db handler	*/
-	//var $db;
+	var $db;
 
 	/*	array		*/
 	var $_menu;
@@ -30,7 +33,6 @@ class ContentManager
 
 	/* constructor	*/
 	function ContentManager(&$db, $course_id) {
-		global $db;
 		$this->db = $db;
 
 		$this->course_id = $course_id;
@@ -53,7 +55,6 @@ class ContentManager
 							 $ignore_state = false) {
 	
 		global $temp_path, $cid, $PHP_SELF, $_my_uri, $_template, $_linear;
-		global $db;
 		
 		$_linear = intval($_linear);
 		
@@ -78,6 +79,7 @@ class ContentManager
 							$_SESSION['menu'][$content['content_id']] = 1;
 						}
 					}
+					
 				} else {
 					if ($truncate && (strlen($content['title']) > (26-$depth*4)) ) {
 						$content['title'] = rtrim(substr($content['title'], 0, (26-$depth*4)-4)).'...';
@@ -110,47 +112,28 @@ class ContentManager
 					// this page is actually a test
 					$tmp_cid = intval($content['content_id']);
 					$sql = "SELECT text FROM content WHERE content_id=$tmp_cid";
-					$res = $db->query($sql);
-					$test_row =$res->fetchRow(DB_FETCHMODE_ASSOC);
-					$test_id = intval( $test_row['TEXT'] );
+					$res = mysql_query($sql);
+					$test_row = mysql_fetch_array($res);
+					$test_id = intval( $test_row['text'] );
 					if ($test_id == 0) {
 						$_SESSION['access_index'] = -1;
 						// error; No test defined.
-
 					} else {
-						$sql="SELECT retries FROM test_process WHERE test_id=$test_id AND member_id=$_SESSION[member_id]";
-						$res = $db->query($sql);
-						if ($row = $res->fetchRow()) {
-							$t_retr=$row[0];
-						} else {
-							$t_retr = 1; // trick it. Should be 0 and further checking bellow.
-						}
-						//echo $t_retr.".";
-						
-						$sql = "SELECT passed FROM tests_status WHERE member_id=$_SESSION[member_id] AND test_id=$test_id ORDER BY passed DESC";
-						$res = $db->query($sql);
-						$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-						$countres = $db->query($countsql);
-						$count0 = $countres->fetchRow();
-						if (($count0[0] == 0) && ($t_retr > 0)) {
-							$passed = "no";
-							if ($_SESSION['access_index'] == -1) {
-								$_SESSION['access_index'] = $_linear;
-							}
-						} else {
-							$tmp_row = $res->fetchRow(DB_FETCHMODE_ASSOC);
-							$passed = $tmp_row['PASSED'];
+						$sql = "SELECT * FROM tests_status WHERE member_id=$_SESSION[member_id] AND test_id=$test_id";
+						$res = mysql_query($sql);
+						if (!$res) {
+							$passed = "no"; 
+							$_SESSION['access_index'] = $_linear;
+						} else if (mysql_num_rows($res)>1) {
+							$tmp_row = mysql_fetch_array($res);
+							$passed = $tmp_row['passed'];
 							if ($passed == '') {
-								$passed = "no";
+								$passed = "yes";
 							}
 						}
-						
-						/*if (($t_retr == '1') || ($t_retr =='0')) {
-							$passed="yes";
-						}*/
 						if ($passed == "yes") {
-							 //echo '<br>PASSED... '.$test_id;
-						} else if (($_SESSION['access_index'] == -1) && ($t_retr >0)) {
+							// echo 'PASSED... <br>';
+						} else if ($_SESSION['access_index'] == -1) {
 							$_SESSION['access_index'] = $_linear;
 						}
 					}
@@ -180,12 +163,11 @@ class ContentManager
 	
 	
 	function initContent( ) {
-		global $db;
 		if ($this->course_id == '') {
 			return;
 		}
 		$sql = "SELECT content_id, content_parent_id, ordering, title, formatting FROM content WHERE course_id=$this->course_id ORDER BY content_parent_id, ordering";
-		$result = $db->query($sql);
+		$result = mysql_query($sql);
 
 		/* x could be the ordering or even the content_id	*/
 		/* don't really need the ordering anyway.			*/
@@ -203,22 +185,22 @@ class ContentManager
 		/* index of last page accessible; a value of -1 indicates all pages are accessible. */
 		$display_access_index = -1;
 		
-		while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+		while ($row = mysql_fetch_array($result)) {
 			$num_sections++;
-			$_menu[$row['CONTENT_PARENT_ID']][] = array('content_id'=> $row['CONTENT_ID'],
-														'ordering'	=> $row['ORDERING'], 
-														'title'		=> $row['TITLE'],
-														'formatting' => $row['FORMATTING']);
+			$_menu[$row['content_parent_id']][] = array('content_id'=> $row['content_id'],
+														'ordering'	=> $row['ordering'], 
+														'title'		=> $row['title'],
+														'formatting' => $row['formatting']);
 														
-			$_menu_info[$row['CONTENT_ID']] = array('content_parent_id' => $row['CONTENT_PARENT_ID'],
-													'title'				=> $row['TITLE'],
-													'ordering'			=> $row['ORDERING'],
-													'formatting' => $row['FORMATTING']);
+			$_menu_info[$row['content_id']] = array('content_parent_id' => $row['content_parent_id'],
+													'title'				=> $row['title'],
+													'ordering'			=> $row['ordering'],
+													'formatting' => $row['formatting']);
 
-			if ($row['CONTENT_PARENT_ID'] == 0){
-				$max_depth[$row['CONTENT_ID']] = 1;
+			if ($row['content_parent_id'] == 0){
+				$max_depth[$row['content_id']] = 1;
 			} else {
-				$max_depth[$row['CONTENT_ID']] = $max_depth[$row['CONTENT_PARENT_ID']]+1;
+				$max_depth[$row['content_id']] = $max_depth[$row['content_parent_id']]+1;
 			}
 		}
 		
@@ -242,9 +224,9 @@ class ContentManager
 		$this->content_length = count($_menu[0]);
 		
 		$sql = "SELECT member_id FROM courses WHERE course_id=$this->course_id";
-		$res = $db->query($sql);
-		$row =$res->fetchRow(DB_FETCHMODE_ASSOC);
-		if ($row['MEMBER_ID'] == $_SESSION['member_id']) {
+		$res = mysql_query($sql);
+		$row = mysql_fetch_array($res);
+		if ($row['member_id'] == $_SESSION['member_id']) {
 			$_SESSION['c_instructor'] = true;
 		}
 	
@@ -253,7 +235,6 @@ class ContentManager
 
 
 	function getContent($parent_id=-1, $length=-1) {
-		global $db;
 		if ($parent_id == -1) {
 			$my_menu_copy = $this->_menu;
 			if ($length != -1) {
@@ -266,7 +247,6 @@ class ContentManager
 
 
 	function &getContentPath($content_id) {
-		global $db;
 		$path = array();
 		$path[] = array('content_id' => $content_id, 'title' => $this->_menu_info[$content_id]['title']);
 
@@ -278,7 +258,6 @@ class ContentManager
 
 
 	function getContentPathRecursive($content_id, &$path) {
-		global $db;
 		$parent_id = $this->_menu_info[$content_id]['content_parent_id'];
 
 		if ($parent_id > 0) {
@@ -289,8 +268,10 @@ class ContentManager
 
 
 	function addContent($course_id, $content_parent_id, $ordering, $title, $text, $related, $formatting, $release_date) {
-		global $db;
-		
+		if ( ($_SESSION['is_admin'] != 1) || ($_SESSION['c_instructor'] != 1) ) {
+			return false;
+		}
+
 		/* get the maximum ordering for this content_parent_id */
 		$parents	  = $this->getContent($content_parent_id);
 		if (is_array($parents)) {
@@ -306,47 +287,19 @@ class ContentManager
 			/* we're inserting in the beginning or middle, so shift					 */
 			/* example: ordering = 2, shift those >2, insert at 3					 */
 			$sql = "UPDATE content SET ordering=ordering+1 WHERE ordering > $ordering AND course_id=$course_id AND content_parent_id=$content_parent_id";
-			$err = $db->query($sql);
+			$err = mysql_query($sql, $this->db);
 			$ordering++;
     	}
 
-    	$text = str_replace('href=', 'target="_blank" href=', $text);
-        $text = str_replace("'", "`", $text);
-        
+		/* cleanup the body: */
+		//$text = strip_tags($text, $this->getAllowedTags());
+
 		/* main topics all have minor_num = 0 */
-		$cid = $db->nextId("AUTO_CONTENT_CONTENT_ID");
-		
-		
-		if ($formatting!=2)
-		{
-			//***
-			
-			$cfname = 'content/'.$title.'_'.$cid.'.course';
-			
-			ignore_user_abort(true);    ## prevent refresh from aborting file operations and hosing file
-			$fh = fopen('../'.$cfname, 'w');  
-	        fwrite($fh, $text);
-	        fflush($fh);
-	     	fclose($fh);
-			ignore_user_abort(false);    ## put things back to normal
-			
-			//***
-		} else {
-			$cfname=$text;
-		}
-		
-		$sql = "INSERT INTO content VALUES ($cid, $course_id, $content_parent_id, $ordering, SYSDATE, 0, $formatting, TO_DATE('$release_date', 'DD/MM/YYYY HH24:MI:SS'),'$title','$cfname')";
-		$err = $db->query($sql);
-		if (PEAR::isError($err)) {
-			echo 'Could not insert content into database: ';
-			print_r($dbh);
-			echo '<br>'.$sql;
-			echo '<br><br>';
-			print_r($err);
-			exit;
-		}
+		$sql = "INSERT INTO content VALUES (0,$course_id, $content_parent_id, $ordering, NOW(), 0, $formatting, '$release_date','$title','$text')";
+		$err = mysql_query($sql, $this->db);
 
 		/* insert the related content */
+		$cid = mysql_insert_id($this->db);
 		$sql = '';
 		if (is_array($related)) {
 			foreach ($related as $x => $related_content_id) {
@@ -363,7 +316,7 @@ class ContentManager
 
 			if ($sql != '') {
 				$sql	= 'INSERT INTO related_content VALUES '.$sql;
-				$result	= $db->query($sql);
+				$result	= mysql_query($sql, $this->db);
 			}
 		}
 
@@ -372,20 +325,21 @@ class ContentManager
 
 
 	function editContent($content_id, $title, $text, $new_ordering, $related, $formatting, $move, $release_date) {
-		global $db;
-
-		/* first get the content to make sure it exists	*/
-		$sql	= "SELECT ordering, content_parent_id, revision FROM content WHERE content_id=$content_id AND course_id=$_SESSION[course_id]";
-		$result	= $db->query($sql);
-		if (!($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) ) {
+		if ( $_SESSION['is_admin'] != 1) {
 			return false;
 		}
 
-		$old_ordering		= $row['ORDERING'];
-		$content_parent_id	= $row['CONTENT_PARENT_ID'];
+		/* first get the content to make sure it exists	*/
+		$sql	= "SELECT ordering, content_parent_id FROM content WHERE content_id=$content_id AND course_id=$_SESSION[course_id]";
+		$result	= mysql_query($sql, $this->db);
+		if (!($row = mysql_fetch_array($result)) ) {
+			return false;
+		}
+
+		$old_ordering		= $row['ordering'];
+		$content_parent_id	= $row['content_parent_id'];
 		$new_content_parent_id = $content_parent_id;
-		$new_content_ordering  = $row['ORDERING'];
-		$rev = $row['REVISION'] +1;
+		$new_content_ordering  = $row['ordering'];
 
 		if ($move != -1) {
 			if ($move == 0) {
@@ -400,12 +354,12 @@ class ContentManager
 			/* step 1:											*/
 			/* remove the gap left by the moved content			*/
 			$sql = "UPDATE content SET ordering=ordering-1 WHERE ordering>=$old_ordering AND content_parent_id=$content_parent_id AND content_id<>$content_id AND course_id=$_SESSION[course_id]";
-			$result = $db->query($sql);
+			$result = mysql_query($sql, $this->db);
 
 			/* step 2:											*/
 			/* shift the new neighbouring content down			*/
 			$sql = "UPDATE content SET ordering=ordering+1 WHERE ordering>=$new_content_ordering AND content_parent_id=$new_content_parent_id AND content_id<>$content_id AND course_id=$_SESSION[course_id]";
-			$result = $db->query($sql);
+			$result = mysql_query($sql, $this->db);
 
 			/* step 3:											*/
 			/* insert the new content at the bottom				*/
@@ -430,26 +384,20 @@ class ContentManager
 			}
 
 			$sql = "UPDATE content SET ordering=ordering $sign 1 WHERE ordering>=$start AND ordering<=$end AND content_parent_id=$content_parent_id AND course_id=$_SESSION[course_id]";
-			$result = $db->query($sql);
+			$result = mysql_query($sql, $this->db);
 
 			$new_content_ordering = $new_ordering;
 		} /* end moving block */
 
 		/* cleanup the body: */
 		//$text = strip_tags($text, $this->getAllowedTags());
-		$text_2 = preg_replace('/(<a href=(\\\"|\")(?!glossary))/i', '<a target="_blank" href="', $text);
-		//$text_2 = str_replace('\"', ',',',',',',',',',',',',',',',"\"", $text_2); 
-					
+
 		/* update the title, text of the newly moved (or not) content */
-		$sql	= "UPDATE content SET title='$title', text='$text', formatting=$formatting, content_parent_id=$new_content_parent_id, ordering=$new_content_ordering, revision=$rev, last_modified=SYSDATE, release_date=TO_DATE('$release_date', 'DD/MM/YY HH24:MI:SS') WHERE content_id=$content_id AND course_id=$_SESSION[course_id]";
-		$result	= $db->query($sql);
-		//print_r($result);
-		if (PEAR::isError($result)) {
-			echo 'DB Error: could not update content.';
-		}
+		$sql	= "UPDATE content SET title='$title', text='$text', formatting=$formatting, content_parent_id=$new_content_parent_id, ordering=$new_content_ordering, revision=revision+1, last_modified=NOW(), release_date='$release_date' WHERE content_id=$content_id AND course_id=$_SESSION[course_id]";
+		$result	= mysql_query($sql, $this->db);
 
 		/* update the related content */
-		$result	= $db->query("DELETE FROM related_content WHERE content_id=$content_id OR related_content_id=$content_id", $this->db);
+		$result	= mysql_query("DELETE FROM related_content WHERE content_id=$content_id OR related_content_id=$content_id", $this->db);
 		$sql = '';
 		if (is_array($related)) {
 			foreach ($related as $x => $related_content_id) {
@@ -466,30 +414,29 @@ class ContentManager
 
 			if ($sql != '') {
 				/* delete the old related content */
-				$result	= $db->query("DELETE FROM related_content WHERE content_id=$content_id OR related_content_id=$content_id", $this->db);
+				$result	= mysql_query("DELETE FROM related_content WHERE content_id=$content_id OR related_content_id=$content_id", $this->db);
 
 				/* insert the new, and the old related content again */
 				$sql	= 'INSERT INTO related_content VALUES '.$sql;
-				$result	= $db->query($sql);
+				$result	= mysql_query($sql, $this->db);
 			}
 		}
 	}
 
 
 	function deleteContent($content_id) {
-		global $db;
 		if ( $_SESSION['is_admin'] != 1) {
 			return false;
 		}
 
 		/* check if exists */
 		$sql	= "SELECT ordering, content_parent_id FROM content WHERE content_id=$content_id AND course_id=$_SESSION[course_id]";
-		$result	= $db->query($sql);
-		if (!($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) ) {
+		$result	= mysql_query($sql, $this->db);
+		if (!($row = mysql_fetch_array($result)) ) {
 			return false;
 		}
-		$ordering			= $row['ORDERING'];
-		$content_parent_id	= $row['CONTENT_PARENT_ID'];
+		$ordering			= $row['ordering'];
+		$content_parent_id	= $row['content_parent_id'];
 
 		/* check if this content has sub content	*/
 		$children = $this->_menu[$content_id];
@@ -503,15 +450,15 @@ class ContentManager
 
 		/* delete this content page					*/
 		$sql	= "DELETE FROM content WHERE content_id=$content_id AND course_id=$_SESSION[course_id]";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $this->db);
 
 		/* delete this content page					*/
 		$sql	= "DELETE FROM related_content WHERE content_id=$content_id OR related_content_id=$content_id";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $this->db);
 
 		/* re-order the rest of the content */
 		$sql = "UPDATE content SET ordering=ordering-1 WHERE ordering>=$ordering AND content_parent_id=$content_parent_id AND course_id=$_SESSION[course_id]";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $this->db);
 		/* end moving block */
 
 		return true;
@@ -520,7 +467,6 @@ class ContentManager
 
 	/* private. call from deleteContent only. */
 	function deleteContentRecursive($content_id) {
-		global $db;
 		/* check if this content has sub content	*/
 		$children = $this->_menu[$content_id];
 
@@ -533,41 +479,39 @@ class ContentManager
 
 		/* delete this content page					*/
 		$sql	= "DELETE FROM content WHERE content_id=$content_id AND course_id=$_SESSION[course_id]";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $this->db);
 
 		$sql	= "DELETE FROM related_content WHERE content_id=$content_id OR related_content_id=$content_id";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $this->db);
 	}
 
 
 	function & getContentPage($content_id) {
-		global $db;
-		$sql	= "SELECT content_id, course_id, content_parent_id, ordering, TO_CHAR(last_modified, 'DD/MM/YYYY HH24:MI:SS') as last_modified, revision, formatting, title, text, TO_CHAR(release_date, 'DD/MM/YYYY HH24:MI:SS') AS r_date, TO_CHAR(SYSDATE, 'DD/MM/YYYY HH24:MI:SS') AS n_date FROM content WHERE content_id=$content_id AND course_id=$this->course_id";
-		$result = $db->query($sql);
+		$sql	= "SELECT *, release_date+0 AS r_date, NOW()+0 AS n_date FROM content WHERE content_id=$content_id AND course_id=$this->course_id";
+		$result = mysql_query($sql, $this->db);
 
 		return $result;
 	}
 
 
 	function getRelatedContent($content_id, $all=false) {
-		global $db;
 		if ($content_id == '') {
 			return;
 		}
 		$related_content = array();
-		
+
 		if ($all) {
 			$sql = "SELECT * FROM related_content WHERE content_id=$content_id OR related_content_id=$content_id";
 		} else {
 			$sql = "SELECT * FROM related_content WHERE content_id=$content_id";
 		}
-		$result = $db->query($sql);
-		
-		while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-			if ($row['RELATED_CONTENT_ID'] != $content_id) {
-				$related_content[] = $row['RELATED_CONTENT_ID'];
+		$result = mysql_query($sql, $this->db);
+
+		while ($row = mysql_fetch_array($result)) {
+			if ($row['related_content_id'] != $content_id) {
+				$related_content[] = $row['related_content_id'];
 			} else {
-				$related_content[] = $row['CONTENT_ID'];
+				$related_content[] = $row['content_id'];
 			}
 		}
 
@@ -606,7 +550,6 @@ class ContentManager
 	}
 
 	function getPreviousContent($content_id, $order=0) {
-		global $db;
 		$myParent = $this->_menu_info[$content_id]['content_parent_id'];
 		$myOrder  = $this->_menu_info[$content_id]['ordering'];
 
@@ -636,8 +579,7 @@ class ContentManager
 			if ($order == 0) {
 				return(array('content_id'=> $myParent,
 					 	 'ordering'	=> $this->_menu_info[$myParent]['ordering'],
-						'title'		=> $this->_menu_info[$myParent]['title'],
-						'formatting'=> $this->_menu_info[$myParent]['formatting']));
+						'title'		=> $this->_menu_info[$myParent]['title']));
 			} else {
 				if ( is_array($this->_menu[$content_id]) ) {
 					$num_children = count($this->_menu[$content_id]);
@@ -646,15 +588,13 @@ class ContentManager
 					// no children
 					return(array('content_id'=> $content_id,
 					 	 'ordering'	=> $this->_menu_info[$content_id]['ordering'],
-						 'title'	=> $this->_menu_info[$content_id]['title'],
-						 'formatting'=>$this->_menu_info[$content_id]['formatting']));
+						 'title'		=> $this->_menu_info[$content_id]['title']));
 				}
 			}
 		}
 	}
 
 	function getNextContent($content_id, $order=0) {
-		global $db;
 		$myParent = $this->_menu_info[$content_id]['content_parent_id'];
 		$myOrder  = $this->_menu_info[$content_id]['ordering'];
 
@@ -681,13 +621,9 @@ class ContentManager
 	function generateSequenceCrumbs($cid) {
 		$next_prev_links = '';
 		global $_template;
-		$a = 
+
 		/* previous link */
 		$previous = $this->getPreviousContent($_SESSION['s_cid']);
-		/*while ($previous['formatting']==1) {
-			$pcid = $previous['content_id'];
-			$previous = $this->getPreviousContent($pcid);
-		}*/
 		
 		$next_prev_links .= '<td>';
 		$next_prev_links .= '<table border="0" width="100%" cellspacing="0" cellpadding="0" background="images/menu/nextprev_bg.gif"><tr>';
@@ -743,26 +679,11 @@ class ContentManager
 
 		/* next link */
 		$next = $this->getNextContent($_SESSION['s_cid'] ? $_SESSION['s_cid'] : 0);
-		while (($next['formatting'] == 2) && ($_SESSION['s_cid'])) {
-			$next = $this->getNextContent($next['content_id']);
-		}
-		
-		global $db;
+
 		if ($next != '') {
-			$sql = "SELECT content_id FROM content WHERE course_id=$_SESSION[course_id] AND content_parent_id=0 ORDER BY ordering";
-			$res = $db->query($sql);
-			$rcount = 0;
-			while ($row = $res->fetchRow()) {
-				if ($rcount == 1) {
-					$intro_detailed = $row[0];
-					break;
-				}
-				$rcount++;
-			}
-			if ($next['content_id'] == $intro_detailed) $supl_href = "&sinteza=f&enable=PREF_MAIN_MENU";
 			$next['title'] = rtrim(substr($next['title'], 0, 30)).'...';
 			if ($_SESSION['prefs'][PREF_SEQ_ICONS] != 1) {
-				$next_prev_links .= '<td align="right"><a class="breadcrumbs" href="./?cid='.$next['content_id'].SEP.'g=7'.$supl_href.'" accesskey="9" title="'.$_template['next'].':  ALT-9">'.$_template['next'].': '.$next['title'].' </a>&nbsp;</td>'."\n";
+				$next_prev_links .= '<td align="right"><a class="breadcrumbs" href="./?cid='.$next['content_id'].SEP.'g=7" accesskey="9" title="'.$_template['next'].':  ALT-9">'.$_template['next'].': '.$next['title'].' </a>&nbsp;</td>'."\n";
 			}
 
 			if ($_SESSION['prefs'][PREF_SEQ_ICONS] != 2) {

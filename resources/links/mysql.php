@@ -32,8 +32,19 @@ Class MySQL
 
 	function init ()
 	{
-		global $db;
-		$this->CONN = $db;
+		$user = DB_USER;
+		$pass = DB_PASSWORD;
+		$server = DB_HOST;
+		$dbase = DB_NAME;
+
+		$conn = @mysql_connect($server,$user,$pass);
+		if(!$conn) {
+			$this->error("Connection attempt failed");
+		}
+		if(!mysql_select_db($dbase,$conn)) {
+			$this->error("Dbase Select failed");
+		}
+		$this->CONN = $conn;
 		return true;
 	}
 
@@ -51,22 +62,22 @@ Class MySQL
 		}
 		if(empty($this->CONN)) { return false; }
 		$conn = $this->CONN;
-		
-		$results = $db->query($sql);
+
+		$results = mysql_query($sql,$conn);
 
 		if( (!$results) or (empty($results)) ) {
 			debug($sql);
-			$results->free();
+			mysql_free_result($results);
 			return false;
 		}
 		$count = 0;
 		$data = array();
-		while ( $row =$results->fetchRow(DB_FETCHMODE_ASSOC))
+		while ( $row = mysql_fetch_array($results))
 		{
 			$data[$count] = $row;
 			$count++;
 		}
-		$results->free();
+		mysql_free_result($results);
 		return $data;
 	}
 
@@ -74,15 +85,15 @@ Class MySQL
 	{
 		if(empty($this->CONN)) { return false; }
 		$conn = $this->CONN;
-		$results = $db->query("SELECT * from $this->LNK_TBL where LinkID=$link_id");
+		$results = mysql_query("SELECT * from $this->LNK_TBL where LinkID=$link_id",$conn);
 		if( (!$results) or (empty($results)) ) {
-			$results->free();
+			mysql_free_result($results);
 			return false;
 		}
-		$row =$results->fetchRow(DB_FETCHMODE_ASSOC);
+		$row = mysql_fetch_array($results);
 		$row[9]++;
-		$results->free();
-		$results = $db->query("UPDATE $this->LNK_TBL set hits=$row[9] WHERE LinkID=$link_id");
+		mysql_free_result($results);
+		$results = mysql_query("UPDATE $this->LNK_TBL set hits=$row[9] WHERE LinkID=$link_id",$conn);
 		Header("Location: $row[2]");
 		exit;
 	}
@@ -92,7 +103,7 @@ Class MySQL
 		if(empty($sql)) { return false; }
 		if(!eregi("^insert",$sql))
 		{
-			echo "<H2>Wrong function!</H2>\n";
+			echo "<H2>Wrong function silly!</H2>\n";
 			return false;
 		}
 		if(empty($this->CONN))
@@ -101,7 +112,7 @@ Class MySQL
 			return false;
 		}
 		$conn = $this->CONN;
-		$results = $db->query($sql);
+		$results = mysql_query($sql,$conn);
 		if(!$results) 
 		{
 			return false;
@@ -115,7 +126,7 @@ Class MySQL
 		if(empty($sql)) { return false; }
 		if(empty($this->CONN)) { return false; }
 		$conn = $this->CONN;
-		$results = $db->query($sql);
+		$results = mysql_query($sql,$conn);
 		if(!$results) 
 		{
 			echo "<H2>Query went bad!</H2>\n";
@@ -130,14 +141,14 @@ Class MySQL
 		if(empty($sql)) { return false; }
 		if(empty($this->CONN)) { return false; }
 		$conn = $this->CONN;
-		$results = $db->query($sql);
+		$results = mysql_query($sql,$conn);
 		if( (!$results) or (empty($results)) ) {
 			mysql_free_result($results);
 			return false;
 		}
 		$count = 0;
 		$data = array();
-		while ( $row =$results->fetchRow(DB_FETCHMODE_ASSOC))
+		while ( $row = mysql_fetch_array($results))
 		{
 			$data[$count] = $row;
 			$count++;
@@ -180,19 +191,19 @@ Class MySQL
 		$sql = "SELECT CatID,CatName FROM $this->CAT_TBL WHERE CatParent = $CatID AND course_id=$_SESSION[course_id]";
 
 		$conn = $this->CONN;
-		$results = $db->query($sql);
+		$results = mysql_query($sql,$conn);
 		if( (!$results) or (empty($results)) ) {
 			mysql_free_result($results);
 			return false;
 		}
 
-		while ( $row =$results->fetchRow(DB_FETCHMODE_ASSOC))
+		while ( $row = mysql_fetch_array($results))
 		{
 			$trail = $this->TRAIL;
 			$count = count($trail);
 			$trail[$count] = $row;
 			$this->TRAIL = $trail;
-			//$id = $row["CATID"];
+			//$id = $row["CatID"];
 		}
 		return true;
 	}
@@ -216,19 +227,19 @@ Class MySQL
 		$sql = "SELECT CatID,CatParent,CatName FROM $this->CAT_TBL WHERE CatID = $CatID";
 
 		$conn = $this->CONN;
-		$results = $db->query($sql);
+		$results = mysql_query($sql,$conn);
 		if( (!$results) or (empty($results)) ) {
 			mysql_free_result($results);
 			return false;
 		}
 
-		while ( $row =$results->fetchRow(DB_FETCHMODE_ASSOC))
+		while ( $row = mysql_fetch_array($results))
 		{
 			$trail = $this->TRAIL;
 			$count = count($trail);
 			$trail[$count] = $row;
 			$this->TRAIL = $trail;
-			$id = $row["CATPARENT"];
+			$id = $row["CatParent"];
 			$this->get_Parents($id);
 		}
 		return true;
@@ -639,15 +650,15 @@ Class MySQL
 
 		$sql = "SELECT * from $this->CAT_TBL where CatParent = $CatID AND course_id=$_SESSION[course_id]";
 		$conn = $this->CONN;
-		$results = $db->query($sql);
+		$results = mysql_query($sql,$conn);
 		if( (!$results) or (empty($results)) ) {
 			mysql_free_result($results);
 			return ($sum);
 		}
 
-		while ($row =$results->fetchRow(DB_FETCHMODE_ASSOC))
+		while ($row = mysql_fetch_array($results))
 		{
-			$id = $row["CATID"];
+			$id = $row["CatID"];
 			$sum = $sum + $this->get_TotalLinksInCat_cnt($id);
 		}
 

@@ -10,14 +10,14 @@ require($_include_path.'cc_html/header.inc.php');
 		
 	if ($_POST['submit']) {
 		$sql = "SELECT name FROM member_groups";
-		$res = $db->query($sql);
-		$row =$res->fetchRow(DB_FETCHMODE_ASSOC);
-		if ($row['NAME'] == $_POST['group_name']){
+		$res = mysql_query($sql, $db);
+		$row = mysql_fetch_array($res);
+		if ($row['name'] == $_POST['group_name']){
 			$errors[] = AT_ERROR_GROUP_NAME_EXISTING;
 			print_errors($errors);
 		} else {
 			$sql = "INSERT INTO member_groups (name) VALUES ('$_POST[group_name]')";
-			$res = $db->query($sql);
+			$res = mysql_query($sql, $db);
 		}
 	}
 
@@ -34,12 +34,12 @@ require($_include_path.'cc_html/header.inc.php');
 	$group_count = 0;
 	
 	$sql	= "SELECT * FROM member_groups";
-	$result	= $db->query($sql);
-	if ($row_id =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+	$result	= mysql_query($sql, $db);
+	if ($row_id = mysql_fetch_array($result)) {
 		do {
-			echo '<tr><td>'.$row_id['NAME'].'<td><tr>';
+			echo '<tr><td>'.$row_id['name'].'<td><tr>';
 			$group_count++;
-		} while ($row_id =$result->fetchRow(DB_FETCHMODE_ASSOC));
+		} while ($row_id = mysql_fetch_array($result));
 	}
 	if ($group_count == 0) {
 		echo '<tr><td class="row1" colspan="3"><i>'.$_template['no_groups'].'</i></td></tr>';

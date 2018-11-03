@@ -40,11 +40,11 @@
 
   /* The full real name of the administrator */
 
-   $SiteAdministratorName     = "Marian VASILE";
+   $SiteAdministratorName     = "Admin";
 
   /* Email address for the administrator */
 
-   $SiteAdminEmailAddress     = "klore@connex.ro";
+   $SiteAdminEmailAddress     = "";
 
   /* Adminitrators password */
 

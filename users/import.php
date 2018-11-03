@@ -3,7 +3,12 @@
 /* klore														*/
 /****************************************************************/
 /* Copyright (c) 2002-2003 by Greg Gay & Joel Kronenberg        */
-
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 $section = 'users';
 $_include_path = '../include/';
@@ -36,7 +41,19 @@ set_time_limit(0);
 
 $_SESSION['done'] = 1;
 
+/* make sure we own this course that we're exporting */
+$sql	= "SELECT * FROM courses WHERE course_id=$course AND member_id=$_SESSION[member_id]";
+$result	= mysql_query($sql, $db);
+if (!$row2 = mysql_fetch_array($result)) {
+	require($_include_path.'cc_html/header.inc.php');
+	$errors[]=AT_ERROR_NOT_OWNER;
+	print_errors($errors);
+	require ($_include_path.'cc_html/footer.inc.php');
+	exit;
+}
+
 if ($_POST['submit']) {
+
 	if (	$_FILES['file']['name'] 
 		&&	is_uploaded_file($_FILES['file']['tmp_name']) 
 		&& (
@@ -62,7 +79,7 @@ if ($_POST['submit']) {
 			$import_path = '../content/import/'.$course.'/';
 
 			if (!is_dir($import_path)) {
-				if (!mkdir($import_path, 0775)) {
+				if (!@mkdir($import_path, 0700)) {
 					$errors[] = AT_ERROR_IMPORTDIR_FAILED;
 					print_errors($errors);
 					exit;
@@ -87,7 +104,6 @@ if ($_POST['submit']) {
 			}
 
 
-
 			if (ALLOW_IMPORT_CONTENT) {
 				$totalBytes = dirsize($import_path.'content/');
 				$course_total = dirsize($content_path.$course.'/');
@@ -110,19 +126,17 @@ if ($_POST['submit']) {
 
 			$fp = fopen($import_path.'content.csv','r');
 
-			$lock_sql = 'LOCK TABLE content IN SHARE ROW EXCLUSIVE MODE';
-			$result   = $db->query($lock_sql);
+			$lock_sql = 'LOCK TABLES content WRITE';
+			$result   = mysql_query($lock_sql, $db);
 
-			/*$sql	  = 'SELECT MAX(content_id) FROM content';
-			$result   = $db->query($sql);
-			$next_index = $result->fetchRow();
-			$next_index = $next_index[0] + 1;*/
-			
-			$next_index = $db->nextId("AUTO_CONTENT_CONTENT_ID");
+			$sql	  = 'SELECT MAX(content_id) FROM content';
+			$result   = mysql_query($sql, $db);
+			$next_index = mysql_fetch_row($result);
+			$next_index = $next_index[0] + 1;
 
 			$sql	  = 'SELECT MAX(ordering) FROM content WHERE content_parent_id=0 AND course_id='.$course;
-			$result   = $db->query($sql);
-			$next_order = $result->fetchRow();
+			$result   = mysql_query($sql, $db);
+			$next_order = mysql_fetch_row($result);
 			$order_offset = $next_order[0];
 
 			$sql = '';
@@ -144,7 +158,7 @@ if ($_POST['submit']) {
 					debug('CONTENT NOT FOUND! ' . $content_id);
 					exit;
 				}
-				
+
 				if ($content_pages[$content_id][CPID] > 0) {
 					if ($translated_content_ids[$content_pages[$content_id][CPID]] == '') {
 						$last_id = insert_content(	$content_pages[$content_id][CPID],
@@ -154,10 +168,8 @@ if ($_POST['submit']) {
 					}
 				}
 
-				$last_id = $db->nextId("AUTO_CONTENT_CONTENT_ID");
-				echo $last_id.' : ';
 				$sql = 'INSERT INTO content VALUES ';
-				$sql .= "($last_id, ";
+				$sql .= '(0, ';
 				$sql .= $course .',';
 				if ($content_pages[$content_id][CPID] == 0) {
 					$sql .= 0;
@@ -181,14 +193,13 @@ if ($_POST['submit']) {
 				$content_pages[$content_id][8] = translate_whitespace($content_pages[$content_id][8]);
 
 				$sql .= "'".addslashes($content_pages[$content_id][8])."')";
-				echo $sql;
-				$result = $db->query($sql);
-				print_r($result);
+				$result = mysql_query($sql, $db);
 				if (!$result) {
 					debug(mysql_error());
 					debug($sql);
 					exit;
 				}
+				$last_id = mysql_insert_id( );
 				return $last_id;
 			}
 
@@ -204,7 +215,7 @@ if ($_POST['submit']) {
 			fclose($fp);
 
 			$lock_sql = 'UNLOCK TABLES';
-			$result   = $db->query($lock_sql);
+			$result   = mysql_query($lock_sql, $db);
 			/****************************************************/
 
 			/* related_content.csv */
@@ -221,7 +232,7 @@ if ($_POST['submit']) {
 			}
 			if ($sql != '') {
 				$sql = substr($sql, 0, -1);
-				$result = $db->query($sql);
+				$result = mysql_query($sql, $db);
 			}
 			fclose($fp);
 			unset($translated_content_ids);
@@ -245,22 +256,21 @@ if ($_POST['submit']) {
 			}
 			if ($sql != '') {
 				$sql = substr($sql, 0, -1);
-				$result = $db->query($sql);
+				$result = mysql_query($sql, $db);
 			}
 			fclose($fp);
 			/****************************************************/
 
 			/* glossary.csv */
 			/* get the word id offset: */
-			$lock_sql = 'LOCK TABLE glossary IN SHARE ROW EXCLUSIVE MODE';
-			$result   = $db->query($lock_sql);
+			$lock_sql = 'LOCK TABLES glossary WRITE';
+			$result   = mysql_query($lock_sql, $db);
 
-			/* $sql	  = 'SELECT MAX(word_id) FROM glossary';
-			$result   = $db->query($sql);
-			$next_index = $result->fetchRow();
-			$next_index = $next_index[0] + 1; */
-			
-			$next_index = $db->nextId("AUTO_GLOSSARY_WORDID");
+			$sql	  = 'SELECT MAX(word_id) FROM glossary';
+			$result   = mysql_query($sql, $db);
+			$next_index = mysql_fetch_row($result);
+			$next_index = $next_index[0] + 1;
+
 
 			$sql = '';
 			$index_offset = '';
@@ -290,25 +300,23 @@ if ($_POST['submit']) {
 
 			if ($sql != '') {
 				$sql = substr($sql, 0, -1);
-				$result = $db->query($sql);
+				$result = mysql_query($sql, $db);
 			}
 			fclose($fp);
 
 			$lock_sql = 'UNLOCK TABLES';
-			$result   = $db->query($lock_sql);
+			$result   = mysql_query($lock_sql, $db);
 			/****************************************************/
 
 			/* resource_categories.csv */
 			/* get the CatID offset:   */
-			$lock_sql = 'LOCK TABLE resource_categories IN SHARE ROW EXCLUSIVE MODE';
-			$result   = $db->query($lock_sql);
+			$lock_sql = 'LOCK TABLES resource_categories WRITE';
+			$result   = mysql_query($lock_sql, $db);
 
-			/*$sql	  = 'SELECT MAX(CatID) FROM resource_categories';
-			$result   = $db->query($sql);
-			$next_index = $result->fetchRow();
-			$next_index = $next_index[0] + 1;*/
-			
-			$next_index = $db->nextId("AUTO_RESOURCE_CAT_CATID");
+			$sql	  = 'SELECT MAX(CatID) FROM resource_categories';
+			$result   = mysql_query($sql, $db);
+			$next_index = mysql_fetch_row($result);
+			$next_index = $next_index[0] + 1;
 
 			$sql = '';
 			$index_offset = '';
@@ -337,12 +345,12 @@ if ($_POST['submit']) {
 			}
 			if ($sql != '') {
 				$sql = substr($sql, 0, -1);
-				$result = $db->query($sql);
+				$result = mysql_query($sql, $db);
 			}
 			fclose($fp);
 
 			$lock_sql = 'UNLOCK TABLES';
-			$result   = $db->query($lock_sql);
+			$result   = mysql_query($lock_sql, $db);
 			/****************************************************/
 
 			/* resource_links.csv */
@@ -388,7 +396,7 @@ if ($_POST['submit']) {
 
 			if ($sql != '') {
 				$sql = substr($sql, 0, -1);
-				$result = $db->query($sql);
+				$result = mysql_query($sql, $db);
 			}
 			fclose($fp);
 			/****************************************************/
@@ -432,22 +440,20 @@ if ($_POST['submit']) {
 
 			if ($sql != '') {
 				$sql = substr($sql, 0, -1);
-				$result = $db->query($sql);
+				$result = mysql_query($sql, $db);
 			}
 			fclose($fp);
 			/****************************************************/
 
 			/* tests.csv */
 			/* get the test_id offset:   */
-			$lock_sql = 'LOCK TABLE tests IN SHARE ROW EXCLUSIVE MODE';
-			$result   = $db->query($lock_sql);
+			$lock_sql = 'LOCK TABLES tests WRITE';
+			$result   = mysql_query($lock_sql, $db);
 
-			/* $sql		= 'SELECT MAX(test_id) FROM tests';
-			$result		= $db->query($sql);
-			$next_index = $result->fetchRow();
-			$next_index = $next_index[0] + 1; */
-			
-			$next_index = $db->nextId("AUTO_TESTS_TEST_ID");
+			$sql		= 'SELECT MAX(test_id) FROM tests';
+			$result		= mysql_query($sql, $db);
+			$next_index = mysql_fetch_row($result);
+			$next_index = $next_index[0] + 1;
 
 			$sql = '';
 			$index_offset = '';
@@ -491,13 +497,13 @@ if ($_POST['submit']) {
 			}
 			if ($sql != '') {
 				$sql	= substr($sql, 0, -1);
-				$result = $db->query($sql);
+				$result = mysql_query($sql, $db);
 			}
 			fclose($fp);
 
 
 			$lock_sql = 'UNLOCK TABLES';
-			$result   = $db->query($lock_sql);
+			$result   = mysql_query($lock_sql, $db);
 			/****************************************************/
 
 			/* tests_questions.csv */
@@ -610,15 +616,15 @@ if ($_POST['submit']) {
 			}
 			if ($sql != '') {
 				$sql	= substr($sql, 0, -1);
-				$result = $db->query($sql);
+				$result = mysql_query($sql, $db);
 			}
 			fclose($fp);
 
 
 			$lock_sql = 'UNLOCK TABLES';
-			$result   = $db->query($lock_sql);
+			$result   = mysql_query($lock_sql, $db);
 			/****************************************************/
-/*
+
 			@unlink($import_path . escapeshellcmd($_FILES['file']['name']));
 			@unlink($import_path . 'content.csv');
 			@unlink($import_path . 'forums.csv');
@@ -631,7 +637,7 @@ if ($_POST['submit']) {
 			@unlink($import_path . 'tests_questions.csv');
 
 			$exec = 'cd '.$import_path.'; cd ..; rm -r '.$course.'/';
-			$result = system ( $exec ); */
+			$result = system ( $exec );
 
 			require ($_include_path.'cc_html/header.inc.php'); 
 

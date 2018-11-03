@@ -63,9 +63,7 @@ function print_move_select($parent_id, &$_menu, $my_parent_id, $depth=0, $path='
 	}
 }
 
-function is_alpha($input) {
-	return (("a" <= $input && $input <= "z") || ("A" <= $input && $input <= "Z")) ? true : false;
-}
+
 /* @See include/html/menu_menu.inc.php	*/
 /** @See tools/sitemap/index.php			
  * @desc Prints the main menu when browsing course content
@@ -104,7 +102,7 @@ function print_menu_collapse($parent_id,
 				}
 				
 				// start (check display rights)
-				if (($_SESSION['linear_index'][$content['content_id']] <= $_SESSION['access_index']) || ($_SESSION['is_admin']) || ($_SESSION['c_instructor']) || ($_SESSION['access_index'] == -1)) {
+				if (($_SESSION['linear_index'][$content['content_id']] <= $_SESSION['access_index']) || ($_SESSION['c_instructor']) || ($_SESSION['access_index'] == -1)) {
 					if ($content['formatting'] == 2) {
 						$link .= ' <a class="breadcrumbs" href="./tools/tests/prepare_test.php?cid='.$content['content_id'].SEP.'g='.$g.'" title="'.$content['title'].'">';
 					} else {
@@ -219,12 +217,6 @@ function print_menu_collapse($parent_id,
 				// obsolete formatting; now this attribute is used to indicate page/test type information
 				echo '<img src="images/menu_testitem.jpg" alt="" border="0" />';
 				$item_type = 'test';
-				
-			} else if ($content['formatting'] == 5) {
-				//Feedback form 
-				echo '<img src="images/menu_feedback.gif" alt="" border="0" />';
-				$item_type = 'feedback';
-		
 			} else {
 				$item_type = 'page';
 			}

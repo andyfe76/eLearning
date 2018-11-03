@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 
 $_include_path = '../include/';
@@ -17,7 +22,7 @@ $pid  = intval($_GET['pid']);
 if (!$errors) {
 
 	$sql	= "UPDATE forums_threads SET sticky=ABS(sticky-1) WHERE post_id=$pid AND course_id=$_SESSION[course_id]";
-	$result = $db->query($sql);
+	$result = mysql_query($sql, $db);
 	//Header('Location: '.$_base_href.'discussions/?fid='.$fid.';f='.urlencode_feedback(AT_FEEDBACK_STICKY_UPDATED));
 	Header('Location: '.$_base_href.'forum/?fid='.$_GET['fid'].SEP.'f='.urlencode_feedback(AT_FEEDBACK_STICKY_UPDATED));
 	exit;

@@ -15,12 +15,12 @@
 <br />
 <h3>K-Lore HowTo</h3>
 <ul>
-<li>The <a href="">K-Lore HowTo</a> course contains the documentation for K-Lore. Choose the topics that apply to you. K-Lore HowTo may also be available on your local system. Check "<a href="browse.php">Browse Courses</a>."</li>
+<li>The <a href="http://k-lore.koncept.ro/howto.php?g=18">K-Lore HowTo</a> course contains the documentation for K-Lore. Choose the topics that apply to you. K-Lore HowTo may also be available on your local system. Check "<a href="browse.php">Browse Courses</a>."</li>
 </ul>
 <br />
 <h3>K-Lore Support Forum</h3>
 <ul>
-<li>If after reviewing the Help sources listed above, your questions have not been answered, post them to the <a href="">K-Lore Support Forum</a> on the K-Lore Web site. Scan through topics in the Support Forum to see if your questions have already been answered. <strong>Support questions should be of a technical nature</strong>. Course related questions should be directed to the course forums or the course instructor. </li>
+<li>If after reviewing the Help sources listed above, your questions have not been answered, post them to the <a href="http://k-lore.koncept.ro/forum/index.php">K-Lore Support Forum</a> on the K-Lore Web site. Scan through topics in the Support Forum to see if your questions have already been answered. <strong>Support questions should be of a technical nature</strong>. Course related questions should be directed to the course forums or the course instructor. </li>
 </ul>
 <br />
 <h3>Contacts</h3>

@@ -16,6 +16,7 @@
 include '../config/spaw_control.config.php';
 include $spaw_root.'class/lang.class.php';
 
+
 $theme = empty($HTTP_POST_VARS['theme'])?(empty($HTTP_GET_VARS['theme'])?$spaw_default_theme:$HTTP_GET_VARS['theme']):$HTTP_POST_VARS['theme'];
 $theme_path = $spaw_dir.'lib/themes/'.$theme.'/';
 
@@ -52,9 +53,7 @@ $img = $HTTP_POST_VARS['imglist'];
 $preview = '';
 
 $errors = array();
-//print_r($_FILES);
-
-if ($_FILES['img_file']['size']>0)
+if ($HTTP_POST_FILES['img_file']['size']>0)
 {
   if ($img = uploadImg('img_file'))
   {
@@ -63,7 +62,6 @@ if ($_FILES['img_file']['size']>0)
 }
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-
 
 <html>
 <head>
@@ -103,14 +101,14 @@ if ($_FILES['img_file']['size']>0)
   //-->
   </script>
 
-<form name="libbrowser" action="img_library.php" target="imglibrary" method="POST" enctype="multipart/form-data">
+<form name="libbrowser" method="post" action="img_library.php" enctype="multipart/form-data" target="imglibrary">
 <input type="hidden" name="theme" value="<?php echo $theme?>">
 <input type="hidden" name="lang" value="<?php echo $l->lang?>">
 <div style="border: 1 solid Black; padding: 5 5 5 5;">
 <table border="0" cellpadding="2" cellspacing="0">
 <tr>
   <td valign="top" align="left"><b><?php echo $l->m('library')?>:</b></td>
-  <td valign="top" align="left"></td>
+  <td valign="top" align="left">&nbsp;</td>
   <td valign="top" align="left"><b><?php echo $l->m('preview')?>:</b></td>
 </tr>
 <tr>
@@ -119,9 +117,9 @@ if ($_FILES['img_file']['size']>0)
     <?php echo $lib_options?>
   </select>
   </td>
-  <td valign="top" align="left" rowspan="3"></td>
+  <td valign="top" align="left" rowspan="3">&nbsp;</td>
   <td valign="top" align="left" rowspan="3">
-  <iframe name="imgpreview" src="<?php echo $preview?>" style="width: 400px; height: 100%;" scrolling="Auto" marginheight="0" marginwidth="0" frameborder="0"></iframe>
+  <iframe name="imgpreview" src="<?php echo $preview?>" style="width: 200px; height: 100%;" scrolling="Auto" marginheight="0" marginwidth="0" frameborder="0"></iframe>
   </td>
 </tr>
 <tr>
@@ -164,17 +162,13 @@ if ($_FILES['img_file']['size']>0)
 </tr>
 <tr>
   <td valign="top" align="left" colspan="3">
-  <input type="button" value="<?php echo $l->m('select')?>" class="bt" onclick="selectClick();">&nbsp;&nbsp&nbsp
-  <input type="button" value="<?php echo $l->m('cancel')?>" class="bt" onclick="window.close();">&nbsp;<br><br>
-  <!--input type="button" name="btndel" value="<?php /*echo $l->m('dellib')*/?>" class="bt" -->
+  <input type="button" value="<?php echo $l->m('select')?>" class="bt" onclick="selectClick();">&nbsp;<input type="button" value="<?php echo $l->m('cancel')?>" class="bt" onclick="window.close();">
   </td>
 </tr>
 </table>
 </div>
 
 <?php  if ($spaw_upload_allowed) { ?>
-
-
 <div style="border: 1 solid Black; padding: 5 5 5 5;">
 <table border="0" cellpadding="2" cellspacing="0">
 <tr>
@@ -201,31 +195,14 @@ if ($_FILES['img_file']['size']>0)
   ?>
   </td>
 </tr>
-
-
 </table>
 </div>
-
-<div style="border: 1 solid Black; padding: 5 5 5 5;">
-<table border="0" cellpadding="2" cellspacing="0">
-<tr>
-	<td valign="top" align="left">
-	<b>New Library Name : <b><input type="text" name="new_lib" class="input">&nbsp<br>
-    <input type="submit" name="btnnew" class="bt" value="<?php echo $l->m('addlib')?>">
-	</td>
-</tr> 
-
-</table>
-</div>
-
 <?php  } ?>
 </form>
 </body>
 </html>
 
 <?php 
-
-
 function liboptions($arr, $prefix = '', $sel = '')
 {
   $buf = '';
@@ -237,14 +214,13 @@ function liboptions($arr, $prefix = '', $sel = '')
 
 function uploadImg($img) {
 
+  global $HTTP_POST_FILES;
   global $HTTP_SERVER_VARS;
   global $spaw_valid_imgs;
   global $imglib;
   global $errors;
   global $l;
   global $spaw_upload_allowed;
-  
-  //print_r($_FILES);
   
   if (!$spaw_upload_allowed) return false;
 
@@ -253,11 +229,11 @@ function uploadImg($img) {
   else
     $_root = $HTTP_SERVER_VARS['DOCUMENT_ROOT'];
   
- if ($_FILES[$img]['size']>0) {
-    $data['type'] = $_FILES[$img]['type'];
-    $data['name'] = $_FILES[$img]['name'];
-    $data['size'] = $_FILES[$img]['size'];
-    $data['tmp_name'] = $_FILES[$img]['tmp_name'];
+  if ($HTTP_POST_FILES[$img]['size']>0) {
+    $data['type'] = $HTTP_POST_FILES[$img]['type'];
+    $data['name'] = $HTTP_POST_FILES[$img]['name'];
+    $data['size'] = $HTTP_POST_FILES[$img]['size'];
+    $data['tmp_name'] = $HTTP_POST_FILES[$img]['tmp_name'];
 
     // get file extension
     $ext = strtolower(substr(strrchr($data['name'],'.'), 1));
@@ -284,21 +260,4 @@ function uploadImg($img) {
   }
   return false;
 }
-
-
-
-//Add New Library 
-if ($_POST['new_lib'] && $_POST['btnnew'] ) {
-	if (mkdir($spaw_root.'/img/'.$_POST['new_lib'], 0700)) echo "<script>alert('Library [".$_POST['new_lib']."] Created');libbrowser.submit();</script>";
-	else echo "<script>alert('".$_POST['new_lib']." : Failed to Create Library')</script>";
-
-}
-
-//Delete Library
-/*if ($_POST['lib'] && $_POST['btndel'] ) {
-	if (unlink($spaw_root.'/img/'.$_POST['lib'])) echo "<script>alert('Library [".$_POST['new_lib']."] Deleted')</script>";
-	else echo "<script>alert('".$_POST['lib']." : Failed to Delete Library')</script>";
-
-}*/
-
 ?>

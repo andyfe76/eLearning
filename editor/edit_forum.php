@@ -19,7 +19,7 @@
 
 		if (!$errors) {
 			$sql	= "UPDATE forums SET title='$_POST[title]', description='$_POST[body]' WHERE forum_id=$_POST[fid] AND course_id=$_SESSION[course_id]";
-			$result = $db->query($sql);
+			$result = mysql_query($sql,$db);
 
 			Header('Location: ../discussions/?f='.urlencode_feedback(AT_FEEDBACK_FORUM_UPDATED));
 			exit;
@@ -35,9 +35,9 @@
 	$fid = intval($_GET['fid']);
 
 	$sql = "SELECT * FROM forums WHERE forum_id=$fid AND course_id=$_SESSION[course_id]";
-	$result = $db->query($sql);
+	$result = mysql_query($sql,$db);
 	if (!$errors) {
-		if (!($row =$result->fetchRow(DB_FETCHMODE_ASSOC))) {
+		if (!($row = mysql_fetch_array($result))) {
 			$errors[]=AT_ERROR_FORUM_NOT_FOUND;
 			//require ($_include_path.'footer.inc.php');
 			//exit;
@@ -60,14 +60,14 @@
 </tr>
 <tr>
 	<td class="row1" align="right"><b><label for="title"><?php  echo $_template['forum_title']; ?>:</label></b></td>
-	<td class="row1"><input type="text" name="title" class="formfield" size="50" id="title" value="<?php echo $row['TITLE']; ?>"></td>
+	<td class="row1"><input type="text" name="title" class="formfield" size="50" id="title" value="<?php echo $row['title']; ?>"></td>
 </tr>
 <tr><td height="1" class="row2" colspan="2"></td></tr>
 <tr>
 	<td class="row1" valign="top" align="right"><b><label for="body"><?php  echo $_template['forum_description']; ?>:</label></b></td>
 	<td class="row1">
-	<!-- <textarea name="body" cols="45" rows="10" class="formfield" id="body" wrap="wrap"><?php echo $row['DESCRIPTION']; ?></textarea> -->
-	<?php $sw = new SPAW_Wysiwyg('body',stripslashes($row['DESCRIPTION']);
+	<!-- <textarea name="body" cols="45" rows="10" class="formfield" id="body" wrap="wrap"><?php echo $row['description']; ?></textarea> -->
+	<?php $sw = new SPAW_Wysiwyg('body',stripslashes($row['description']);
 	$sw->show(); ?>
 	<br /><br />
 	</td>

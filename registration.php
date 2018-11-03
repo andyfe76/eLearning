@@ -19,11 +19,8 @@
 		} else if (!eregi("^[a-z0-9\._-]+@+[a-z0-9\._-]+\.+[a-z]{2,3}$", $_POST['email'])) {
 			$errors[] = AT_ERROR_EMAIL_INVALID;
 		}
-		$result = $db->query("SELECT * FROM members WHERE email LIKE '$_POST[email]'",$db);
-		$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-		$countres = $db->query($countsql);
-		$count0 = $countres->fetchRow();
-		if ($count0[0] != 0) {
+		$result = mysql_query("SELECT * FROM members WHERE email LIKE '$_POST[email]'",$db);
+		if (mysql_num_rows($result) != 0) {
 				$valid = 'no';
 				$errors[] = AT_ERROR_EMAIL_EXISTS;
 		}
@@ -37,12 +34,8 @@
 				$errors[] = AT_ERROR_LOGIN_CHARS;
 			}
 		}
-		$sql = "SELECT * FROM members WHERE login='$_POST[login]'";
-		$result = $db->query($sql);
-		$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-		$countres = $db->query($countsql);
-		$count0 = $countres->fetchRow();
-		if($count0[0] != 0) {
+		$result = mysql_query("SELECT * FROM members WHERE login='$_POST[login]'",$db);
+		if(mysql_num_rows($result) != 0) {
 			$valid = 'no';
 			$errors[] = AT_ERROR_LOGIN_EXISTS;
 		}
@@ -79,9 +72,9 @@
 			$_POST['postal'] = strtoupper(trim($_POST['postal']));
 
 			/* insert into the db. (the last 0 for status) */
-			$m_id = $db->nextId("AUTO_MEMBERS_MEMBER_ID");
-			$sql = "INSERT INTO members VALUES (0,'$_POST[login]','$_POST[password]','$_POST[email]',0,'', SYSDATE, SYSDATE, '$_POST[custom1]', '$_POST[custom2]', '$_POST[custom3]', '$_POST[custom4]', '$_POST[custom5]', '$_POST[custom6]', '$_POST[custom7]', '$_POST[custom8]', '$_POST[custom9]', '$_POST[custom10]')";
-			$result = $db->query($sql);
+			$sql = "INSERT INTO members VALUES (0,'$_POST[login]','$_POST[password]','$_POST[email]',0,'', NOW(), NOW(), '$_POST[custom1]', '$_POST[custom2]', '$_POST[custom3]', '$_POST[custom4]', '$_POST[custom5]', '$_POST[custom6]', '$_POST[custom7]', '$_POST[custom8]', '$_POST[custom9]', '$_POST[custom10]')";
+			$result = mysql_query($sql);
+			$m_id = mysql_insert_id();
 			if (!$result) {
 				require($_include_path.'basic_html/header.php');
 				$error[] = AT_ERROR_DB_NOT_UPDATED;
@@ -95,10 +88,10 @@
 			}
 
 			$sql = "INSERT INTO member_cost VALUES ($m_id, 0)";
-			$result = $db->query($sql);
+			$result = mysql_query($sql);
 			
 			$sql = "INSERT INTO mrel_groups VALUES ($m_id, NULL, $_POST[group])";
-			$result = $db->query($sql);
+			$result = mysql_query($sql);
 			if (!$result) {
 				require($_include_path.'basic_html/header.php');
 				$error[] = AT_ERROR_DB_NOT_UPDATED;
@@ -145,18 +138,18 @@ function change_categ() {
 	<input type="hidden" name="categ_change">
 <?php
 	$sql = "SELECT name FROM member_categ";
-	$res = $db->query($sql);
+	$res = mysql_query($sql, $db);
 	
 	echo "\n".'&nbsp;<label for="category"></label><span style="white-space: nowrap;"><select name="category" onChange="change_categ();" class="dropdown" id="category" title="Category">'."\n";
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		echo '<option value="'.$row['NAME'].'"';
+	while ($row = mysql_fetch_array($res)) {
+		echo '<option value="'.$row['name'].'"';
 		if ($category == '') { 
-			$category = $row['NAME']; 
-			echo 'selected="selected">'.$row['NAME'];
-		} else if ($category == $row['NAME']) {
-			echo 'selected="selected">'.$row['NAME'];
+			$category = $row['name']; 
+			echo 'selected="selected">'.$row['name'];
+		} else if ($category == $row['name']) {
+			echo 'selected="selected">'.$row['name'];
 		} else {
-			echo '>'.$row['NAME'];
+			echo '>'.$row['name'];
 		}
 		echo '</option>'."\n";
 	}
@@ -167,14 +160,14 @@ function change_categ() {
 <tr>
 <?php
 	$sql	= "SELECT * FROM member_groups WHERE category='$category'";
-	$res	= $db->query($sql);
+	$res	= mysql_query($sql, $db);
 ?>
 	<td class="row1" align="right"><label for="group"><b><?php echo $_template['group']; ?>:</b></label></td>
 	<td class="row1" align="left">
 <?php
 	echo "\n".'&nbsp;<label for="group"></label><span style="white-space: nowrap;"><select name="group" class="dropdown" id="group" title="Group">'."\n";
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		echo '<option value="'.$row['GROUP_ID'].'">'.$row['NAME'];
+	while ($row = mysql_fetch_array($res)) {
+		echo '<option value="'.$row['group_id'].'">'.$row['name'];
 		echo '</option>'."\n";
 	}
 	echo '</select>&nbsp;'."\n";
@@ -205,12 +198,12 @@ function change_categ() {
 	<td class="row1" align="left"><input id="email" class="formfield" name="email" type="text" size="30" maxlength="60" value="<?php echo $_POST['email']; ?>" /><br /><br /></td>
 </tr>
 <?php
-	$sql = "SELECT * FROM user_custom_fields ORDER BY id";
-	$res = $db->query($sql);
+	$sql = "SELECT * FROM user_custom_fields";
+	$res = mysql_query($sql, $db);
 	$i =1;
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		if ($row['MANDATORY'] >0) {	
-			echo '<tr><td class="row1" align="right"><b>'.$row['NAME'].' :</b></td>';
+	while ($row = mysql_fetch_array($res)) {
+		if ($row['mandatory'] >0) {	
+			echo '<tr><td class="row1" align="right"><b>'.$row['name'].' :</b></td>';
  			echo '<td class="row1" align="left"><input type="text" size="30" class="formfield" maxlength="60" name="custom'.$i.'" value="'.$_POST['custom'.$i].'"></td>';
 			echo '</tr>';
 		}
@@ -223,13 +216,13 @@ function change_categ() {
 </tr>
 <tr><td height="1" class="row2" colspan="2"></td></tr>
 <?php
-	$sql = "SELECT * FROM user_custom_fields ORDER BY id";
-	$res = $db->query($sql);
+	$sql = "SELECT * FROM user_custom_fields";
+	$res = mysql_query($sql, $db);
 	$i =1;
-	while($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		if (($row['MANDATORY'] ==0) && ($row['NAME'] <>'')) {
+	while($row = mysql_fetch_array($res)) {
+		if (($row['mandatory'] ==0) && ($row['name'] <>'')) {
 			echo '<tr>';
-			echo '<td class="row1" align="right"><b>'.$row['NAME'].' :</b></td>';
+			echo '<td class="row1" align="right"><b>'.$row['name'].' :</b></td>';
 			echo '<td class="row1" align="left"><input class="formfield" name="custom'.$i.'" type="text" value="'.$_POST['custom'.$i].'" /></td>';
 			echo '</tr>';
 		}

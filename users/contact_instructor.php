@@ -13,13 +13,13 @@ if ($_POST['cancel']) {
 require($_include_path.'cc_html/header.inc.php');
 
 	$sql	= "SELECT login, email FROM members WHERE member_id=$_SESSION[member_id]";
-	$result = $db->query($sql);
-	if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$student_name = $row['LOGIN'];
-		//$student_name .= ($row['FIRST_NAME'] ? ', '.$row['FIRST_NAME'] : '');
+	$result = mysql_query($sql, $db);
+	if ($row = mysql_fetch_array($result)) {
+		$student_name = $row['login'];
+		//$student_name .= ($row['first_name'] ? ', '.$row['first_name'] : '');
 
-		$student_email = $row['EMAIL'];
-		$student_login = $row['LOGIN'];
+		$student_email = $row['email'];
+		$student_login = $row['login'];
 	} else {
 		$errors[]=AT_ERROR_STUD_INFO_NOT_FOUND;
 		print_errors($errors);
@@ -34,14 +34,14 @@ require($_include_path.'cc_html/header.inc.php');
 	}
 
 	$sql	= "SELECT M.login, M.email, C.title FROM members M, courses C WHERE M.member_id=C.member_id AND C.course_id=$course";
-	$result = $db->query($sql);
+	$result = mysql_query($sql, $db);
 
-	if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-		//$instructor_name = $row['LAST_NAME'];
-		//$instructor_name .= ($row['FIRST_NAME'] ? ', '.$row['FIRST_NAME'] : '');
-		$instructor_login = $row['LOGIN'];
+	if ($row = mysql_fetch_array($result)) {
+		//$instructor_name = $row['last_name'];
+		//$instructor_name .= ($row['first_name'] ? ', '.$row['first_name'] : '');
+		$instructor_login = $row['login'];
 
-		$instructor_email = $row['EMAIL'];
+		$instructor_email = $row['email'];
 	} else {
 		$errors[]=AT_ERROR_INST_INFO_NOT_FOUND;
 		print_errors($errors);
@@ -63,7 +63,7 @@ require($_include_path.'cc_html/header.inc.php');
 		}
 		
 		if (!$errors) {
-			$message = $_template['from_klore'].' '.$row[TITLE].":\n\n";
+			$message = $_template['from_klore'].' '.$row[title].":\n\n";
 			$message .= $_POST['body']."\n\n";
 
 			if ($to_email != '') {
@@ -93,7 +93,7 @@ require($_include_path.'cc_html/header.inc.php');
 </tr>
 <tr>
 	<td class="row1" align="right"><b><?php echo $_template['contact_name']; ?>:</b></td>
-	<td class="row1"><?php echo $row[TITLE]; ?></td>
+	<td class="row1"><?php echo $row[title]; ?></td>
 </tr>
 <tr><td height="1" class="row2" colspan="2"></td></tr>
 <tr>

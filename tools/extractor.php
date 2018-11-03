@@ -14,12 +14,13 @@ echo '<a name="top"></a>';
 if ($print) {
 	if(!$parent){
 		$errors[]=AT_ERROR_CHOOSE_ONE_SECTION;
+
 	}else{	
 		echo '<p class="hide">';
 			$help[]=AT_HELP_BROWSER_PRINT_BUTTON;
 			print_help($help);
 		echo '</p>';
-		echo '<p class="hide">[<a href="'.$PHP_SELF.'?print=">Inapoi la `Compilator de imprimare`</a>]</p>';
+		echo '<p class="hide">[<a href="'.$PHP_SELF.'?print=">Back to Content Selector</a>]</p>';
 		$sql = "SELECT title, content_parent_id, content_id, ordering, text FROM content WHERE  ";
 		$i=0;
 		foreach($parent as $key=>$value){
@@ -31,19 +32,14 @@ if ($print) {
 			$i++;
 		}
 		$sql.=' ORDER BY ordering';
-		if ($result= $db->query($sql)) {
-			while ($myrow = $result->fetchRow()){
+		if ($result= mysql_query($sql)) {
+			while ($myrow = mysql_fetch_row($result)){
 				$con_id = $myrow[2];
-				$text = '../'.$myrow[4];
-					$fh = fopen($text, 'r');  
-					$chf_text = fread($fh, filesize($text));
-					fflush($fh);
-					fclose($fh);
-				
-				replace_icons($chf_text);
+				$text = $myrow[4];
+				replace_icons($text);
 				if ($myrow[0] != 'Welcome To klore') {
 					echo '<br /><br /><a name="'.$myrow[0].'"></a><h2>'.$myrow[0].'</h2><br />';
-					echo $chf_text.'<br />';
+					echo $text.'<br />';
 					//echo '&nbsp;<a href="#top">top</a><br />';
 				}
 				get_children($con_id);
@@ -62,59 +58,40 @@ function get_children($con_id){
 	global $text;
 	global $con_id;
 	global $course_select;
-	global $db;
-		error_reporting(E_ERROR);
 		$sql1 = "SELECT title, text, content_parent_id, content_id FROM content WHERE content_parent_id = $con_id ORDER BY ordering";
 		//echo '<br />'.$sql1;
 		//echo "content/".$course_select;
-		$result2 = $db->query($sql1);
-		while ($myrow2 = $result2->fetchRow()){
+		$result2 = mysql_query($sql1);
+		while ($myrow2 = mysql_fetch_row($result2)){
 			$con_id1=$myrow2[3];
-			$text = '../'.$myrow2[1];
-				$fh = fopen($text, 'r');  
-				$chf_text = fread($fh, filesize($text));
-				fflush($fh);
-				fclose($fh);
-			replace_icons($chf_text);
+			$text = $myrow2[1];
+			replace_icons($text);
 			echo '<br /><a name="'.$myrow2[0].'"></a><h3>'.$myrow2[0].'</h3><br />';
-			echo $chf_text.'<br />';
+			echo $text.'<br />';
 			$sql3 = "SELECT title, text, content_parent_id, content_id FROM content WHERE content_parent_id = $con_id1 ORDER BY ordering";
-			$result3 = $db->query($sql3);
-			while ($myrow3 = $result3->fetchRow()){
+			$result3 = mysql_query($sql3);
+			while ($myrow3 = mysql_fetch_row($result3)){
 				$con_id2=$myrow3[3];
-				$text = '../'.$myrow3[1];
-					$fh = fopen($text, 'r');  
-					$chf_text = fread($fh, filesize($text));
-					fflush($fh);
-					fclose($fh);
-					
-				replace_icons($chf_text);
+				$text = $myrow3[1];
+				replace_icons($text);
 				echo '<br /><a name="'.$myrow3[0].'"></a><h3>'.$myrow3[0].'</h3><br />';
-				echo $chf_text.'<br />';
+				echo $text.'<br />';
 				$sql4 = "SELECT title, text, content_parent_id, content_id FROM content WHERE content_parent_id = $con_id2 ORDER BY ordering";
-				$result4 = $db->query($sql4);
-				while ($myrow4 = $result4->fetchRow()){
+				$result4 = mysql_query($sql4);
+				while ($myrow4 = mysql_fetch_row($result4)){
 					$con_id3=$myrow4[3];
-					$text = '../'.$myrow4[1];
-						$fh = fopen($text, 'r');  
-						$chf_text = fread($fh, filesize($text));
-						fflush($fh);
-						fclose($fh);
-					replace_icons($chf_text);
+					$text = $myrow4[1];
+					replace_icons($text);
 					echo '<br /><a name="'.$myrow4[0].'"></a><h3>'.$myrow4[0].'</h3><br />';
-					echo $chf_text.'<br />';
+					echo $text.'<br />';
 					$sql5 = "SELECT title, text, content_parent_id, content_id FROM content WHERE content_parent_id = $con_id3 ORDER BY ordering";
-					$result5 = $db->query($sql5);
-					while ($myrow5 = $result5->fetchRow()){
+					$result5 = mysql_query($sql5);
+					while ($myrow5 = mysql_fetch_row($result5)){
 						$con_id4=$myrow5[3];
-						$text = '../'.$myrow5[1];
-						$fh = fopen($text, 'r');  
-						$chf_text = fread($fh, filesize($text));
-						fflush($fh);
-						fclose($fh);
-						replace_icons($chf_text);
+						$text = $myrow5[1];
+						replace_icons($text);
 						echo '<br /><a name="'.$myrow5[0].'"></a><h3>'.$myrow5[0].'</h3><br />';
-						echo $chf_text.'<br />';
+						echo $text.'<br />';
 
 					}
 				}
@@ -127,7 +104,6 @@ function get_children($con_id){
 function replace_icons($text){
 	global $text;
 	global $course_select;
-	global $db;
 	$text = str_replace("CONTENT_DIR", "content/".$course_select,$text);
 	$text = str_replace("[write]", '<img src="images/concepts/write1a.gif" alt="Write"/>',$text);
 	$text = str_replace("[link]", '<img src="images/concepts/chain.gif" alt="Web Links"/>',$text);
@@ -209,24 +185,19 @@ if(!$print || $errors){
 				echo '<tr><td class="row1"><input type="checkbox" value="SelectAll" id="all" title="select/unselect all" name="selectall" onclick="CheckAll();"/></td><td class="row1"> <b><label for="all">'.$_template['select_all'].'</label></b><input type="hidden" name="course_select" value="'.$course_select.'" /></td></tr>'."\n";
 
 				$index = "SELECT title, content_parent_id, content_id, ordering, text FROM content WHERE course_id=$course_select AND content_parent_id=0 ORDER BY ordering";
-				$index_result = $db->query($index);
-				$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-				$countres = $db->query($countsql);
-				$count = $countres->fetchRow();
-
-				if ($index_result && $count[0] > 0) {
+				$index_result = mysql_query($index);
+				if ($index_result && mysql_num_rows($index_result) > 0) {
 					$parent=array();
 					$i=0;
-					while ($index_row = $index_result->fetchRow()){
-			
+					while ($index_row = mysql_fetch_row($index_result)){
 						$index_con_id = $index_row[2];
-						if ($index_row[0] != 'Welcome To K-Lore') {
+						if ($index_row[0] != 'Welcome To klore') {
 							echo '<tr><td class="row1"><input type="checkbox" id="a_'.$index_row[2].'" value="'.$index_row[2].'" name="parent['.$i++.']" onclick="CheckCheckAll();" /></td>';
 							echo '<td class="row1"><strong><label for="a_'.$index_row[2].'">'.$index_row[0].'</label></strong></td></tr>'."\n";
 							
 							$index_sql = "SELECT title, text FROM content WHERE course_id=$course_select AND content_parent_id=$index_con_id ORDER BY ordering";
-							$index_result2 = $db->query($index_sql);
-							while ($index_row2 = $index_result2->fetchRow()){
+							$index_result2 = mysql_query($index_sql);
+							while ($index_row2 = mysql_fetch_row($index_result2)){
 								echo '<tr><td class="row1">&nbsp;</td><td class="row4"> - ';
 								echo $index_row2[0];
 								echo '</td></tr>';
@@ -244,9 +215,10 @@ if(!$print || $errors){
 				//echo '<tr><td class="row1"><input type="checkbox" value="SelectAll" id="all" title="select/unselect all" name="selectall" onclick="CheckAll();"/></td><td class="row1"> <b><label for="all">'.$_template['select_all'].'</label></b><input type="hidden" name="course_select" value="'.$course_select.'" /></td></tr>'."\n";
 
 				//echo '</td></tr>';
-				if($count[0]==0){
-					$infos[]=AT_INFOS_NO_CONTENT;
-					print_infos($infos);
+
+				if(mysql_num_rows($index_result)==1){
+				$infos[]=AT_INFOS_NO_CONTENT;
+				print_infos($infos);
 				}
 			}
 		}

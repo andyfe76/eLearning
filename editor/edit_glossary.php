@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 	$_include_path = '../include/';
 	require($_include_path.'vitals.inc.php');
@@ -37,7 +42,7 @@
 		if (!$errors) {
 			$sql = "UPDATE glossary SET word='$_POST[word]', definition='$_POST[definition]', related_word_id=$_POST[related_term] WHERE word_id=$_POST[gid] AND course_id=$_SESSION[course_id]";
 			
-			$result = $db->query($sql);
+			$result = mysql_query($sql);
 
 			Header('Location: ../glossary/?L='.strtoupper(substr($_POST['word'], 0, 1)).SEP.'f='.urlencode_feedback(AT_FEEDBACK_GLOS_UPDATED));
 			exit;
@@ -75,9 +80,9 @@
 
 	echo '<form action="'.$PHP_SELF.'" method="post" name="form">';
 
-	$result = $db->query("SELECT * FROM glossary WHERE word_id=$gid");
+	$result = mysql_query("SELECT * FROM glossary WHERE word_id=$gid");
 
-	if (!( $row =$result->fetchRow(DB_FETCHMODE_ASSOC)) ) {
+	if (!( $row = @mysql_fetch_array($result)) ) {
 		$errors[]=AT_ERROR_TERM_NOT_FOUND;
 		print_errors($errors);
 		require ($_include_path.'footer.inc.php');
@@ -85,8 +90,8 @@
 	}
 
 	if ($_POST['submit']) {
-		$row['WORD']		= $_POST['word'];
-		$row['DEFINITION']  = $_POST['definition'];
+		$row['word']		= $_POST['word'];
+		$row['definition']  = $_POST['definition'];
 	}
 
 ?>
@@ -98,12 +103,12 @@
 </tr>
 <tr>
 	<td align="right" class="row1"><b><label for="title"><?php echo $_template['glossary_term'];  ?>:</label></b></td>
-	<td class="row1"><input type="text" name="word" size="40" id="title" class="formfield" value="<?php echo $row['WORD']; ?>"></td>
+	<td class="row1"><input type="text" name="word" size="40" id="title" class="formfield" value="<?php echo $row['word']; ?>"></td>
 </tr>
 <tr><td height="1" class="row2" colspan="2"></td></tr>
 <tr>
 	<td valign="top" align="right" class="row1"><b><label for="body"><?php echo $_template['glossary_definition'];?>:</label></b></td>
-	<td class="row1"><textarea name="definition" class="formfield" cols="55" rows="7" id="body" wrap="wrap"><?php echo $row['DEFINITION']; ?></textarea></td>
+	<td class="row1"><textarea name="definition" class="formfield" cols="55" rows="7" id="body" wrap="wrap"><?php echo $row['definition']; ?></textarea></td>
 </tr>
 <tr><td height="1" class="row2" colspan="2"></td></tr>
 <tr>
@@ -111,20 +116,20 @@
 	<td class="row1"><?php
 
 			$sql = "SELECT * FROM glossary WHERE course_id=$_SESSION[course_id] AND word_id<>$gid ORDER BY word";
-			$result = $db->query($sql);
-			if ($row_g =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+			$result = mysql_query($sql);
+			if ($row_g = mysql_fetch_array($result)) {
 				echo '<select name="related_term">';
 				echo '<option value="0"></option>';
 				do {
-					if ($row_g['WORD_ID'] == $row['WORD_ID']) {
+					if ($row_g['word_id'] == $row['word_id']) {
 						continue;
 					}
-					echo '<option value="'.$row_g[WORD_ID].'"';
-					if ($row_g['WORD_ID'] == $row['RELATED_WORD_ID']) {
+					echo '<option value="'.$row_g[word_id].'"';
+					if ($row_g['word_id'] == $row['related_word_id']) {
 						echo ' selected';
 					}
-					echo '>'.$row_g[WORD].'</option>';
-				} while ($row_g =$result->fetchRow(DB_FETCHMODE_ASSOC));
+					echo '>'.$row_g[word].'</option>';
+				} while ($row_g = mysql_fetch_array($result));
 				echo '</select>';
 			} else {
 				echo 'None available.';

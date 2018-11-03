@@ -7,15 +7,11 @@ $_SESSION['s_is_super_admin'] = false;
 
 if ($_POST['ok']){
 	$sql = "SELECT * FROM course_options";
-	$res = $db->query($sql);
-	while( $row =$res->fetchRow(DB_FETCHMODE_ASSOC) ){
-		$value = $_POST[$row['NAME']];
-		$sql = "UPDATE course_options SET value='$value' WHERE name='$row[NAME]'";
-		$update = $db->query($sql);
-		if(PEAR::isError($update)) {
-			print_r($update);
-			exit;
-		}
+	$res = mysql_query($sql, $db);
+	while( $row = mysql_fetch_array($res) ){
+		$value = $_POST[$row['name']];
+		$sql = "UPDATE course_options SET value='$value' WHERE name='$row[name]'";
+		$update = mysql_query($sql, $db);
 	}
 	Header ('Location: '.$_base_href.'users/coursemng.php?f='.urlencode_feedback(AT_FEEDBACK_COURSE_OPTIONS));
 }
@@ -29,37 +25,37 @@ print_errors($errors);
 
 <?php
 	$sql = "SELECT * FROM course_options";
-	$res = $db->query($sql);
+	$res = mysql_query($sql, $db);
 	echo '<form name="test_admin" action="'.$PHP_SELF.'" method="post">';
 	echo '<table cellspacing="1" cellpadding="0" border="0" class="bodyline" width="350" summary="">';
 	echo '<tr><th colspan="2">';
 	echo '<h3>'.$_template['test_options'].':</h3>';
 	echo '</th></tr>';
-	while( $row =$res->fetchRow(DB_FETCHMODE_ASSOC) ) {
+	while( $row = mysql_fetch_array($res) ) {
 		echo '<tr><td class="row1">';
-		if( $row['TYPE'] == 'checkbox' ){
-			echo '<input type="checkbox" name="'.$row['NAME'].'" value="1"';
-			if ($row['VALUE'] <> '') echo ' checked="checked"';
+		if( $row['type'] == 'checkbox' ){
+			echo '<input type="checkbox" name="'.$row['name'].'" value="1"';
+			if ($row['value'] <> '') echo ' checked="checked"';
 			echo '>';
-		} else if( $row['TYPE'] == 'radio' ) {
+		} else if( $row['type'] == 'radio' ) {
 			
-		} else if( $row['TYPE'] == 'select' ) {
+		} else if( $row['type'] == 'select' ) {
 			
-		} else if( $row['TYPE'] == 'text' ) {
+		} else if( $row['type'] == 'text' ) {
 			echo '&nbsp;';
 		}
 	
 		echo '</td><td class="row1">';
 
-		if( $row['TYPE'] == 'checkbox' ){
-			echo $_template[ $row['NAME'] ];
-		} else if( $row['TYPE'] == 'radio' ){
-			echo $_template[ $row['NAME'] ];
-		} else if( $row['TYPE'] == 'text' ) {
-			echo '<br><input type="text" name="'.$row['NAME'].'" value="'.$row['VALUE'].'">';
-		} else if( $row['TYPE'] == 'select' ) {
-			echo '<br><input type="select" name="'.$row['NAME'].'" class="dropdown">';
-			echo $row['VALUE'];
+		if( $row['type'] == 'checkbox' ){
+			echo $_template[ $row['name'] ];
+		} else if( $row['type'] == 'radio' ){
+			echo $_template[ $row['name'] ];
+		} else if( $row['type'] == 'text' ) {
+			echo '<br><input type="text" name="'.$row['name'].'" value="'.$row['value'].'">';
+		} else if( $row['type'] == 'select' ) {
+			echo '<br><input type="select" name="'.$row['name'].'" class="dropdown">';
+			echo $row['value'];
 		}
 		
 		echo '</td></tr>';

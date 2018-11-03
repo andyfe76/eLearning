@@ -3,7 +3,6 @@ body {
 	font-family: Helvetica, arial, sans serif;
 	margin: 0px;
 	margin-top: 0px;
-	margin-right: 15em;
 	color: black;
 }
 
@@ -27,16 +26,19 @@ td.breadcrumbs	{
 	display: none;
 }
 
+td.rowpic {
+	display: none;
+}
+
 #menu, #tools, #howto, #seqtop, #seqbottom, #top, #menuR {
 	display: none;
 }
 
 #content {
 	width: auto;
-	border: 2;
-	margin: 0 10%;
-	margin-right: 20em;
-	padding: 3;
+	border: 0;
+	margin: 0 5%;
+	padding: 0;
 	float: none;
 }
 

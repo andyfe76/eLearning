@@ -3,7 +3,12 @@
 /* klore														*/
 /****************************************************************/
 /* Copyright (c) 2002-2003 by Greg Gay & Joel Kronenberg        */
-
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 	$_include_path = '../../include/';
 	require($_include_path.'vitals.inc.php');
@@ -20,10 +25,10 @@
 		$rid = intval($_GET['rid']);
 
 		$sql	= "DELETE FROM tests_answers WHERE result_id=$rid";
-		$result	= $db->query($sql);
+		$result	= mysql_query($sql, $db);
 
 		$sql	= "DELETE FROM tests_results WHERE result_id=$rid";
-		$result	= $db->query($sql);
+		$result	= mysql_query($sql, $db);
 		Header('Location: ../tests/results.php?tid='.$_GET['tid'].SEP.'f='.urlencode_feedback(AT_FEEDBACK_RESULT_DELETED));
 		exit;
 	} else {

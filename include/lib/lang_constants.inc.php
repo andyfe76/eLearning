@@ -129,16 +129,6 @@ define('AT_ERROR_INVALID_MIN_GRADE', $i); $i++;
 define('AT_ERROR_MANDATORY_FIELDS', $i); $i++;
 define('AT_ERROR_NOT_ENROLLED', $i); $i++;
 
-define('AT_ERROR_MAX_STUD_REACHED', $i); $i++;
-// translation
-define('AT_ERROR_USER_ALREADY_LOGGEDIN', $i); $i++;
-define('AT_ERROR_SQL_BAD_DEFINITION', $i); $i++;
-define('AT_ERROR_DYNAMIC_GROUP', $i); $i++;
-define('AT_ERROR_USER_LICENSES_LIMIT', $i); $i++;
-define('AT_ERROR_FIRST_NAME_MISSING', $i); $i++;
-define('AT_ERROR_LAST_NAME_MISSING', $i); $i++;
-define('AT_ERROR_NO_REPORT_COLUMNS', $i); $i++;
-
 
 /********************************************************/
 /* HELP DEFINITIONS										*/
@@ -265,10 +255,6 @@ define('AT_WARNING_DELETE_TRACKING', $i); $i++;
 define('AT_WARNING_DELETE_TEST', $i); $i++;
 define('AT_WARNING_DELETE_RESULTS', $i); $i++;
 define('AT_WARNING_DELETE_QUESTION', $i); $i++;
-define('AT_WARNING_DELETE_USER_GROUP1', $i); $i++;
-define('AT_WARNING_DELETE_USER_GROUP2', $i); $i++;
-define('AT_WARNING_SURE_DELETE_MODULE1', $i); $i++;
-define('AT_WARNING_SURE_DELETE_MODULE2', $i); $i++;
 
 //////////////////////////////////////
 // FEEDBACK DEFINITIONS
@@ -313,7 +299,6 @@ define('AT_FEEDBACK_ACCOUNT_PENDING', $i); $i++;
 define('AT_FEEDBACK_TABLE_CREATED', $i); $i++;
 define('AT_FEEDBACK_USER_DELETED', $i); $i++;
 define('AT_FEEDBACK_USER_RESTORED', $i); $i++;
-define('AT_FEEDBACK_USERS_UPDATED', $i); $i++;
 define('AT_FEEDBACK_FORUM_UPDATED', $i); $i++;
 define('AT_FEEDBACK_NEWS_UPDATED', $i); $i++;
 define('AT_FEEDBACK_NEWS_ADDED', $i); $i++;
@@ -363,14 +348,6 @@ define('AT_FEEDBACK_LINK_CAT_EDITED', $i); $i++;
 define('AT_FEEDBACK_EXPORT_CANCELLED', $i); $i++;
 define('AT_FEEDBACK_IMPORT_CANCELLED', $i); $i++;
 define('AT_FEEDBACK_PASSWORD_EXP', $i); $i++;
-define('AT_FEEDBACK_ACCESS_DENIED', $i); $i++;
-define('AT_FEEDBACK_USER_GROUP_DELETED', $i); $i++;
-define('AT_FEEDBACK_MODULE_DELETED', $i); $i++;
-define('AT_FEEDBACK_DYN_GROUP_CREATED', $i); $i++;
-define('AT_FEEDBACK_TEST_ALREADY_PASSED', $i); $i++;
-define('AT_FEEDBACK_NO_QUESTIONS', $i); $i++;
-define('AT_FEEDBACK_FB_SENT', $i); $i++;
-define('AT_FEEDBACK_FB_ALREADY_SENT', $i); $i++;
 
 /********************************************************/
 /* INFOS DEFINITIONS									*/

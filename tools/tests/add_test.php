@@ -39,21 +39,18 @@
 
 
 		$_POST['instructions'] = trim($_POST['instructions']);
-		
-		$s_date = $_POST['s_date'];
-		$e_date = $_POST['e_date'];
 
-		$day_start	= substr($s_date, 0, 2);
-		$month_start= substr($s_date, 3, 2);
-		$year_start	= substr($s_date, 6, 4);
-		$hour_start	= substr($s_date, 11, 2);
-		$min_start	= substr($s_date, 14, 2);
+		$day_start	= intval($_POST['day_start']);
+		$month_start= intval($_POST['month_start']);
+		$year_start	= intval($_POST['year_start']);
+		$hour_start	= intval($_POST['hour_start']);
+		$min_start	= intval($_POST['min_start']);
 
-		$day_end	= substr($e_date, 0, 2);
-		$month_end	= substr($e_date, 3, 2);
-		$year_end	= substr($e_date, 6, 4);
-		$hour_end	= substr($e_date, 11, 2);
-		$min_end	= substr($e_date, 14, 2);
+		$day_end	= intval($_POST['day_end']);
+		$month_end	= intval($_POST['month_end']);
+		$year_end	= intval($_POST['year_end']);
+		$hour_end	= intval($_POST['hour_end']);
+		$min_end	= intval($_POST['min_end']);
 
 		if (!checkdate($month_start, $day_start, $year_start)) {
 			$errors[]= AT_ERROR_START_DATE_INVALID;
@@ -91,23 +88,24 @@
 				$min_end = "0$min_end";
 			}
 
-			$start_date = "$day_start/$month_start/$year_start $hour_start:$min_start:00";
-			$end_date	= "$day_end/$month_end/$year_end $hour_end:$min_end:00";
+			$start_date = "$year_start-$month_start-$day_start $hour_start:$min_start:00";
+			$end_date	= "$year_end-$month_end-$day_end $hour_end:$min_end:00";
 			
 			if ($_POST['retries'] == '') $_POST['retries'] = 0;
 			if ($_POST['duration'] == '') $_POST['duration'] = 0;
 			if ($_POST['num'] == '') $_POST['num'] = 0;
 			$_POST['min_grade'] = intval($_POST['min_grade']);
 
-			$id = $db->nextId("AUTO_TESTS_TEST_ID_SEQ");
-			$sql = "INSERT INTO tests VALUES ($id, $_SESSION[course_id], '$_POST[title]', $_POST[format], TO_DATE('$start_date', 'DD/MM/YYYY HH24:MI:SS'), TO_DATE('$end_date', 'DD/MM/YYYY HH24:MI:SS'), $_POST[duration], $_POST[order], $_POST[num], '$_POST[instructions]', $_POST[retries], $_POST[min_grade])";
-			$result = $db->query($sql);
+			$sql = "INSERT INTO tests VALUES (0, $_SESSION[course_id], '$_POST[title]', $_POST[format], '$start_date', '$end_date', $_POST[duration], $_POST[order], $_POST[num], '$_POST[instructions]', $_POST[retries], $_POST[min_grade])";
+			$result = mysql_query($sql, $db);
 			
 			if (!$result) {
 				echo 'Error inserting test properties.';
 				echo '<br>SQL expression: '.$sql;
 				exit;
 			}
+			
+			$id = mysql_insert_id();
 			
 			if (($_POST['test_type'] >1) && ($id>0)) {
 				$sql	= "INSERT INTO tests_questions VALUES (	0,
@@ -140,7 +138,7 @@
 					0,
 					0,
 					0)";
-				$result	= $db->query($sql);
+				$result	= mysql_query($sql, $db);
 				if (!$result) {
 					echo 'Error initiating test question database.';
 					exit;
@@ -148,7 +146,7 @@
 			}
 			
 			$sql = "INSERT INTO test_type VALUES ($id, $_POST[test_type])";
-			$res = $db->query($sql);
+			$res = mysql_query($sql, $db);
 
 			/*
 			Insert the test into content management, so that we can give page display access for the pages that follows the test
@@ -183,14 +181,6 @@ echo '<h2>'.$_template['add_test'].'</h2>';
 print_errors($errors);
 
 ?>
-
-<script language="JavaScript" src="include/calendar/ts_picker.js">
-
-//Script by Denis Gritcyuk: tspicker@yahoo.com
-//Submitted to JavaScript Kit (http://javascriptkit.com)
-//Visit http://javascriptkit.com for this script
-
-</script>
 <form action="tools/tests/add_test.php" method="post" name="form">
 <table cellspacing="1" cellpadding="0" border="0" class="bodyline" summary="" align="center">
 <tr>
@@ -223,16 +213,15 @@ print_errors($errors);
 <tr>
 	<td class="row1" align="right"><b><?php echo $_template['start_date'];  ?>:</b></td>
 	<td class="row1"><?php
-	
-		$course_id = $_SESSION['course_id'];
-		$sql = "SELECT TO_CHAR(start_date, 'dd-mm-yyyy hh24:mi:ss') as start_date, TO_CHAR(end_date, 'dd-mm-yyyy hh24:mi:ss') as end_date FROM course_availability WHERE course_id=$course_id";
-		$res = $db->query($sql);
-		$row = $res->fetchRow(DB_FETCHMODE_ASSOC);
-		$s_date = $row['START_DATE'];
-		$e_date = $row['END_DATE'];
-		echo '<input type="text" size="24" name="s_date" value="'.$s_date.'">';
-		echo '&nbsp;&nbsp;';
-		echo '<a href="javascript:show_calendar(\'document.form.s_date\', document.form.s_date.value);"><img src="images/cal/cal.gif" width="16" height="16" border="0" alt="'.$_template['pick_up_timestamp'].'"></a>';
+				
+					$today_day  = date('d');
+					$today_mon  = date('m');
+					$today_year = date('Y');
+					$today_hour = date('H');
+					$today_min  = 0;
+
+					$name = '_start';
+					require($_include_path.'lib/release_date.inc.php');
 
 	?></td>
 </tr>
@@ -240,9 +229,15 @@ print_errors($errors);
 <tr>
 	<td class="row1" align="right"><b><?php echo $_template['end_date'];  ?>:</b></td>
 	<td class="row1"><?php
-		echo '<input type="text" size="24" name="e_date" value="'.$e_date.'">';
-		echo '&nbsp;&nbsp;';
-		echo '<a href="javascript:show_calendar(\'document.form.e_date\', document.form.e_date.value);"><img src="images/cal/cal.gif" width="16" height="16" border="0" alt="'.$_template['pick_up_timestamp'].'"></a>';
+				
+					$today_day  = date('d');
+					$today_mon  = date('m');
+					$today_year = date('Y');
+					$today_hour = date('H');
+					$today_min  = 0;
+					
+					$name = '_end';
+					require($_include_path.'lib/release_date.inc.php');
 
 	?></td>
 </tr>

@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 	$_include_path = 'include/';
 	
@@ -16,7 +21,7 @@
 	$_GET['view'] = intval($_GET['view']);
 
 	if ($_GET['view']) {
-		$result = $db->query("UPDATE messages SET new=0 WHERE to_member_id=$_SESSION[member_id] AND message_id=$_GET[view]");
+		$result = mysql_query("UPDATE messages SET new=0 WHERE to_member_id=$_SESSION[member_id] AND message_id=$_GET[view]",$db);
 	}
 
 	$current_path = '';

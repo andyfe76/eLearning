@@ -9,11 +9,7 @@
 		exit;
 	}
 
-	if (($_SESSION['status']<>STATUS_ADMINISTRATOR) && ($_SESSION['status']<>STATUS_TRAINER) && ($_SESSION['status']<>STATUS_TRAINING_MANAGER)) {
-		Header('Location: ../index.php?f='.urlencode_feedback(AT_FEEDBACK_ACCESS_DENIED));
-		exit;
-	}
-	if ($_POST['add_news']) {
+	if ($_POST['add_news'] && $_SESSION['is_admin']) {
 		$_POST['title'] = trim($_POST['title']);
 		$_POST['body']  = trim($_POST['body']);
 		$_POST['formatting']	= 1;
@@ -23,28 +19,8 @@
 		}
 
 		if (!$errors) {
-			$newsid = $db->nextId("AUTO_NEWS_NID_SEQ");
-			
-		//***
-
-   				$cfname = 'content/'.$newsid.'.news';		
-				ignore_user_abort(true);  
-				$fh = fopen('../'.$cfname, 'w+');    
-   				fwrite($fh, $_POST['body']);
-   				fflush($fh);
-				fclose($fh);
-				ignore_user_abort(false);    
-		
-		//***
-
-			
-			$sql	= "INSERT INTO news VALUES ($newsid, $_SESSION[course_id], $_SESSION[member_id], SYSDATE, $_POST[formatting], '$_POST[title]', '$cfname')";
-			$result = $db->query($sql);
-			if (PEAR::isError($result)) {
-				print_r($result);
-				exit;
-			}
-			//print_r($result);
+			$sql	= "INSERT INTO news VALUES (0, $_SESSION[course_id], $_SESSION[member_id], NOW(), $_POST[formatting], '$_POST[title]', '$_POST[body]')";
+			$result = mysql_query($sql,$db);
 
 			Header('Location: ../index.php?f='.urlencode_feedback(AT_FEEDBACK_NEWS_ADDED));
 			exit;

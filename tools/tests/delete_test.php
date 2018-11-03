@@ -3,7 +3,12 @@
 /* klore														*/
 /****************************************************************/
 /* Copyright (c) 2002-2003 by Greg Gay & Joel Kronenberg        */
-
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 	$_include_path = '../../include/';
 	require($_include_path.'vitals.inc.php');
@@ -17,34 +22,30 @@
 		$tid = intval($_GET['tid']);
 
 		$sql	= "DELETE FROM tests_questions WHERE test_id=$tid AND course_id=$_SESSION[course_id]";
-		$result	= $db->query($sql);
+		$result	= mysql_query($sql, $db);
 
 		$sql	= "DELETE FROM tests WHERE test_id=$tid AND course_id=$_SESSION[course_id]";
-		$result	= $db->query($sql);
-		
-		$sql	= "DELETE FROM content WHERE content_id=$cid AND course_id=$_SESSION[course_id] AND formatting=2";
-		$result	= $db->query($sql);
-		
+		$result	= mysql_query($sql, $db);
 
 		/* it has to delete the results as well... */
 		$sql	= "SELECT result_id FROM tests_results WHERE test_id=$tid";
-		$result	= $db->query($sql);
-		if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-			$result_list = '('.$row['RESULT_ID'];
+		$result	= mysql_query($sql, $db);
+		if ($row = mysql_fetch_array($result)) {
+			$result_list = '('.$row['result_id'];
 
-			while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-				$result_list .= ','.$row['RESULT_ID'];
+			while ($row = mysql_fetch_array($result)) {
+				$result_list .= ','.$row['result_id'];
 			}
 			$result_list .= ')';
 		}
 
 		if ($result_list != '') {
 			$sql	= "DELETE FROM tests_answers WHERE result_id IN $result_list";
-			$result	= $db->query($sql);
+			$result	= mysql_query($sql, $db);
 
 
 			$sql	= "DELETE FROM tests_results WHERE test_id=$tid";
-			$result	= $db->query($sql);
+			$result	= mysql_query($sql, $db);
 		}
 
 		$feedback[]=AT_FEEDBACK_TEST_DELETED;
@@ -60,7 +61,7 @@
 		$warnings[]=array(AT_WARNING_DELETE_TEST, $_GET['tt']);
 		print_warnings($warnings);
 		//echo '<p>Are you sure you want to delete this test?<br />';
-		echo '<a href="tools/tests/delete_test.php?cid='.$_GET['cid'].'&tid='.$_GET['tid'].SEP.'d=1">'.$_template['yes_delete'].'</a>, <a href="tools/tests/?f='.urlencode_feedback(AT_FEEDBACK_CANCELLED).'">'.$_template['no_cancel'].'</a>';
+		echo '<a href="tools/tests/delete_test.php?tid='.$_GET['tid'].SEP.'d=1">'.$_template['yes_delete'].'</a>, <a href="tools/tests/?f='.urlencode_feedback(AT_FEEDBACK_CANCELLED).'">'.$_template['no_cancel'].'</a>';
 		//echo '</p>';
 	}
  

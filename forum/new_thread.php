@@ -55,30 +55,30 @@ if ($_POST['submit']) {
 
 		}
 
-		/* use this value instead of SYSDATE, because we want the parent post to have the exact */
+		/* use this value instead of NOW(), because we want the parent post to have the exact */
 		/* same date. and not a second off if that may happen */
 		$now = date('Y-m-d H:i:s');
 
-		$this_id = $db->nextId("AUTO_FORUMS_THREADS_POST_ID");
-		$sql = "INSERT INTO forums_threads VALUES($this_id, $_POST[parent_id], $_SESSION[course_id], $_SESSION[member_id], $_POST[fid], '$_SESSION[login]', '$now', 0, '$_POST[subject]', '$_POST[body]', '$now', 0, 0)";
+		$sql = "INSERT INTO forums_threads VALUES(0, $_POST[parent_id], $_SESSION[course_id], $_SESSION[member_id], $_POST[fid], '$_SESSION[login]', '$now', 0, '$_POST[subject]', '$_POST[body]', '$now', 0, 0)";
 
-		$result	 = $db->query($sql);
+		$result	 = mysql_query($sql, $db);
+		$this_id = mysql_insert_id();
 
 		if ($_POST['parent_id'] != 0) {
 			$sql = "UPDATE forums_threads SET num_comments=num_comments+1, last_comment='$now' WHERE post_id=$_POST[parent_id]";
-			$result = $db->query($sql);
+			$result = mysql_query($sql, $db);
 
 			/* WARNING!!!!											*/
 			/* this joing will be VERY costly when usage increases! */
 			$sql	= "SELECT M.email, M.login FROM members M, forums_subscriptions S WHERE S.post_id=$_POST[parent_id] AND S.member_id=M.member_id AND M.email <>'' AND S.member_id<>$_SESSION[member_id]";
 
-			$result = $db->query($sql);
+			$result = mysql_query($sql, $db);
 
-			while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+			while ($row = mysql_fetch_array($result)) {
 				if ($bcc != '') {
 					$bcc .= ', ';
 				}
-				$bcc .= $row['EMAIL'];
+				$bcc .= $row['email'];
 			}
 			//$body = $_template['thread_notify'];
 			//$body = $_template['thread_notify2'].' '.$_SESSION[course_title].' '.$_template['thread_notify3'].' '.get_forum($_POST['fid']).' '.$_template['thread_notify4'].' "'.$_POST['parent_name'].'" '.$_template['thread_notify4'].':'.$_base_href;
@@ -92,7 +92,7 @@ if ($_POST['submit']) {
 
 		if ($_POST['subscribe']) {
 			$sql	= "INSERT INTO forums_subscriptions VALUES ($this_id, $_SESSION[member_id])";
-			$result = $db->query($sql);
+			$result = mysql_query($sql, $db);
 		}
 
 		if ($_POST['parent_id'] == 0) {

@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 	$_include_path = '../include/';
 	require ($_include_path.'vitals.inc.php');
@@ -24,7 +29,7 @@
 
 		if (!$errors) {
 			$sql	= "INSERT INTO forums VALUES (0, $_SESSION[course_id], '$_POST[title]', '$_POST[body]')";
-			$result = $db->query($sql);
+			$result = mysql_query($sql,$db);
 
 			//$f = array(AT_FEEDBACK_FORUM_ADDED, AT_FEEDBACK_FORUM_ADDED);
 			$f = AT_FEEDBACK_FORUM_ADDED;

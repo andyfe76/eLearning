@@ -8,11 +8,11 @@ function print_result($q_text, $q_answer, $q_num, $a_num, $multi, $show_ans=true
 	}
 	if ($multi) {
 		if ($a_num == 1) {
-			echo '<input type="checkbox" checked="checked" disabled="disabled" />';
+			echo '<input type="checkbox" checked="checked"/>';
 		} else {
 			echo '<input type="checkbox" disabled="disabled" />';
 		}
-		if( $show_ans <> '' ) {
+		if( $show_ans <> '0' ) {
 			if ($q_answer == 1) {
 				echo $mark_right;
 			} else {
@@ -21,13 +21,13 @@ function print_result($q_text, $q_answer, $q_num, $a_num, $multi, $show_ans=true
 		}
 	} else {
 		if ($a_num == $q_num)  {
-			echo '<input type="checkbox" checked="checked" disabled="disabled"/>';
+			echo '<input type="checkbox" checked="checked"/>';
 		} else {
 			echo '<input type="checkbox" disabled="disabled" />';
 		}
-		if (($q_answer == $q_num) & ($show_ans <> '' )) {
+		if (($q_answer == $q_num) & ($show_ans <> '0' )) {
 			echo $mark_right;
-		} else if($show_ans<>'') {
+		} else if($show_ans<>'0') {
 			echo $mark_wrong;
 	}
 
@@ -46,7 +46,7 @@ function print_score($correct, $weight, $qid, $score, $put_zero = true, $open=fa
 	} else if ($put_zero) {
 		$val = '0';
 	}
-	if ($val=='') $val='0';
+	
 	if ($open) {
 		echo '<input type="text" class="formfieldR" size="2" name="scores['.$qid.']" value="'.$val.'" style="width: 25px; font-weight: bold;" maxlength="4" /><b>/'.$weight.'</b>';
 	} else {	

@@ -32,7 +32,7 @@ session_register('track_me');		/* true|false whether or not this user gets track
 session_register('pretime');		/* keep track of the timestamp for the previous page for duration calculation */
 session_register('test_name');		/* current name of the test */
 session_register('test_timing');	/* time limit for test takers */
-session_register('c_instructor'); 	/* specifies if the current user is a trainer or training manager. */
+session_register('c_instructor'); 	/* specifies if the current user is the course instructor / creator. */
 
 $current_url = 'http://'.$_SERVER['HTTP_HOST'].$PHP_SELF;
 

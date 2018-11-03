@@ -2,6 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 $_include_path = '../include/';
 require ($_include_path.'vitals.inc.php');
@@ -13,7 +20,9 @@ $_section[1][0] = $_template['glossary'];
 require ($_include_path.'header.inc.php');
 print_feedback($feedback);
 ?>
+<h2><a href="tools/?g=11"><?php echo $_template['tools']; ?></a></h2>
 <h3><?php echo $_template['glossary']; ?></h3>
+<p>Browse the glossary by letter or view all.</p>
 <br />
 
 <?php
@@ -30,25 +39,14 @@ print_feedback($feedback);
 	for($i=0; $i<28; $i++) {
 		echo '<a href="'.$PHP_SELF.'?L='.$letters[$i].'#list">';
 		if ($letters[$i] == $_GET['L']) {
-			$letter = $letters[$i];
-			
-			echo '<b>'.$letter.'</b>';
+			echo '<b>'.$letters[$i].'</b>';
 
+			$letter = $letters[$i];
 			if ($i < 26) {
-				if ($letters[$i+1] == $_template['others']) {
-					$letter_sql = " AND (((word>='z') AND (word<'1'))";
-					$next_letter_sql = " OR ((word>='Z') AND (word<'a')))";
-				} else {
-					$letter_sql = " AND (((word>='".strtolower($letter)."') AND (word<'".strtolower($letters[$i+1])."'))";
-				}
+				$letter_sql = " AND word>='$letter'";
 			}
 			if ($i < 25) { 
-				if ($letters[$i+1] == $_template['others']) {
-					$letter_sql = " AND (((word>='z') AND (word<'1'))";
-					$next_letter_sql = " OR ((word>='Z') AND (word<'a')))";
-				} else {
-					$next_letter_sql = " OR ((word>='".strtoupper($letter)."') AND (word<'".strtoupper($letters[$i+1])."')))";
-				}
+				$next_letter_sql = " AND word<'{$letters[$i+1]}'";
 			}
 		} else {
 			echo $letters[$i];
@@ -64,7 +62,7 @@ print_feedback($feedback);
 	echo '</div>';
 
 	/* admin editing options: */
-	if (($_SESSION['status']==STATUS_INSTRUCTOR) || ($_SESSION['status']==STATUS_ADMIN) || ($_SESSION['status']=STATUS_TRAINING_MANAGER)) {
+	if (($_SESSION['is_admin']) && ($_SESSION['prefs'][PREF_EDIT])) {
 		echo '<br />';
 		echo '<a href="editor/add_new_glossary.php">'.$_template['add_glossary'].'</a>';
 		echo '<br />';
@@ -72,53 +70,47 @@ print_feedback($feedback);
 	}
 
 	echo '<a name="list"></a>';
-	if (isset($_GET['L'])) $letter = $_GET['L'];
 	if ($letter != '') {
-		if (($letter == $_template['others']) || ($letter<'A') || ($letter>'zzzz')) {
-			$letter_sql = 'AND ((word<\'A\') OR (word>\'zzzz\'))';
+		if ($letter == 'Other') {
+			$letter_sql = 'AND word<\'a\' || word>\'zzzz\'';
 		}
 
 		$sql	= "SELECT word_id, related_word_id FROM glossary WHERE related_word_id>0 AND course_id=$_SESSION[course_id] ORDER BY related_word_id";
-		$result = $db->query($sql);
-		while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-			$glossary_related[$row['RELATED_WORD_ID']][] = $row['WORD_ID'];
+		$result = mysql_query($sql);
+		while ($row = mysql_fetch_array($result)) {
+			$glossary_related[$row['related_word_id']][] = $row['word_id'];
 		}
 
 		$sql	= "SELECT * FROM glossary WHERE course_id=$_SESSION[course_id] $letter_sql $next_letter_sql ORDER BY word";
-		$result= $db->query($sql);
-		
-		
-		$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-		$countres = $db->query($countsql);
-		$count0 = $countres->fetchRow();
-		if($count0[0] > 0){
+		$result= mysql_query($sql);
+		if(mysql_num_rows($result) > 0){
 		
 			$current_letter = '';
-			while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-				if ($current_letter != strtoupper(substr($row['WORD'], 0, 1))) {
-					$current_letter = strtoupper(substr($row['WORD'], 0, 1));
+			while ($row = mysql_fetch_array($result)) {
+				if ($current_letter != strtoupper(substr($row['word'], 0, 1))) {
+					$current_letter = strtoupper(substr($row['word'], 0, 1));
 					echo '<h3>- '.$current_letter.' -</h3>';
 				}
 				echo '<p>';
-				echo '<a name="'.urlencode($row['WORD']).'"></a>';
+				echo '<a name="'.urlencode($row['word']).'"></a>';
 
-				echo '<b>'.stripslashes($row['WORD']);
+				echo '<b>'.stripslashes($row['word']);
 
-				if (	($row['RELATED_WORD_ID'] != 0) 
+				if (	($row['related_word_id'] != 0) 
 					|| 
-						(is_array($glossary_related[$row['WORD_ID']]) )) {
+						(is_array($glossary_related[$row['word_id']]) )) {
 
 					echo ' ('.$_template['see'].': ';
 
 					$output = false;
 
-					if ($row['RELATED_WORD_ID'] != 0) {
-						echo '<a href="'.$PHP_SELF.'?L='.strtoupper(substr($glossary_ids[$row['RELATED_WORD_ID']], 0, 1)).'#'.urlencode($glossary_ids[$row['RELATED_WORD_ID']]).'">'.$glossary_ids[$row['RELATED_WORD_ID']].'</a>';
+					if ($row['related_word_id'] != 0) {
+						echo '<a href="'.$PHP_SELF.'?L='.strtoupper(substr($glossary_ids[$row['related_word_id']], 0, 1)).'#'.urlencode($glossary_ids[$row['related_word_id']]).'">'.$glossary_ids[$row['related_word_id']].'</a>';
 						$output = true;
 					}
 
-					if (is_array($glossary_related[$row['WORD_ID']]) ) {
-						$my_related = $glossary_related[$row['WORD_ID']];
+					if (is_array($glossary_related[$row['word_id']]) ) {
+						$my_related = $glossary_related[$row['word_id']];
 
 						$num_related = count($my_related);
 						for ($i=0; $i<$num_related; $i++) {
@@ -137,17 +129,17 @@ print_feedback($feedback);
 				echo '</b>';
 
 				/* admin editing options: */
-				if (($_SESSION['status']==STATUS_INSTRUCTOR) || ($_SESSION['status']==STATUS_ADMIN) || ($_SESSION['status']=STATUS_TRAINING_MANAGER)) {
+				if (($_SESSION['is_admin']) && ($_SESSION['prefs'][PREF_EDIT])) {
 					echo ' <small>(';
-					echo '<a href="editor/edit_glossary.php?gid='.$row['WORD_ID'].'">'.$_template['edit_this_term'].'</a>';
+					echo '<a href="editor/edit_glossary.php?gid='.$row['word_id'].'">'.$_template['edit_this_term'].'</a>';
 					echo ' | ';
-					echo '<a href="editor/delete_glossary.php?gid='.$row['WORD_ID'].SEP.'t='.urlencode($row['WORD']).'">'.$_template['delete_this_term'].'</a>';
+					echo '<a href="editor/delete_glossary.php?gid='.$row['word_id'].SEP.'t='.urlencode($row['word']).'">'.$_template['delete_this_term'].'</a>';
 					echo ')</small>';
 				}
 
 
 				echo '<br />';
-				echo stripslashes($row['DEFINITION']);
+				echo stripslashes($row['definition']);
 				echo '</p>';
 				echo '<br />';
 			}

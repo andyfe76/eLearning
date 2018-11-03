@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 	$_include_path = '../include/';
 	require($_include_path.'vitals.inc.php');
@@ -18,10 +23,10 @@
 		$_POST['gid'] = intval($_POST['gid']);
 
 		$sql = "DELETE FROM glossary WHERE word_id=$_POST[gid] AND course_id=$_SESSION[course_id]";
-		$result = $db->query($sql);
+		$result = mysql_query($sql);
 
 		$sql = "UPDATE glossary SET related_word_id=0 WHERE related_word_id=$_POST[gid] AND course_id=$_SESSION[course_id]";
-		$result = $db->query($sql);
+		$result = mysql_query($sql);
 
 		Header('Location: ../glossary/?L='.strtoupper(substr($_POST['word'], 0, 1)).SEP.'f='.urlencode_feedback(AT_FEEDBACK_GLOSSARY_DELETE2));
 		exit;

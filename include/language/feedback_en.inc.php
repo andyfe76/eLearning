@@ -42,8 +42,7 @@ $_feedback[AT_FEEDBACK_COURSE_REMOVED]='Course was removed successfully.';
 $_feedback[AT_FEEDBACK_ACCOUNT_PENDING]='Your Instructor account request is awaiting approval from the system administrator. You will be notified by email when your request has been approved. Return here after your Instructor account has been activated, to begin creating courses.';
 $_feedback[AT_FEEDBACK_TABLE_CREATED]='The following table has been created successfully.';
 $_feedback[AT_FEEDBACK_USER_DELETED]='User deleted successfully.';
-$_feedback[AT_FEEDBACK_USER_RESTORED]='The user has been restored and associated to the selected group.';
-$_feedback[AT_FEEDBACK_USERS_UPDATED] ='Users have been updated.';
+$_feedback[AT_FEEDBACK_USER_RESTORED]='User restored successfully.';
 $_feedback[AT_FEEDBACK_FORUM_UPDATED]='Forum was successfully updated.';
 $_feedback[AT_FEEDBACK_NEWS_UPDATED]='Announcement was successfully updated';
 $_feedback[AT_FEEDBACK_NEWS_ADDED]='Announcement was successfully created';
@@ -95,12 +94,5 @@ $_feedback[AT_FEEDBACK_EXPORT_CANCELLED] = 'Export cancelled successfully.';
 $_feedback[AT_FEEDBACK_IMPORT_CANCELLED] = 'Import cancelled successfully.';
 
 $_feedback[AT_FEEDBACK_PASSWORD_EXP] = 'Your password is about to expire. Please take a moment to <a href="users/edit.php">change your password</a>.';
-$_feedback[AT_FEEDBACK_ACCESS_DENIED] = 'Operation failed. Acces denied.';
-$_feedback[AT_FEEDBACK_USER_GROUP_DELETED] = 'Grupul de utilizatori a fost sters.';
-$_feedback[AT_FEEDBACK_MODULE_DELETED] = 'Module deleted';
-$_feedback[AT_FEEDBACK_DYN_GROUP_CREATED] = 'A dynamic group of users was created with the same name as this report`s name. Any changes to this report will reflect on the created user group. You can manage users selected in dynamic groups from User Management section.';
-$_feedback[AT_FEEDBACK_TEST_ALREADY_PASSED] = 'Test already passed';
-$_feedback[AT_FEEDBACK_NO_QUESTIONS] = 'This feedback form is empty. Please <a href="/feedback/questions.php">add new questions</a>.';
-$_feedback[AT_FEEDBACK_FB_SENT] = 'Your feedback was successfuly recorded';
-$_feedback[AT_FEEDBACK_FB_ALREADY_SENT] = 'This feedback form has already been completed and recorded';
+
 ?>

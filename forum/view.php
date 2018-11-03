@@ -22,25 +22,25 @@ function print_entry($row) {
 	global $page;
 	global $_template;
 	echo '<tr>';
-	echo '<td class="row1"><a name="'.$row['POST_ID'].'"></a><p><b>'.$row['SUBJECT'].'</b>';
+	echo '<td class="row1"><a name="'.$row['post_id'].'"></a><p><b>'.$row['subject'].'</b>';
 	if ($_SESSION['is_admin'] && $_SESSION['prefs'][PREF_EDIT]) {
-		echo ' <span class="bigspacer">( <a href="forum/delete_thread.php?fid='.$row['FORUM_ID'].SEP.'pid='.$row['POST_ID'].SEP.'ppid='.$row['PARENT_ID'].'"><img src="images/icon_delete.gif" border="0" alt="'.$_template['delete_thread'].'"  title="'.$_template['delete_thread'].'" /></a> | <a href="editor/edit_post.php?fid='.$row['FORUM_ID'].SEP.'pid='.$row['POST_ID'].'">'.$_template['edit'].'</a> )</span>';
+		echo ' <span class="bigspacer">( <a href="forum/delete_thread.php?fid='.$row['forum_id'].SEP.'pid='.$row['post_id'].SEP.'ppid='.$row['parent_id'].'"><img src="images/icon_delete.gif" border="0" alt="'.$_template['delete_thread'].'"  title="'.$_template['delete_thread'].'" /></a> | <a href="editor/edit_post.php?fid='.$row['forum_id'].SEP.'pid='.$row['post_id'].'">'.$_template['edit'].'</a> )</span>';
 	}
-	echo ' <a href="forum/view.php?fid='.$row['FORUM_ID'].SEP.'pid=';
+	echo ' <a href="forum/view.php?fid='.$row['forum_id'].SEP.'pid=';
 
-	if ($row['PARENT_ID'] == 0) {
-		echo $row['POST_ID'];
+	if ($row['parent_id'] == 0) {
+		echo $row['post_id'];
 	} else {
-		echo $row['PARENT_ID'];
+		echo $row['parent_id'];
 	}
-	echo SEP.'reply='.$row['POST_ID'].SEP.'page='.$page.'#post">'.$_template['reply'].'</a>';
+	echo SEP.'reply='.$row['post_id'].SEP.'page='.$page.'#post">'.$_template['reply'].'</a>';
 	echo '<br />';
 
-	$date = AT_date($_SESSION['lang'], $_template['forum_date_format'], $row['DATA'], AT_MYSQL_DATETIME);
+	$date = AT_date($_SESSION['lang'], $_template['forum_date_format'], $row['date'], AT_MYSQL_DATETIME);
 
-	echo '<span class="bigspacer">'.$_template['posted_by'].' <a href="send_message.php?l='.$row['MEMBER_ID'].'">'.$row['LOGIN'].'</a> '.$_template['posted_on'].' '.$date.'</span><br />';
-	echo format_final_output(' '.$row['BODY'].' ');
-	//echo $row['BODY'];
+	echo '<span class="bigspacer">'.$_template['posted_by'].' <a href="send_message.php?l='.$row['member_id'].'">'.$row['login'].'</a> '.$_template['posted_on'].' '.$date.'</span><br />';
+	echo format_final_output(' '.$row['body'].' ');
+	//echo $row['body'];
 	echo '</p>';
 	echo '</td>';
 	echo '</tr>';
@@ -59,11 +59,11 @@ echo '<h3><a href="forum/?fid='.$fid.'">'.get_forum($fid).'</a></h3>';
 $pid = intval($_GET['pid']);
 
 if ($_SESSION['valid_user']) {
-	$sql = "INSERT INTO forums_accessed VALUES ($pid, $_SESSION[member_id], SYSDATE)";
-	$result = $db->query($sql);
+	$sql = "INSERT INTO forums_accessed VALUES ($pid, $_SESSION[member_id], NOW())";
+	$result = mysql_query($sql, $db);
 	if (!$result) {
-		$sql = "UPDATE forums_accessed SET last_accessed=SYSDATE WHERE post_id=$pid AND member_id=$_SESSION[member_id]";
-		$result = $db->query($sql);
+		$sql = "UPDATE forums_accessed SET last_accessed=NOW() WHERE post_id=$pid AND member_id=$_SESSION[member_id]";
+		$result = mysql_query($sql, $db);
 	}
 }
 
@@ -77,25 +77,25 @@ $start = ($page-1)*$num_per_page;
 	
 /* get the first thread first */
 $sql	= "SELECT * FROM forums_threads WHERE course_id=$_SESSION[course_id] AND post_id=$pid AND forum_id=$fid";
-$result	= $db->query($sql);
+$result	= mysql_query($sql, $db);
 
-if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-	$num_threads = $row['NUM_COMMENTS']+1;
+if ($row = mysql_fetch_array($result)) {
+	$num_threads = $row['num_comments']+1;
 	$num_pages = ceil($num_threads/$num_per_page);
-	$locked = $row['LOCKED'];
+	$locked = $row['locked'];
 	if ($locked == 1) {
 		echo '<p><b>'.$_template['lock_no_read1'].'</b></p>';
 		require($_include_path.'footer.inc.php');
 		exit;
 	}
 
-	echo '<h2>'.$row['SUBJECT'];
-	echo ' - <a href="forum/view.php?fid='.$row['FORUM_ID'].SEP.'pid='.$pid;
+	echo '<h2>'.$row['subject'];
+	echo ' - <a href="forum/view.php?fid='.$row['forum_id'].SEP.'pid='.$pid;
 	echo SEP.'page='.$page.'#post">'.$_template['reply'].'</a>';
 
 	echo '</h2>';
 
-	$parent_name = $row['SUBJECT'];
+	$parent_name = $row['subject'];
 
 
 	echo '<table border="0" cellpadding="0" cellspacing="1" width="97%" class="bodyline" align="center" summary="">';
@@ -119,8 +119,8 @@ if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
 	
 	if ($page == 1) {
 		print_entry($row);
-		$subject   = $row['SUBJECT'];
-		if ($_GET['reply'] == $row['POST_ID']) {
+		$subject   = $row['subject'];
+		if ($_GET['reply'] == $row['post_id']) {
 			$saved_post = $row;
 		}
 		$num_per_page--;
@@ -128,12 +128,12 @@ if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
 		$start--;
 	}
 	$sql	= "SELECT * FROM forums_threads WHERE course_id=$_SESSION[course_id] AND parent_id=$pid AND forum_id=$fid ORDER BY date ASC LIMIT $start, $num_per_page";
-	$result	= $db->query($sql);
+	$result	= mysql_query($sql, $db);
 
-	while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+	while ($row = mysql_fetch_array($result)) {
 		print_entry($row);
-		$subject   = $row['SUBJECT'];
-		if ($_GET['reply'] == $row['POST_ID']) {
+		$subject   = $row['subject'];
+		if ($_GET['reply'] == $row['post_id']) {
 			$saved_post = $row;
 		}
 	}
@@ -163,9 +163,9 @@ if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
 	
 	if ($_SESSION['valid_user']) {
 		$sql	= "SELECT * FROM forums_subscriptions WHERE post_id=$_GET[pid] AND member_id=$_SESSION[member_id]";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 
-		if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+		if ($row = mysql_fetch_array($result)) {
 			echo '<p><a href="forum/subscribe.php?fid='.$fid.SEP.'pid='.$_GET['pid'].SEP.'us=1">'.$_template['unsubscribe'].'</p>';
 
 			$subscribed = true;

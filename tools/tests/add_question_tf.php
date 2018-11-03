@@ -29,8 +29,7 @@
 
 		if (!$errors) {
 
-			$qid= $db->nextId("AUTO_TESTS_QUESTIONS_SEQ");
-			$sql	= "INSERT INTO tests_questions VALUES (	$qid,
+			$sql	= "INSERT INTO tests_questions VALUES (	0,
 				$_POST[tid],
 				$_SESSION[course_id],
 				0,
@@ -60,11 +59,9 @@
 				0,
 				0,
 				0)";
-			$result	= $db->query($sql);
-			if (!$result) {
-				echo 'DB error: could not insert test questions.';
-				exit;
-			}
+			$result	= mysql_query($sql, $db);
+			//debug($_POST);
+			//exit;
 			Header('Location: questions.php?tid='.$_POST['tid'].SEP.'f='.urlencode_feedback(AT_FEEDBACK_QUESTION_ADDED));
 			exit;
 		}
@@ -74,6 +71,8 @@
 
 ?>
 
+<h2><a href="tools/?g=11"><?php echo $_template['tools']; ?></a></h2>
+<h3><a href="tools/tests/?g=11"><?php echo $_template['test_manager']; ?></a></h3>
 <h3><?php echo $_template['add_tf_question']; ?>
 <?php echo $_SESSION['test_name']; ?></h3>
 

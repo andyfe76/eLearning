@@ -12,6 +12,14 @@ if ($course == 0)
 	$course = intval($_POST['form_course_id']);
 }
 
+/* make sure we own this course that we're approving for! */
+$sql	= "SELECT * FROM courses WHERE course_id=$course AND member_id=$_SESSION[member_id]";
+$result	= mysql_query($sql, $db);
+if (mysql_num_rows($result) != 1) {
+	echo $_template['not_your_course'];
+	exit;
+}
+
 if ($_POST['submit'])
 {
 	$_POST['form_course_id'] = intval($_POST['form_course_id']);
@@ -21,17 +29,17 @@ if ($_POST['submit'])
 		for ($i=1; $i < count($_POST['id']); $i++) {
 			$members .= ' OR (member_id='.$_POST['id'][$i].')';
 		}
-		$sql	= "UPDATE course_enrollment SET approved='y', approvetime=SYSDATE WHERE course_id=$_POST[form_course_id] AND ($members)";
-		$result = $db->query($sql);
+		$sql	= "UPDATE course_enrollment SET approved='y', approvetime=NOW() WHERE course_id=$_POST[form_course_id] AND ($members)";
+		$result = mysql_query($sql, $db);
 
 		// notify the users that they have been approved:
 		$sql	= "SELECT email, login FROM members WHERE $members";
-		$result = $db->query($sql);
-		while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+		$result = mysql_query($sql, $db);
+		while ($row = mysql_fetch_array($result)) {
 			/* assumes that there is a first and last name for this user, but not required during registration */
-			$to_email = $row['EMAIL'];
+			$to_email = $row['email'];
 
-			$message  = " ($row[LOGIN]),\n\n";
+			$message  = " ($row[login]),\n\n";
 			$message .= $_template['enrol_message1'].' "'.$system_courses[$_POST['form_course_id']]['title'].'" '.$_template['enrol_message2'].' '.$_base_href.' '.$_template['enrol_message3'];
 			if ($to_email != '') {
 				klore_mail($to_email, $_template['enrol_message4'], $message, ADMIN_EMAIL);
@@ -46,8 +54,8 @@ if ($_POST['submit'])
 		{
 			$members .= ' OR (member_id='.$_POST['nid'][$i].')';
 		}
-		$sql	= "UPDATE course_enrollment SET approved='n', approvetime=SYSDATE WHERE course_id=$_POST[form_course_id] AND ($members)";
-		$result = $db->query($sql);
+		$sql	= "UPDATE course_enrollment SET approved='n', approvetime=NOW() WHERE course_id=$_POST[form_course_id] AND ($members)";
+		$result = mysql_query($sql, $db);
 	}
 
 	if (is_array($_POST['rid'])) {
@@ -57,10 +65,10 @@ if ($_POST['submit'])
 			$members .= ' OR (member_id='.$_POST['rid'][$i].')';
 		}
 		$sql	= "DELETE FROM course_enrollment WHERE course_id=$_POST[form_course_id] AND ($members)";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 	}
 
-	Header('Location: coursemng.php?f='.urlencode_feedback(AT_FEEDBACK_ENROLMENT_UPDATED));
+	Header('Location: index.php?f='.urlencode_feedback(AT_FEEDBACK_ENROLMENT_UPDATED));
 	exit;
 }
 
@@ -79,42 +87,41 @@ $help[]=AT_HELP_ENROLMENT2;
 
 <?php
 	// note: doesn't list the owner of the course.
-	if ($_SESSION['status']==STATUS_GROUP_MANAGER) {
-		$sql	= "SELECT * FROM course_enrollment C INNER JOIN members M ON C.member_id=M.member_id WHERE C.course_id=$course AND M.member_id IN (SELECT G.member_id FROM mrel_groups G INNER JOIN group_mng K ON G.group_id=K.group_id WHERE K.member_id=".$_SESSION['member_id'].") ORDER BY C.approved, M.login";		
-	} else if ($_SESSION['status']==STATUS_COORDINATOR) {
-		$sql	= "SELECT * FROM course_enrollment C INNER JOIN members M ON C.member_id=M.member_id WHERE C.course_id=$course AND M.member_id IN (SELECT G.member_id FROM mrel_groups G INNER JOIN coord_groups K ON G.group_id=K.group_id WHERE K.member_id=".$_SESSION['member_id'].") ORDER BY C.approved, M.login";		
-	} else {
-		$sql	= "SELECT * FROM course_enrollment C INNER JOIN members M ON C.member_id=M.member_id WHERE C.course_id=$course AND M.member_id<>$_SESSION[member_id] ORDER BY C.approved, M.login";
-	}
-		
-	$result = $db->query($sql);
-	if (!($row =$result->fetchRow(DB_FETCHMODE_ASSOC))) {
+	$sql	= "SELECT * FROM course_enrollment C, members M WHERE C.course_id=$course AND C.member_id=M.member_id AND M.member_id<>$_SESSION[member_id] ORDER BY C.approved, M.login";
+	$result = mysql_query($sql);
+	if (!($row = mysql_fetch_array($result))) {
 		$infos[]=AT_INFOS_NO_ENROLLMENTS;
 		print_infos($infos);
 		//echo 'No users found.';
 	} else {
 		print_help($help);
-		echo '<table cellspacing="1" cellpadding="0" border="0" class="bodyline" summary="" width="60%" align="center">';
-		echo '<tr><th>'.$_template['login_id'].'</th><th>'.$_template['enrolled_date'].'</th><th>'.$_template['remove'].'</th></tr>';
+		echo '<table cellspacing="1" cellpadding="0" border="0" class="bodyline" summary="" width="90%" align="center">';
+		echo '<tr><th>'.$_template['login_id'].'</th><th>'.$_template['enrolment'].'</th><th>'.$_template['approve'].'</th><th>'.$_template['disapprove'].'</th><th>'.$_template['remove'].'</th></tr>';
 
 		do {
-			echo '<tr><td class="row1"><tt><a href="users/edit.php?show_profile=1&mid='.$row['MEMBER_ID'].SEP.'course='.$_GET['course'].'">'.$row['LOGIN'].'</a></tt></td>';
+			echo '<tr><td class="row1"><tt><a href="users/view_profile.php?mid='.$row['member_id'].SEP.'course='.$_GET['course'].'">'.$row['login'].' ('.$row['member_id'].')</a></tt></td><td class="row1"><tt>';
+			echo $row['approved'];
+			echo '</tt></td><td class="row1">';
 
-			//enroll date
-			$sql2='SELECT enrolltime FROM course_enrollment WHERE member_id='.$row['MEMBER_ID'];
-			$result2 = $db->query($sql2);
-			$row2 =$result2->fetchRow(DB_FETCHMODE_ASSOC);
-			echo '<td class="row1">'.$row2['ENROLLTIME'].'</td>';
+			if ($row['approved'] == 'n') {
+				echo ' <input type="checkbox" name="id[]" value="'.$row[member_id].'" id="y'.$row[member_id].'" />';
+				echo '<label for="y'.$row[member_id].'">'.$_template['approve'].'</label>';
+			}
 
-			
-			echo '<td class="row1"><input type="checkbox" name="rid[]" value="'.$row['MEMBER_ID'].'" id="r'.$row['MEMBER_ID'].'" /><label for="r'.$row['MEMBER_ID'].'">'.$_template['remove'].'</label></td>';
-			
-			
+			echo '&nbsp;</td><td class="row1">';
+
+			if ($row['approved'] == 'y') {
+				echo ' <input type="checkbox" name="nid[]" value="'.$row[member_id].'" id="n'.$row[member_id].'" />';
+				echo '<label for="n'.$row[member_id].'">'.$_template['disapprove'].'</label>';
+			}
+			echo '&nbsp;</td>';
+
+			echo '<td class="row1"><input type="checkbox" name="rid[]" value="'.$row[member_id].'" id="r'.$row[member_id].'" /><label for="r'.$row[member_id].'">'.$_template['remove'].'</label></td>';
 
 			echo '</tr>';
 			echo '<tr><td height="1" class="row2" colspan="5"></td></tr>';
 
-		} while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC));
+		} while ($row = mysql_fetch_array($result));
 
 		echo '<tr><td height="1" class="row2" colspan="5"></td></tr>';
 		echo '<tr><td align="center" colspan="5" class="row1"><br />';

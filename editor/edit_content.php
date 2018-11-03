@@ -8,15 +8,68 @@
 
 	if ($_POST['cancel']) {
 		if ($_POST['pid'] != 0) {
-			Header('Location: ../index.php?cid='.$_POST['pid'].SEP.'f='.urlencode_feedback(AT_FEEDBACK_CANCELLED));
+			Header('Location: ../index.php?cid='.$_POST['pid'].';f='.urlencode_feedback(AT_FEEDBACK_CANCELLED));
 			exit;
 		}
 		Header('Location: ../index.php?cid='.$_POST['cid'].SEP.'f='.urlencode_feedback(AT_FEEDBACK_CANCELLED));
 		exit;
 	}
 
+	if( ($_POST['submit_file'] == 'Upload') && ($_FILES['uploadedfile']['name'] == ''))	{
+		$errors[] = AT_ERROR_FILE_NOT_SELECTED;
+	} else if ($_POST['submit_file']) {
+		if ($_FILES['uploadedfile']['name']
+			&& (($_FILES['uploadedfile']['type'] == 'text/plain')
+			|| ($_FILES['uploadedfile']['type'] == 'text/html')) )
+		{
+			$fd = fopen ($_FILES['uploadedfile']['tmp_name'], 'r');
+			$_POST['text'] = fread ($fd, filesize($_FILES['uploadedfile']['tmp_name']));
+
+			$path_parts = pathinfo($_FILES['uploadedfile']['name']);
+			$ext = strtolower($path_parts['extension']);
+			if (in_array($ext, array('html', 'htm'))) {
+				/* get the <title></title> of this page				*/
+
+				$start_pos	= strpos(strtolower($_POST['text']), '<title>');
+				$end_pos	= strpos(strtolower($_POST['text']), '</title>');
+
+				if (($start_pos !== false) && ($end_pos !== false)) {
+					$start_pos += strlen('<title>');
+					$_POST['title'] = trim(substr($_POST['text'], $start_pos, $end_pos-$start_pos));
+				}
+
+				unset($start_pos);
+				unset($end_pos);
+
+				/* strip everything before <body> */
+				$start_pos	= strpos(strtolower($_POST['text']), '<body');
+				if ($start_pos !== false) {
+					$start_pos	+= strlen('<body');
+					$end_pos	= strpos(strtolower($_POST['text']), '>', $start_pos);
+					$end_pos	+= strlen('>');
+
+					$_POST['text'] = substr($_POST['text'], $end_pos);
+				}
+
+				/* strip everything after </body> */
+				$end_pos	= strpos(strtolower($_POST['text']), '</body>');
+				if ($end_pos !== false) {
+					$_POST['text'] = trim(substr($_POST['text'], 0, $end_pos));
+				}
+
+				/* change formatting to HTML? */
+				/* $_POST['formatting']	= 1; */
+			}
+			$_POST['cid']=$_POST['cid'];
+			$feedback[]=AT_FEEDBACK_FILE_PASTED;
+			fclose ($fd);
+		} else {
+			$errors[] = AT_ERROR_BAD_FILE_TYPE;
+		}
+	}
 	
 	if ($_POST['submit']) {
+		echo 'Submitting data...<br>';
 		$_POST['title'] = trim($_POST['title']);
 		$_POST['body']	= trim($_POST['body']);
 		$_POST['pid']	= intval($_POST['pid']);
@@ -49,35 +102,20 @@
 			if (strlen($min) == 1){
 				$min = "0$min";
 			}
-			$release_date = "$day/$month/$year $hour:$min:00";
+			$release_date = "$year-$month-$day $hour:$min:00";
 			if($_POST['cid']){
-			$_POST['body'] = format_content($_POST['body'], 1);
-			
-				
-		//***
-		   				$cfname = 'content/'.$_POST['title'].'_'.$_POST['cid'].'.course';		
-						ignore_user_abort(true);    ## prevent refresh from aborting file operations and hosing file
-						$fh = fopen('../'.$cfname, 'w+');    
-        				fwrite($fh, $_POST['body']);
-        				fflush($fh);
-     					fclose($fh);
-						ignore_user_abort(false);    ## put things back to normal
-		
-		//***
-
-				
-				$err = $contentManager->editContent($_POST['cid'], $_POST['title'], $cfname, $_POST['new_ordering'], $_POST['related'], $_POST['formatting'], $_POST['move'], $release_date);
+			$err = $contentManager->editContent($_POST['cid'], $_POST['title'], $_POST['body'], $_POST['new_ordering'], $_POST['related'], $_POST['formatting'], $_POST['move'], $release_date);
 			}
 
 			/* check if a definition is being used that isn't already in the glossary */
-			$r = preg_match_all("/(\[\?\])([\s\w\d])*(\[\/\?\])/i", $_POST['body'], $matches, PREG_PATTERN_ORDER);
+			$r = preg_match_all("/(\[\?\])([\s\w\d])*(\[\/\?\])/i", $_POST['text'], $matches, PREG_PATTERN_ORDER);
 
 			if ($r != 0) {
 				/* redirect to add glossery terms, but we do not know if those have been defined or not */
 				Header('Location: ./add_new_glossary.php?pcid='.$cid);
 				exit;
 			} else {
-				Header('Location: ../index.php?cid='.$cid.SEP.'f='.urlencode_feedback(AT_FEEDBACK_CONTENT_UPDATED));
+				Header('Location: ../index.php?cid='.$cid.';f='.urlencode_feedback(AT_FEEDBACK_CONTENT_UPDATED));
 				exit;
 			}
 		 }
@@ -112,20 +150,21 @@
 	print_help($help);
 
 ?>
-	<form action="<?php echo $PHP_SELF; ?>" method="post" name="form">
+	<form action="<?php echo $PHP_SELF; ?>" method="post" name="form" enctype="multipart/form-data">
 	<?php
 
 	if(!$_POST['cid']){
 		$result = $contentManager->getContentPage($cid);
-		if (!( $row =$result->fetchRow(DB_FETCHMODE_ASSOC)) ) {
-			$errors[] = AT_ERROR_PAGE_NOT_FOUND;
+
+		if (!( $row = @mysql_fetch_array($result)) ) {
+			$errors[]=AT_ERROR_PAGE_NOT_FOUND;
 			print_errors($errors);
 			require ($_include_path.'footer.inc.php');
 			exit;
 		}
 	}
 
-	$top_level = $contentManager->getContent($row['CONTENT_PARENT_ID']);
+	$top_level = $contentManager->getContent($row['content_parent_id']);
 
 	if ($_POST['pid']) {
 		echo '<input type="hidden" name="pid" value="'.$_POST['pid'].'" />';
@@ -146,13 +185,13 @@
 		<tr>
 			<th colspan="2"class="left"><?php echo $_template['edit_content'];  ?>
 <?php
-			 echo '<input type="hidden" name="revision" value="'.ContentManager::cleanOutput($row['REVISION']).'" />';
-			 echo '<input type="hidden" name="last_modified" value="'.$row['LAST_MODIFIED'].'" />';
+			 echo '<input type="hidden" name="revision" value="'.ContentManager::cleanOutput($row['revision']).'" />';
+			 echo '<input type="hidden" name="last_modified" value="'.$row['last_modified'].'" />';
 			if($_POST['revision'] && $_POST['last_modified']){
-				echo '<small class="spacer"> ( '.$_template['last_modified'].':'.$_POST['last_modified'].'. '. $_template['revision'].':'.$_POST['revision'].'. )</small>';
+				echo '<small class="spacer"> ( '.$_template['last_modified'].':'.$_POST['last_modified'].'.'. $_template['revision'].':'.$_POST['revision'].'. )</small>';
 
 			}else{
-				echo '<small class="spacer"> ( '.$_template['last_modified'].':'.$row['LAST_MODIFIED'].'. '. $_template['revision'].':'.ContentManager::cleanOutput($row['REVISION']).'. )</small>';
+				echo '<small class="spacer"> ( '.$_template['last_modified'].':'.$row['last_modified'].'.'. $_template['revision'].':'.ContentManager::cleanOutput($row['revision']).'. )</small>';
 
 			}
 			require($_editor_path.'spaw_control.class.php');
@@ -160,7 +199,26 @@
 			</th>
 		</tr>
 		<tr><td height="1" class="row2" colspan="2"></td></tr>
-		
+		<tr>
+			<td align="right" class="row1" valign="top"><?php
+				$errors[]=AT_ERROR_BAD_DATE;
+				//$def = 'text<b>as</b>';   //whats this? untranslated
+				print_popup_help(AT_HELP_PASTE_FILE1);
+				?>
+			<b><?php echo $_template['paste_file']; ?>:</b></td>
+			<td class="row1" valign="top">
+			<input type="file" name="uploadedfile" class="formfield" size="20" /> <input type="submit" name="submit_file" value=" <?php echo $_template['upload']; ?>" class="button" /><?php
+			?><br />
+			<small class="spacer"><?php echo $_template['html_only'] ?><br />
+			<?php echo $_template['edit_after_upload']; ?></small>
+
+			</td>
+		</tr>
+		<tr><td height="1" class="row2" colspan="2"></td></tr>
+		<tr>
+			<td align="center" class="row1" colspan="2"><b><?php echo $_template['or'];?></b></td>
+		</tr>
+		<tr><td height="1" class="row2" colspan="2"></td></tr>
 		<?php
 		if($_POST['title']){
 		?>
@@ -172,7 +230,7 @@
 		
 		<tr>
 			<td align="right" class="row1"><b><label for="title"><?php echo $_template['title'];  ?>:</label></b></td>
-			<td class="row1"><input type="text" name="title" size="40" id="title" class="formfield" value="<?php echo ContentManager::cleanOutput($row['TITLE']); ?>"></td>
+			<td class="row1"><input type="text" name="title" size="40" id="title" class="formfield" value="<?php echo ContentManager::cleanOutput($row['title']); ?>"></td>
 		</tr>
 		
 		<?php } ?>
@@ -197,13 +255,12 @@
 	<td align="right" class="row1"><?php print_popup_help(AT_HELP_NOT_RELEASED); ?><b><?php echo $_template['release_date'];  ?>:</b></td>
 	<td class="row1"><?php
 
-			$today_day   = substr($row['R_DATE'], 0, 2);
-			$today_mon   = substr($row['R_DATE'], 3, 2);
-			$today_year  = substr($row['R_DATE'], 6, 4);
+			$today_day   = substr($row['release_date'], 8, 2);
+			$today_mon   = substr($row['release_date'], 5, 2);
+			$today_year  = substr($row['release_date'], 0, 4);
 
-			$today_hour  = substr($row['R_DATE'], 11, 2);
-			$today_min   = substr($row['R_DATE'], 14, 2);
-			
+			$today_hour  = substr($row['release_date'], 11, 2);
+			$today_min   = substr($row['release_date'], 14, 2);
 			require($_include_path.'lib/release_date.inc.php');
 
 			?>
@@ -217,24 +274,15 @@
 		<tr>
 			<td colspan="2" valign="top" align="left" class="row1"><b><label for="body"><?php echo $_template['body'];  ?>:</label></b><br />
 
-			<?php 
-			if ($_POST['body']) { 
-				$_POST['body'] = str_replace('`', "'", $_POST['body']);
-				$sw = new SPAW_Wysiwyg('body',stripslashes(($HTTP_POST_VARS['body'])));
-				$sw->show(); 
-			 } else {  
-			 	
-			 	//***
-			 	$fh = fopen('../'.$row['TEXT'], 'r');   
-        		$chf_text = fread($fh, filesize('../'.$row['TEXT']));
-        		fflush($fh);
-     			fclose($fh);
-			 	//***
-			 	
-			 	$chf_text = str_replace('`', "'", $chf_text);
-				$sw = new SPAW_Wysiwyg('body',stripslashes(($chf_text)));
-				$sw->show();
-			} ?>
+			<?php if ($_POST['body']) { ?>
+<?php $sw = new SPAW_Wysiwyg('body',stripslashes(($HTTP_POST_VARS['body'])));
+				$sw->show(); ?>
+				<br />
+			<?php } else {  ?>
+<?php $sw = new SPAW_Wysiwyg('body',stripslashes(($row['text'])));
+				$sw->show(); ?>
+				<br />
+			<?php } ?>
 				</td>
 		</tr>
 		<tr><td height="1" class="row2" colspan="2"></td></tr>
@@ -244,16 +292,16 @@
 			<td class="row1"><select name="new_ordering" class="formfield" id="move">
 				<option value="-1"></option><?php
 
-			if ($row['ORDERING'] != count($top_level)) {
+			if ($row['ordering'] != count($top_level)) {
 				echo '<option value="'.count($top_level).'">'.$_template['end_section'].'</option>';
 			}
-			if ($row['ORDERING'] != 1) {
+			if ($row['ordering'] != 1) {
 				echo '<option value="1">'.$_template['start_section'].'</option>';
 			}
 
 			foreach ($top_level as $x => $info) {
-				if (($info['ordering'] != $row['ORDERING']-1) 
-					&& ($info['ordering'] != $row['ORDERING']))
+				if (($info['ordering'] != $row['ordering']-1) 
+					&& ($info['ordering'] != $row['ordering']))
 				{
 					echo '<option value="';
 					
@@ -275,7 +323,7 @@
 			echo $_template['or'].' <select name="move">';
 			echo '<option value="-1"></option>';
 			echo '<option value="0">'.$_template['top'].'</option>';
-			print_move_select(0, $menu, $row['CONTENT_PARENT_ID']);
+			print_move_select(0, $menu, $row['content_parent_id']);
 			echo '</select>';
 
 		?></td>

@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 $section = 'users';
 $_include_path = '../../include/';
@@ -34,22 +39,19 @@ if ($_GET['member_id']) {
 ${'highlight_'.$col} = ' style="text-decoration: underline;"';
 
 $sql	= "SELECT C.*, M.login FROM courses C, members M WHERE C.member_id=M.member_id $and ORDER BY $col $order";
-$result = $db->query($sql);
+$result = mysql_query($sql);
 
-if (!($row =$result->fetchRow(DB_FETCHMODE_ASSOC))) {
+if (!($row = mysql_fetch_array($result))) {
 	echo '<h2>'.$_template['courses'].'</h2>';
 	echo '<p>'.$_template['no_courses_found'].'</p>';
 } else {
 	if ($_GET['member_id']) {
-		echo '<h2>'.$_template['courses'].' for instructor '.$row['LOGIN'].'</h2>';
+		echo '<h2>'.$_template['courses'].' for instructor '.$row['login'].'</h2>';
 	} else {
 		echo '<h2>'.$_template['courses'].'</h2>';
 	}
 
-	$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-	$countres = $db->query($countsql);
-	$count0 = $countres->fetchRow();
-	$num_rows = $count0[0];
+	$num_rows = mysql_num_rows($result);
 ?>
 <p>
 <table cellspacing="1" cellpadding="0" border="0" class="bodyline" summary="">
@@ -71,24 +73,24 @@ if (!($row =$result->fetchRow(DB_FETCHMODE_ASSOC))) {
 <?php
 	do {
 		echo '<tr>';
-		echo '<td class="row1"><small>'.$row['COURSE_ID'].'</small></td>';
-		echo '<td class="row1"><small><a href="users/admin/course.php?course_id='.$row['COURSE_ID'].'"><b>'.$row['TITLE'].'</b></a></small>';
+		echo '<td class="row1"><small>'.$row['course_id'].'</small></td>';
+		echo '<td class="row1"><small><a href="users/admin/course.php?course_id='.$row['course_id'].'"><b>'.$row['title'].'</b></a></small>';
 
-		echo ' <small class="spacer">( <a href="bounce.php?course='.$row['COURSE_ID'].'">'.$_template['view'].'</a> )</small>';
+		echo ' <small class="spacer">( <a href="bounce.php?course='.$row['course_id'].'">'.$_template['view'].'</a> )</small>';
 		
 		echo '</td>';
 
-		echo '<td class="row1"><small><a href="users/admin/profile.php?member_id='.$row['MEMBER_ID'].'"><b>'.$row['LOGIN'].'</b></a></small></td>';
-		echo '<td class="row1"><small>'.$_template[$row['ACCESSTYPE']].'&nbsp;</small></td>';
-		echo '<td class="row1"><small>'.$row['CREATED_DATE'].'&nbsp;</small></td>';
-		echo '<td class="row1"><small>'.$_template[$row['TRACKING']].'&nbsp;</small></td>';
-		echo '<td class="row1"><a href="users/delete_course.php?course='.$row['COURSE_ID'].SEP.'member_id='.$_GET['member_id'].'"><img src="images/icon_delete.gif" border="0" alt="'.$_template['delete'].'" title="'.$_template['delete'].'"/></a></td>';
+		echo '<td class="row1"><small><a href="users/admin/profile.php?member_id='.$row['member_id'].'"><b>'.$row['login'].'</b></a></small></td>';
+		echo '<td class="row1"><small>'.$_template[$row['access']].'&nbsp;</small></td>';
+		echo '<td class="row1"><small>'.$row['created_date'].'&nbsp;</small></td>';
+		echo '<td class="row1"><small>'.$_template[$row['tracking']].'&nbsp;</small></td>';
+		echo '<td class="row1"><a href="users/delete_course.php?course='.$row['course_id'].SEP.'member_id='.$_GET['member_id'].'"><img src="images/icon_delete.gif" border="0" alt="'.$_template['delete'].'" title="'.$_template['delete'].'"/></a></td>';
 		echo '</tr>';
 		if ($count < $num_rows-1) {
 			echo '<tr><td height="1" class="row2" colspan="7"></td></tr>';
 		}
 		$count++;
-	} while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC));
+	} while ($row = mysql_fetch_array($result));
 	echo '</table></p>';
 }
 

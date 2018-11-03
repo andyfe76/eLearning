@@ -1,14 +1,16 @@
 <?php
 
 /* @See: ./index.php */
-
-function format_content($input, $html = 0, $get='') {
+function format_content($input, $html = 0) {
 	global $glossary, $learning_concept_tags, $_template;
 
-	
+	if (!$html) {
+		$input = str_replace('<', '&lt;', $input);
+	}
+
 	/* do the glossary search and replace: */
 	foreach ($glossary as $k => $v) {
-		// fix for replacing < with &lt; in glossary terms 
+		/* fix for replacing < with &lt; in glossary terms */
 		if (is_alpha($k)) {
 			$L = strtoupper(substr($k,0,1)); 
 		} else {
@@ -28,9 +30,6 @@ function format_content($input, $html = 0, $get='') {
 						'\\2<sup>[<a href="glossary/?L='.$L.SEP.'g=24#'.urlencode($original_term).'" onmouseover="return overlib(\''.$def.'\', CAPTION, \''.$_template['definition'].'\', AUTOSTATUS);" onmouseout="return nd();">?</a>]</sup>',
 
 						$input);
-		
-		$input = str_replace('http://'.$_SERVER['HTTP_HOST'].'/klore/editor/glossary/?', 'glossary/?', $input);
-		$input = str_replace('\"', '"', $input);
 	}
 
 	/* search and replace the learning concepts: */
@@ -45,32 +44,12 @@ function format_content($input, $html = 0, $get='') {
 	}
 
 	$input = str_replace('CONTENT_DIR', 'content/'.$_SESSION['course_id'], $input);
-	
-	if ($get){
-		if (!$html) {
-			$input = str_replace('<', '&lt;', $input);
-		} else {
-			$input = str_replace("\`", "'", $input);
-			$input = str_replace("`", "'", $input);
-			// here we should remove absolute references to images. TBC
-			$input = preg_replace('/(<a href=(\\\"|\")(?!glossary))/i', '<a target="_blank" href="', $input);
-			$input = str_replace('\"', "\"", $input); 
-		}
-	} else {
-		if (!$html) {
-			$input = str_replace('<', '&lt;', $input);
-		} else {
-			$input = str_replace("'", "`", $input);
-		}
-	}	
 
-	
-	if (($get) && ($html)) {
+	if ($html) {
 		return format_final_output($input, false);
 	}
 
-	//$output = format_final_output($input);
-	$output = $input;
+	$output = format_final_output($input);
 
 	if (!$html) {
 		$output = '<p>'.$output.'</p>';
@@ -78,4 +57,5 @@ function format_content($input, $html = 0, $get='') {
 
 	return $output;
 }
+
 ?>

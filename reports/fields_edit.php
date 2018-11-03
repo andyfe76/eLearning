@@ -1,3 +1,17 @@
+
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" content="text/html; charset=iso-8859-1">
+<TITLE>Fields Editor</TITLE>
+</HEAD>
+<script>
+function update(action)
+{
+ document.forms[0].action.value=action;
+ document.forms[0].submit();
+}
+</script>
+<BODY>
 <?php
 	$section = 'users';
 	$_include_path = '../include/';
@@ -14,26 +28,26 @@
 	
 	if (($action == 'edit') && ($editing=='yes')) {
 		$sql = "SELECT * FROM report_definitions WHERE id=$id";
-		$res = $db->query($sql);
-		if ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-			$cat = $row['CAT'];
-			$attr = $row['ATTR'];
-			$table = $row['TABLE'];
-			$desc = $row['DESC'];
-			$field = $row['FIELD'];
+		$res = mysql_query($sql);
+		if ($row = mysql_fetch_array($res)) {
+			$cat = $row['cat'];
+			$attr = $row['attr'];
+			$table = $row['table'];
+			$desc = $row['desc'];
+			$field = $row['field'];
 		}
 		$editing = 'yes';
 	}
 
 	if ($action == 'Add') {
 		$sql = "INSERT INTO report_definitions (cat, attr, description, tbl, field) VALUES ('$cat', '$attr', '$desc', '$table', '$field')";
-		$res = $db->query($sql);
+		$res = mysql_query($sql);
 		$action = '';
 	}
 	
 	if ($action == 'Update') {
 		$sql = "UPDATE report_definitions SET cat='$cat', attr='$attr', description='$desc', tbl='$table', field='$field' WHERE id=$id";
-		$res = $db->query($sql);
+		$res = mysql_query($sql);
 		$action = 'Add';
 	}
 
@@ -42,14 +56,6 @@
  		$action = 'Add';
  	}
 ?>
-<script>
-function update(action)
-{
- document.forms[0].action.value=action;
- document.forms[0].submit();
-}
-</script>
-
 
 <table border="1" align="center">
 <FORM action="fields_edit.php">
@@ -65,9 +71,9 @@ function update(action)
 <?php
 
 	$sql = "SHOW TABLES";
-	$res = $db->query($sql);
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$txt = $row['TABLES_IN_KLORE'];
+	$res = mysql_query($sql);
+	while ($row = mysql_fetch_array($res)) {
+		$txt = $row['tables_in_klore'];
 		if ($table=='') $table = $txt;
 		$selected = '';
 		if ($txt==$table) $selected = 'SELECTED ';
@@ -81,9 +87,9 @@ function update(action)
 <?php
 	if ($table <> '') {
 		$sql = "SHOW FIELDS FROM $table";
-		$res = $db->query($sql);
-		while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-			$txt = $row['FIELD'];
+		$res = mysql_query($sql);
+		while ($row = mysql_fetch_array($res)) {
+			$txt = $row['field'];
 			$selected = '';
 			if ($txt == $field) $selected = 'SELECTED ';
 			echo '<option '.$selected.'name="'.$txt.'">'.$txt.'</option>';
@@ -105,15 +111,15 @@ function update(action)
 
 <?php
 	$sql = "SELECT * FROM report_definitions";
-	$res = $db->query($sql);
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+	$res = mysql_query($sql);
+	while ($row = mysql_fetch_array($res)) {
 	?>
-		<td><A HREF="fields_edit.php?id=<?php echo $row['ID']; ?>&action=edit&editing=no"><?php echo $row['CAT']; ?></a>&nbsp;</td>
-		<td><A HREF="fields_edit.php?id=<?php echo $row['ID']; ?>&action=edit&editing=no"><?php echo $row['ATTR']; ?></a>&nbsp;</td>
-		<td><A HREF="fields_edit.php?id=<?php echo $row['ID']; ?>&action=edit&editing=no"><?php echo $row['DESCRIPTION']; ?></a>&nbsp;</td>
-		<td><A HREF="fields_edit.php?id=<?php echo $row['ID']; ?>>&action=edit&editing=no"><?php echo $row['TBL']; ?></a>&nbsp;</td>
-		<td><A HREF="fields_edit.php?id=<?php echo $row['ID']; ?>&action=edit&editing=no"><?php echo $row['FIELD']; ?></a>&nbsp;</td>
-		<td><A HREF="fields_edit.php?id=<?php echo $row['ID']; ?>&action=delete">Delete</a></td>
+		<td><A HREF="fields_edit.php?id=<?php echo $row['id']; ?>&action=edit&editing=no"><?php echo $row['cat']; ?></a>&nbsp;</td>
+		<td><A HREF="fields_edit.php?id=<?php echo $row['id']; ?>&action=edit&editing=no"><?php echo $row['attr']; ?></a>&nbsp;</td>
+		<td><A HREF="fields_edit.php?id=<?php echo $row['id']; ?>&action=edit&editing=no"><?php echo $row['description']; ?></a>&nbsp;</td>
+		<td><A HREF="fields_edit.php?id=<?php echo $row['id']; ?>>&action=edit&editing=no"><?php echo $row['tbl']; ?></a>&nbsp;</td>
+		<td><A HREF="fields_edit.php?id=<?php echo $row['id']; ?>&action=edit&editing=no"><?php echo $row['field']; ?></a>&nbsp;</td>
+		<td><A HREF="fields_edit.php?id=<?php echo $row['id']; ?>&action=delete">Delete</a></td>
 		</tr>
 	<?php
 	}

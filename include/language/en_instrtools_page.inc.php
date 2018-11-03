@@ -31,12 +31,6 @@
 			<a href="tools/tests/">Test Manager</a>
 			<p>Create and manage this course's online tests.</p>
 		</li>
-		
-		<li>
-			<a href="tools/upload_pdf.php">Upload Course PDF file</a>
-			<p>Upload a customized PDF file for your course, to be downloaded by students.</p>
-		</li>
-
 	</ul>
 <br />
 <br />

@@ -4,9 +4,6 @@ if ($_SESSION['prefs'][PREF_GLOSSARY] == 1){
 	echo '<table width="100%" border="0" cellspacing="0" cellpadding="0" class="mcat2" summary="">';
 	echo '<tr><td class="catf" valign="top">';
 		echo '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td width="18">';
-			if (!$_SESSION['prefs'][PREF_MINI_HELP]) {	
-				echo '<img src="images/menu/tbl_bg.gif" width="18" height="18">';
-			}
 			print_popup_help(AT_HELP_GLOSSARY_MENU);
 		echo '</td><td background="images/menu/tbl_bg.gif">';
 			echo '<a class="white" href="'.$_my_uri.'disable='.PREF_GLOSSARY.'">';
@@ -24,8 +21,8 @@ if ($_SESSION['prefs'][PREF_GLOSSARY] == 1){
 
 	$result =& $contentManager->getContentPage($_GET['cid']);
 
-	if ($result && ($row =$result->fetchRow(DB_FETCHMODE_ASSOC))) {
-		$num_terms = preg_match_all ("/(\[\?\])([\s\w\d])*(\[\/\?\])/i", $row['TEXT'], $matches, PREG_PATTERN_ORDER);
+	if ($result && ($row = mysql_fetch_array($result))) {
+		$num_terms = preg_match_all ("/(\[\?\])([\s\w\d])*(\[\/\?\])/i", $row['text'], $matches, PREG_PATTERN_ORDER);
 
 		$matches = $matches[0];
 		$word = str_replace(array('[?]', '[/?]'), '', $matches);
@@ -67,9 +64,6 @@ if ($_SESSION['prefs'][PREF_GLOSSARY] == 1){
 	echo '<table width="100%" border="0" cellspacing="0" cellpadding="0" class="mcat2" summary="">';
 	echo '<tr><td class="catf" valign="top">';
 		echo '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td width="18">';
-			if (!$_SESSION['prefs'][PREF_MINI_HELP]) {	
-				echo '<img src="images/menu/tbl_bg.gif" width="18" height="18">';
-			}
 			print_popup_help(AT_HELP_GLOSSARY_MENU);
 		echo '</td><td background="images/menu/tbl_bg.gif">';
 			echo '<a class="white" href="'.$_my_uri.'enable='.PREF_GLOSSARY.'">';

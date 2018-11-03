@@ -3,7 +3,12 @@
 /* klore														*/
 /****************************************************************/
 /* Copyright (c) 2002-2003 by Greg Gay & Joel Kronenberg        */
-
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 $section = 'prog';
 $_ignore_page = true; /* used for the close the page option */

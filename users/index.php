@@ -10,10 +10,10 @@ if($_POST['description']=='' && $_POST['form_request_instructor']){
 }else if ($_POST['form_request_instructor']) {
 	 if (AUTO_APPROVE_INSTRUCTORS == true) {
 		$sql	= "UPDATE members SET status=1 WHERE member_id=$_SESSION[member_id]";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 	} else {
-		$sql	= "INSERT INTO instructor_approvals VALUES ($_SESSION[member_id], SYSDATE, '$_POST[description]')";
-		$result = $db->query($sql);
+		$sql	= "INSERT INTO instructor_approvals VALUES ($_SESSION[member_id], NOW(), '$_POST[description]')";
+		$result = mysql_query($sql, $db);
 		//email notification send to admin upon instructor request
 		if (EMAIL_NOTIFY && (ADMIN_EMAIL != '')) {
 			$message  = $_template['req_message1'].",\n\n";
@@ -42,22 +42,22 @@ if ($_GET['auto'] == 'disable') {
 	$parts = parse_url($_base_href);
 
 	$sql	= "SELECT PASSWORD(password) AS pass FROM members WHERE member_id=$_SESSION[member_id]";
-	$result = $db->query($sql);
-	$row	=$result->fetchRow(DB_FETCHMODE_ASSOC);
+	$result = mysql_query($sql, $db);
+	$row	= mysql_fetch_array($result);
 
 	setcookie('ATLogin', $_SESSION['login'], time()+172800, $parts['path'], $parts['host'], 0);
-	setcookie('ATPass',  $row['PASS'], time()+172800, $parts['path'], $parts['host'], 0);
+	setcookie('ATPass',  $row['pass'], time()+172800, $parts['path'], $parts['host'], 0);
 
 	Header('Location: index.php?f='.urlencode_feedback(AT_FEEDBACK_AUTO_ENABLED));
 	exit;
 }
 
 	$sql	= "SELECT login, email, status FROM members WHERE member_id=$_SESSION[member_id]";
-	$result = $db->query($sql);
-	$row	=$result->fetchRow(DB_FETCHMODE_ASSOC);
-	$status	= $row['STATUS'];
-	$email  = $row['EMAIL'];
-	$login  = $row['LOGIN'];
+	$result = mysql_query($sql, $db);
+	$row	= mysql_fetch_array($result);
+	$status	= $row['status'];
+	$email  = $row['email'];
+	$login  = $row['login'];
 
 	require($_include_path.'cc_html/header.inc.php');
 
@@ -68,15 +68,15 @@ if ($_GET['f'] == AT_FEEDBACK_AUTO_ENABLED) {
 print_errors($errors);
 echo $auto;
 ?>
-<?php echo $_template['control_centre'];  ?>
+<h1 class="center"><?php echo $_template['control_centre'];  ?></h1>
 <?php
 
 	$sql	= "SELECT login, email, status FROM members WHERE member_id=$_SESSION[member_id]";
-	$result = $db->query($sql);
-	$row	= $result->fetchRow(DB_FETCHMODE_ASSOC);
-	$status	= $row['STATUS'];
-	$email  = $row['EMAIL'];
-	$login  = $row['LOGIN'];
+	$result = mysql_query($sql, $db);
+	$row	= mysql_fetch_array($result);
+	$status	= $row['status'];
+	$email  = $row['email'];
+	$login  = $row['login'];
 
 	$help[] = AT_HELP_CONTROL_CENTER1;
 	if ($status == 1) {
@@ -86,19 +86,26 @@ echo $auto;
 		$_SESSION['is_admin'] = true;
 		$help[] = AT_HELP_CONTROL_CENTER3;
 	}
-	if (
-			(!$_SESSION['c_instructor'])
-			&&(!$_SESSION['is_admin'])
-			&&(!$_SESSION['is_super_admin'])
-			&&(!$_SESSION['coordinator'])
-			&&(!$_SESSION['group_mng'])
-		){
-	require($_include_path.'html/intro_stud.inc.php');
-	}else {
-	//echo '<div align=right><a href="../editor/edit_intro.php"><img src="../images/kedit.jpg"></a></div>';
-	require($_include_path.'html/intro_stud.inc.php');	
-	}
+	print_help($help);
  ?>
+<h2><?php //echo $_template['profile']; ?></h2>
+
+	<!-- <table cellspacing="1" cellpadding="0" border="0" class="bodyline" width="95%" summary="">
+	<tr>
+		<th colspan="2" align="left" class="left"><?php //print_popup_help(AT_HELP_CONTROL_PROFILE); ?>
+<?php //echo $_template['account_information']; ?></th>
+	</tr> -->
+<?php
+	/*echo '<br>';
+	echo '<h2>'.$_template['auto_login1'].': ';
+	if ( ($_COOKIE['ATLogin'] != '') && ($_COOKIE['ATPass'] != '') ) {
+		echo $_template['auto_enable'];
+	} else {
+		echo $_template['auto_disable'];
+	}
+	echo '</h2><br>';*/
+	?>
+	<!-- </table> -->
 
 <br />
 <?php
@@ -109,10 +116,10 @@ echo $auto;
 ?>
 <BR />
 <?php 
-	if ($status <> 2) {
+	if ($status < 2) {
 ?>
 <div align="left">
-<h2><?php echo "<font color=#0000d7 size=3><b>".$_template['enrolled_courses']."</b></font>"; ?></h2><br></div>
+<h2><?php echo $_template['enrolled_courses']; ?></h2><br></div>
 	
 
 	<table cellspacing="1" cellpadding="0" border="0" class="bodyline" width="95%" summary="">
@@ -120,75 +127,73 @@ echo $auto;
 	<!--tr>
 		<th scope="col" width="150"><?php  //echo $_template['course_name'];  ?></th>
 		<th scope="col"><?php // echo $_template['description'];  ?></th>
-		<!-- <th scope="col"><?php  //echo $_template['remove'];  ?></th>
+		<!-- <th scope="col"><?php  //echo $_template['remove'];  ?></th> 
 	</tr -->
 <?php
 	$sql	= "SELECT * FROM course_groups";
-	$res_id	= $db->query($sql);
+	$res_id	= mysql_query($sql, $db);
 	$course_count = 0;
-	if ($row_id =$res_id->fetchRow(DB_FETCHMODE_ASSOC)) {
+	if ($row_id = mysql_fetch_array($res_id)) {
 		do {
-		$group_id = $row_id['GROUP_ID'];
+		$group_id = $row_id['group_id'];
 		
 		if ($group_id >0) {
 	
 			$sql	= "SELECT C.*, R.* FROM course_groups C, crel_groups R WHERE C.group_id=$group_id AND R.group_id=$group_id ORDER BY C.name";
-			$res	= $db->query($sql);
+			$res	= mysql_query($sql, $db);
+			//$numg	= mysql_num_rows($res);
 			$group_count = 0;
 					
-			if ($rowg =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+			if ($rowg = mysql_fetch_array($res)) {
 				do {
-				$course_id = $rowg['COURSE_ID'];
+				$course_id = $rowg['course_id'];
 				
-				$sql	= "SELECT course_id, TO_CHAR(start_date, 'DD/MM/YYYY HH24:MI:SS') AS start_date, TO_CHAR(end_date, 'DD/MM/YYYY HH24:MI:SS') AS end_date, period FROM course_availability WHERE course_id=$course_id";
-				$res_1	= $db->query($sql);
-				$row_av	= $res_1->fetchRow(DB_FETCHMODE_ASSOC);
+				$sql	= "SELECT * FROM course_availability WHERE course_id=$course_id";
+				$res_1	= mysql_query($sql, $db);
+				$row_av	= mysql_fetch_array($res_1);
 			
 				$sql = "SELECT * FROM mrel_courses WHERE member_id=$_SESSION[member_id] AND course_id=$course_id";
-				$res_mrel = $db->query($sql);
+				$res_mrel = mysql_query($sql, $db);
 				if (!$res_mrel) {
 					$start = 0;
 				} else {
-					$row_mrel =$res_mrel->fetchRow(DB_FETCHMODE_ASSOC);
-					$start = $row_mrel['START'];	
+					$row_mrel = mysql_fetch_array($res_mrel);
+					$start = $row_mrel['start'];	
 				}
 				
-				//$sql	= "SELECT E.approved, C.* FROM course_enrollment E, courses C WHERE E.member_id=$_SESSION[member_id] AND E.member_id<>C.member_id AND E.course_id=$course_id AND C.course_id=$course_id ORDER BY C.title";
-				$sql	= "SELECT E.approved, C.* FROM course_enrollment E, courses C WHERE E.member_id=$_SESSION[member_id] AND E.course_id=$course_id AND C.course_id=$course_id ORDER BY C.title";
-				$result = $db->query($sql);
-				$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-				$countres = $db->query($countsql);
-				$count0 = $countres->fetchRow();
-				$num = $count0[0];
+				$sql	= "SELECT E.approved, C.* FROM course_enrollment E, courses C WHERE E.member_id=$_SESSION[member_id] AND E.member_id<>C.member_id AND E.course_id=$course_id AND C.course_id=$course_id ORDER BY C.title";
+				$result = mysql_query($sql,$db);
+				
+				$num = mysql_num_rows($result);
 				$count = 1;
-				if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+				if ($row = mysql_fetch_array($result)) {
 					do {
 						if ($group_count == 0) { ?>
 						</table>
 						<br>
 						<table cellspacing="1" cellpadding="0" border="0" class="bodyline" width="95%" summary="">
 						<tr>
-							<th align="left" scope="col"><font color="Blue"><?php  echo $_template['module'].': '.$row_id['NAME'];  ?></FONT></th>
-							<th scope="col"><?php  echo $row_id['COMMENTS'];  ?></th>
+							<th align="left" scope="col"><font color="Blue"><?php  echo $_template['module'].': '.$row_id['name'];  ?></FONT></th>
+							<th scope="col"><?php  echo $row_id['comments'];  ?></th>
 						</tr>
 						<?php 
 						}
 						echo '<tr><td class="row1" width="250" valign="top"><b>';
 						$av = check_availability(&$row_av, $start);
 						if ($av <0) {
-							echo $row['TITLE'].'<br>'.'<span class="small_green">'.$_template['available_from'].': '.$row_av['START_DATE'].'</span>';
+							echo $row['title'].'<br>'.'<span class="small_green">'.$_template['available_from'].': '.$row_av['start_date'].'</span>';
 						} else if ($av == 0) {
-							echo '<a href="bounce.php?course='.$row['COURSE_ID'].'">'.$row['TITLE'].'</a>';
+							echo '<a href="bounce.php?course='.$row['course_id'].'">'.$row['title'].'</a>';
 						} else {
-							echo $row['TITLE'].'<br>'.'<span class="small_red">'.$_template['course_expired'].': '.$row_av['END_DATE'].'</span>';
+							echo $row['title'].'<br>'.'<span class="small_red">'.$_template['course_expired'].': '.$row_av['start_date'].'</span>';
 						}
 						echo '</b></td><td class="row1" valign="top">';
 						echo '<small>';
-						echo $row['DESCRIPTION'];
+						echo $row['description'];
 			
 						echo '</small></td>';
 						// echo '<td class="row1" valign="top">';
-						// echo '<a href="users/remove_course.php?course='.$row['COURSE_ID'].'">'.$_template['remove'].'</a>';
+						// echo '<a href="users/remove_course.php?course='.$row['course_id'].'">'.$_template['remove'].'</a>';
 						// echo '</td>';
 						echo '</tr>';
 						if ($count < $num-1) {
@@ -197,13 +202,13 @@ echo $auto;
 						$count++;
 						$group_count++;
 						$course_count++;
-					} while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC));
+					} while ($row = mysql_fetch_array($result));
 				}
 			
-				} while ($rowg =$res->fetchRow(DB_FETCHMODE_ASSOC));
+				} while ($rowg = mysql_fetch_array($res));
 			}
 		}
-		} while ($row_id =$res_id->fetchRow(DB_FETCHMODE_ASSOC));
+		} while ($row_id = mysql_fetch_array($res_id));
 	}
 	if ($course_count == 0) {
 		echo '<tr><td class="row1" colspan="3"><i>'.$_template['no_enrolments'].'</i></td></tr>';
@@ -214,7 +219,7 @@ echo $auto;
 	echo '<br />';
 }
 
-if ($_SESSION['c_instructor']){
+if ($status == 1){
 	// this user is a teacher
 	echo '<br><br>';
 	// echo '<div align="left">';
@@ -223,10 +228,10 @@ if ($_SESSION['c_instructor']){
 	echo '<td width="150"><h2>'.$_template['taught_course'].'&nbsp;&nbsp;&nbsp;</td>';
 	echo '<td>';
 	
-	//echo '<table cellspacing="0" cellpadding="0" class="framework" width="300">';
-	//echo '<tr>';
-	echo '<td align="right"><a href="users/cgroup.php"><img src="images/menu/new_module.gif" border="0" alt="'.$_template['new_module'].'"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="users/create_course.php"><img border="0" src="images/menu/new_course.gif" alt="'.$_template['new_course'].'"></a></h2><br>';
-	//echo '</td></tr></table>';
+	echo '<table cellspacing="0" cellpadding="0" class="framework" width="300">';
+	echo '<tr>';
+	echo '<td align="center">&middot; <a href="users/cgroup.php">'.$_template['new_module'].'</a>&nbsp;&middot; <a href="users/create_course.php">'.$_template['new_course'].'</a></h2><br>';
+	echo '</td></tr></table>';
 	
 	//echo '</div>';
 	echo '</td></tr>';
@@ -241,24 +246,20 @@ if ($_SESSION['c_instructor']){
 <?php
 	echo '<tr><td height="1" class="row2" colspan="3"></td></tr>';
 	$sql	= "SELECT * FROM courses WHERE member_id=$_SESSION[member_id] ORDER BY title";
-	$result = $db->query($sql);
+	$result = mysql_query($sql,$db);
 
-	$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-	$countres = $db->query($countsql);
-	$count0 = $countres->fetchRow();
-	$num = $count0[0];
+	$num = mysql_num_rows($result);
 	$count = 1;
-	$alternate = 1;
-	if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+	if ($row = mysql_fetch_array($result)) {
 		do {
 			echo '<tr>';
 			
-			echo '<td class="rowa'.$alternate.'" width="150" valign="top"><a href="bounce.php?course='.$row[COURSE_ID].'"><b>'.$row[TITLE].'</b></a></td>';
-			echo '<td width="50%" class="rowa'.$alternate.'"><small>'.$row['DESCRIPTION'];
+			echo '<td class="row1" width="150" valign="top"><a href="bounce.php?course='.$row[course_id].'"><b>'.$row[title].'</b></a></td>';
+			echo '<td class="row1"><small>'.$row['description'];
 
 			echo '<br /><br />&middot; '.$_template['access'].': ';
 			$pending = '';
-			switch ($row['ACCESSTYPE']){
+			switch ($row['access']){
 				case 'public':
 					echo $_template['public'];
 					break;
@@ -267,60 +268,47 @@ if ($_SESSION['c_instructor']){
 					break;
 				case 'private':
 					echo $_template['private'];
-					$sql	  = "SELECT COUNT(*) FROM course_enrollment WHERE course_id=$row[COURSE_ID] AND approved='n'";
-					$c_result = $db->query($sql);
-					$c_row	  =$c_result->fetchRow(DB_FETCHMODE_ASSOC);
-					$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-					$countres = $db->query($countsql);
-					$count = $countres->fetchRow();
-
-					$num_rows_c = $count[0];
+					$sql	  = "SELECT COUNT(*) FROM course_enrollment WHERE course_id=$row[course_id] AND approved='n'";
+					$c_result = mysql_query($sql, $db);
+					$c_row	  = mysql_fetch_array($c_result);
+					$num_rows_c = mysql_num_rows($c_result);
 					if($c_row[0] > 0){
-						$pending  = ', '.$c_row[0].' '.$_template['pending_approval2'].'<a href="users/enroll_admin.php?course='.$row[COURSE_ID].'"> '.$_template['pending_approval3'].'</a>';
+						$pending  = ', '.$c_row[0].' '.$_template['pending_approval2'].'<a href="users/enroll_admin.php?course='.$row[course_id].'"> '.$_template['pending_approval3'].'</a>';
 					}
 					break;
 			}
-			$sql	  = "SELECT COUNT(*) FROM course_enrollment WHERE course_id=$row[COURSE_ID]";
-			$c_result = $db->query($sql);
-			$c_row	  =$c_result->fetchRow(DB_FETCHMODE_ASSOC);
+			$sql	  = "SELECT COUNT(*) FROM course_enrollment WHERE course_id=$row[course_id]";
+			$c_result = mysql_query($sql, $db);
+			$c_row	  = mysql_fetch_array($c_result);
 
 			echo '<br />&middot; '.$_template['enrolled'].': '.($c_row[0]).' '.$pending.'<br />';
-			echo '&middot; '.$_template['created'].': '.$row[CREATED_DATE].'<br />';
+			echo '&middot; '.$_template['created'].': '.$row[created_date].'<br />';
 
-			$sql	  = "SELECT SUM(guests) AS guests, SUM(members) AS members FROM course_stats WHERE course_id=$row[COURSE_ID]";
-			$c_result = $db->query($sql);
-			$c_row	  =$c_result->fetchRow(DB_FETCHMODE_ASSOC);
+			$sql	  = "SELECT SUM(guests) AS guests, SUM(members) AS members FROM course_stats WHERE course_id=$row[course_id]";
+			$c_result = mysql_query($sql, $db);
+			$c_row	  = mysql_fetch_array($c_result);
 
 			echo '&middot; '.$_template['logins'];
-			if ($row['ACCESSTYPE'] != 'private') {
+			if ($row['access'] != 'private') {
 				echo ' G: '.($c_row[guests] ? $c_row[guests] : 0).', ';
 			}
-			echo ' M: '.($c_row[members] ? $c_row[members] : 0).'. <a href="users/course_stats.php?course='.$row[COURSE_ID].SEP.'a='.$row['ACCESSTYPE'].'">'.$_template['details'].'</a><br />';
+			echo ' M: '.($c_row[members] ? $c_row[members] : 0).'. <a href="users/course_stats.php?course='.$row[course_id].SEP.'a='.$row['access'].'">'.$_template['details'].'</a><br />';
 
 			echo '</small></td>';
 
-			echo '<td class="rowa'.$alternate.'" valign="top">';
-				
-				echo '<table cellpadding="0" cellspacing="0" border="0"><tr>';
-				echo '<td class="row1" align="center"><small><a href="users/course_properties.php?course='.$row[COURSE_ID].'"><img src="images/menu/properties.gif" border="0" alt="'.$_template['properties'].'"></a></td>';
-				echo '<td class="row1" align="center"><a href="users/enroll_admin.php?course='.$row[COURSE_ID].'"><img src="images/menu/enrollment.gif" border="0" alt="'.$_template['enrolments'].'"></a></td>';
-				echo '<td class="row1" align="center"><a href="users/export.php?course='.$row[COURSE_ID].'"><img src="images/export.gif" border="0" alt="'.$_template['import_export'].'"></a></td>';
-				echo '<td class="row1" align="center"><a href="users/course_email.php?course='.$row[COURSE_ID].'"><img src="images/menu/email.gif" border="0" alt="'.$_template['course_email'].'"></a></td>';
-				//echo '<td class="row1" align="center"><a href="users/export_pdf.php?course='.$row[COURSE_ID].'"><img src="images/menu/ad-pdf.gif" border="0" alt="'.$_template['pdf_export'].'"></a></td>';					
-				if (($_SESSION['is_admin']) || ($_SESSION['c_instructor'])) {
-					echo '<td class="row1" align="center"><a href="users/delete_course.php?course='.$row[COURSE_ID].'"><img src="images/menu/delete.gif" border="0" alt="'.$_template['delete'].'"></a></td>';
-				}
-				echo '</tr></table>';
-			
-			echo '</td></tr>';
-			$alternate++;
-			if ($alternate>2) $alternate = 1;
+			echo '<td class="row1" valign="top"><small>&middot; <a href="users/course_properties.php?course='.$row[course_id].'">'.$_template['properties'].'</a><br />';
+
+			echo '&middot; <a href="users/enroll_admin.php?course='.$row[course_id].'">'.$_template['enrolments'].'</a><br />';
+			echo '&middot; <a href="users/course_email.php?course='.$row[course_id].'">'.$_template['course_email'].'</a><br />';
+			echo '&middot; <a href="users/export.php?course='.$row[course_id].'">'.$_template['import_export'].'</a><br />';
+			echo '<br />&middot; <a href="users/delete_course.php?course='.$row[course_id].'">'.$_template['delete'].'</a></small></td>';
+			echo '</tr>';
 
 			if ($count < $num) {
 				echo '<tr><td height="1" class="row2" colspan="3"></td></tr>';
 			}
 			$count++;
-		} while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC));
+		} while ($row = mysql_fetch_array($result));
 	} else {
 
 		echo '<tr><td class="row1" colspan="3"><i>'.$_template['not_teacher'].'</i></td></tr>';
@@ -334,11 +322,10 @@ if ($_SESSION['c_instructor']){
 	echo '<h2>'.$_template['taught_courses2'].'</h2>';
 
 	$sql	= "SELECT * FROM instructor_approvals WHERE member_id=$_SESSION[member_id]";
-	$result = $db->query($sql);
-	if (!($row =$result->fetchRow(DB_FETCHMODE_ASSOC))) {
+	$result = mysql_query($sql, $db);
+	if (!($row = mysql_fetch_array($result))) {
 		$infos[]=AT_INFOS_REQUEST_ACCOUNT;
 		print_infos($infos);
-
 ?>
 
 

@@ -42,9 +42,6 @@
 		echo '<tr><td class="cata" valign="top">';
 		
 			echo '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td width="18">';
-				if (!$_SESSION['prefs'][PREF_MINI_HELP]) {	
-					echo '<img src="images/menu/tbl_bg.gif" width="18" height="18">';
-				}
 				print_popup_help(AT_HELP_MAIN_MENU);
 			echo '</td><td background="images/menu/tbl_bg.gif">';
 				echo '<a name="menu"></a><a href="'.$_my_uri.'disable='.PREF_MAIN_MENU.'" accesskey="6" class="white" title="'.$_template['close_menus'].' ALT-6">' . $_template['close_menus'] . '</a>';
@@ -66,11 +63,11 @@
 </table>
 <?php
 
-$sql_foot="select footer from courses where course_id=$_SESSION[course_id]";
-if($result = $db->query($sql_foot)) {
-	while($row=$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-		if(strlen($row['FOOTER'])>0) {
-			$custom_foot= $row['FOOTER'];
+$sql_foot="select footer from courses where course_id='$_SESSION[course_id]'";
+if($result = mysql_query($sql_foot, $db)) {
+	while($row=mysql_fetch_row($result)) {
+		if(strlen($row[0])>0) {
+			$custom_foot= $row[0];
 			$custom_foot = str_replace("CONTENT_DIR", "content/".$_SESSION['course_id'], $custom_foot);
 		}
 	}
@@ -84,10 +81,6 @@ require($_include_path.'html/copyright.inc.php');?>
 </td></tr></table>
 </td><td><img src="images/spacer.gif" border="0" width="10" height="1"></td></tr>
 </table>
-<p></p>
-<p></p>
+
 </body>
 </html>
-<?php
-	$db->disconnect();
-?>

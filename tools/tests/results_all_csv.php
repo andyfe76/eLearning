@@ -31,14 +31,14 @@
 
 
 	$sql	= "SELECT * FROM tests_questions Q WHERE Q.test_id=$tid AND Q.course_id=$_SESSION[course_id] ORDER BY ordering";
- 	$result	= $db->query($sql);
+ 	$result	= mysql_query($sql, $db);
 	$questions = array();
 	$total_weight = 0;
-	while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$row['SCORE']	= 0;
+	while ($row = mysql_fetch_array($result)) {
+		$row['score']	= 0;
 		$questions[]	= $row;
-		$q_sql .= $row['QUESTION_ID'].',';
-		$total_weight += $row['WEIGHT'];
+		$q_sql .= $row['question_id'].',';
+		$total_weight += $row['weight'];
 	}
 	$q_sql = substr($q_sql, 0, -1);
 	$num_questions = count($questions);
@@ -54,22 +54,22 @@
 	echo $nl;
 
 	$sql	= "SELECT R.*, M.login FROM tests_results R, members M WHERE R.test_id=$tid AND R.final_score<>'' AND R.member_id=M.member_id ORDER BY M.login, R.date_taken";
-	$result = $db->query($sql);
-	if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+	$result = mysql_query($sql, $db);
+	if ($row = mysql_fetch_array($result)) {
 		$count		 = 0;
 		$total_score = 0;
 		do {
-			echo quote_csv($row['LOGIN']).', ';
-			echo AT_date($_SESSION['lang'], '%j/%n/%y %G:%i', $row['DATE_TAKEN'], AT_MYSQL_DATETIME).', ';
-			echo $row['FINAL_SCORE'];
+			echo quote_csv($row['login']).', ';
+			echo AT_date($_SESSION['lang'], '%j/%n/%y %G:%i', $row['date_taken'], AT_MYSQL_DATETIME).', ';
+			echo $row['final_score'];
 
-			$total_score += $row['FINAL_SCORE'];
+			$total_score += $row['final_score'];
 
 			$answers = array(); /* need this, because we dont know which order they were selected in */
-			$sql = "SELECT question_id, score FROM tests_answers WHERE result_id=$row[RESULT_ID] AND question_id IN ($q_sql)";
-			$result2 = $db->query($sql);
-			while ($row2 =$result2->fetchRow(DB_FETCHMODE_ASSOC)) {
-				$answers[$row2['QUESTION_ID']] = $row2['SCORE'];
+			$sql = "SELECT question_id, score FROM tests_answers WHERE result_id=$row[result_id] AND question_id IN ($q_sql)";
+			$result2 = mysql_query($sql, $db);
+			while ($row2 = mysql_fetch_array($result2)) {
+				$answers[$row2['question_id']] = $row2['score'];
 			}
 			for($i = 0; $i < $num_questions; $i++) {
 				$questions[$i]['score'] += $answers[$questions[$i]['question_id']];
@@ -78,7 +78,7 @@
 
 			echo $nl;
 			$count++;
-		} while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC));
+		} while ($row = mysql_fetch_array($result));
 
 		echo $nl;
 

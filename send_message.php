@@ -36,17 +36,17 @@ if (($_POST['submit']) || ($_POST['submit_delete'])) {
 	}
 
 	if (!$errors) {
-		$msid = $db->nextId("AUTO_MESSAGES_MSID_SEQ");
-		$sql = "INSERT INTO messages VALUES ($msid, $_SESSION[member_id], $_POST[to], SYSDATE, 1, 0, '$_POST[subject]', '$_POST[message]')";
 
-		$result = $db->query($sql);
+		$sql = "INSERT INTO messages VALUES (0, $_SESSION[member_id], $_POST[to], NOW(), 1, 0, '$_POST[subject]', '$_POST[message]')";
+
+		$result = mysql_query($sql,$db);
 
 		if ($_POST['replied'] != '') {
-			$result = $db->query("UPDATE messages SET replied=1 WHERE message_id=$_POST[replied]",$db);
+			$result = mysql_query("UPDATE messages SET replied=1 WHERE message_id=$_POST[replied]",$db);
 		}
 
 		if ($_POST['submit_delete']) {
-			$result = $db->query("DELETE FROM messages WHERE message_id=$_POST[replied] AND to_member_id=$_SESSION[member_id]",$db);
+			$result = mysql_query("DELETE FROM messages WHERE message_id=$_POST[replied] AND to_member_id=$_SESSION[member_id]",$db);
 		}
 
 		Header ('Location: ./inbox.php?s=1');
@@ -58,10 +58,10 @@ if (($_POST['submit']) || ($_POST['submit_delete'])) {
 
 
 $sql	= "SELECT COUNT(*) AS cnt FROM course_enrollment WHERE member_id=$_SESSION[member_id] AND approved='y'";
-$result = $db->query($sql);
-$row	=$result->fetchRow(DB_FETCHMODE_ASSOC);
+$result = mysql_query($sql, $db);
+$row	= mysql_fetch_array($result);
 
-if ($row['CNT'] == 0) {
+if ($row['cnt'] == 0) {
 	require($_include_path.'header.inc.php');
 
 	$errors[]=AT_ERROR_SEND_ENROL;
@@ -91,11 +91,11 @@ if ($_GET['reply'] != '') {
 	$_GET['reply'] = intval($_GET['reply']);
 
 	// get the member_id of the sender
-	$result = $db->query("SELECT from_member_id,subject,body FROM messages WHERE message_id=$_GET[reply] AND to_member_id=$_SESSION[member_id]",$db);
-	if ($myinfo =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$reply_to	= $myinfo['FROM_MEMBER_ID'];
-		$subject	= $myinfo['SUBJECT'];
-		$body		= $myinfo['BODY'];
+	$result = mysql_query("SELECT from_member_id,subject,body FROM messages WHERE message_id=$_GET[reply] AND to_member_id=$_SESSION[member_id]",$db);
+	if ($myinfo = mysql_fetch_array($result)) {
+		$reply_to	= $myinfo['from_member_id'];
+		$subject	= $myinfo['subject'];
+		$body		= $myinfo['body'];
 	}
 }
 if ($_GET['l'] != '') {
@@ -104,10 +104,10 @@ if ($_GET['l'] != '') {
 
 /* check to make sure we're enrolled in atleast one course */
 $sql	= "SELECT COUNT(*) AS cnt FROM course_enrollment WHERE member_id=$_SESSION[member_id] AND approved='y'";
-$result = $db->query($sql);
-$row	= $result->fetchRow(DB_FETCHMODE_ASSOC);
+$result = mysql_query($sql, $db);
+$row	= mysql_fetch_array($result);
 
-if ($row['CNT'] == 0) {
+if ($row['cnt'] == 0) {
 	$errors[]=AT_ERROR_SEND_ENROL;
 	print_errors($errors);
 	require($_include_path.'footer.inc.php');
@@ -117,10 +117,10 @@ if ($row['CNT'] == 0) {
 /* check to make sure we're in the same course */
 if ($reply_to) {
 	$sql	= "SELECT COUNT(*) AS cnt FROM course_enrollment E1, course_enrollment E2 WHERE E1.member_id=$_SESSION[member_id] AND E2.member_id=$reply_to AND E1.course_id=E2.course_id AND E1.approved='y' AND E2.approved='y'";
-	$result = $db->query($sql);
-	$row	=$result->fetchRow(DB_FETCHMODE_ASSOC);
+	$result = mysql_query($sql, $db);
+	$row	= mysql_fetch_array($result);
 
-	if ($row['CNT'] == 0) {
+	if ($row['cnt'] == 0) {
 		$errors[]=AT_ERROR_SEND_MEMBERS;
 		print_errors($errors);
 		require($_include_path.'footer.inc.php');
@@ -142,30 +142,23 @@ if ($reply_to) {
 	<td class="row1"><?php
 
 		if ($_GET['reply'] == '') {
-			$statuslist = STATUS_ADMINISTRATOR.','.STATUS_TRAINER.','.STATUS_TRAINING_MANAGER;
-			/*if (($_SESSION['status']==STATUS_ADMINISTRATOR) || ($_SESSION['status']==STATUS_TRAINER) || ($_SESSION['status']==STATUS_TRAINING_MANAGER)) {
-				$sql	= "SELECT * FROM members WHERE login IN (SELECT DISTINCT M.login FROM members M INNER JOIN course_enrollment E ON M.member_id=E.member_id WHERE E.course_id IN (SELECT DISTINCT course_id FROM course_enrollment WHERE member_id=".$_SESSION['member_id'].") AND E.approved='y') ORDER BY login";
-			} else {
-				$sql	= "SELECT * FROM members WHERE login IN (SELECT DISTINCT M.login FROM members M INNER JOIN course_enrollment E ON M.member_id=E.member_id WHERE E.course_id IN (SELECT DISTINCT course_id FROM course_enrollment WHERE member_id=".$_SESSION['member_id'].") AND E.approved='y') AND status IN (".$statuslist.") ORDER BY login";
-			}*/
-			$sql = "SELECT * FROM members WHERE status IN ($statuslist)";
-			$result = $db->query($sql);
-			//print_r($result);
-			$row	= $result->fetchRow(DB_FETCHMODE_ASSOC);
+			$sql	= "SELECT DISTINCT M.* FROM members M, course_enrollment E1, course_enrollment E2 WHERE E2.member_id=$_SESSION[member_id] AND E2.approved='y' AND E2.course_id=E1.course_id AND M.member_id=E1.member_id AND E1.approved='y' ORDER BY M.login";
+
+			$result = mysql_query($sql, $db);
+			$row	= mysql_fetch_array($result);
 			echo '<select class="formfield" name="to" size="1" id="to">';
 			echo '<option value="0"></option>';
 			do {
-				
-				$name = str_replace('<','&lt;',$row['LOGIN']);
-				echo '<option value="'.$row['MEMBER_ID'].'"';
-				if ($reply_to == $row['MEMBER_ID']){
+				$name = str_replace('<','&lt;',$row['login']);
+				echo '<option value="'.$row['member_id'].'"';
+				if ($reply_to == $row['member_id']){
 					echo ' selected="selected"';
 				}
 				if ($log == $name){
 					echo ' selected="selected"';
 				}
 				echo '>'.$name.'</option>';
-			} while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC));
+			} while ($row = mysql_fetch_array($result));
 			echo '</select> <small class="spacer">'.$_template['same_course_users'].'</small>';
 		} else {
 			echo get_login($reply_to);
@@ -207,8 +200,7 @@ if ($reply_to) {
 </tr>
 <tr><td height="1" class="row2" colspan="2"></td></tr>
 <tr>
-	<td class="row1" colspan="2"><a href="<?php echo substr($_my_uri, 0, strlen($_my_uri)-1); ?>#jumpcodes" title="<?php echo $_template['jump_code']; ?>"><img src="images/clr.gif" height="1" width="1" alt="<?php echo $_template['jump_code']; ?>" border="0" /></a>
-	<?php //require($_include_path.'html/code_picker.inc.php'); ?><br /></td>
+	<td class="row1" colspan="2"><a href="<?php echo substr($_my_uri, 0, strlen($_my_uri)-1); ?>#jumpcodes" title="<?php echo $_template['jump_code']; ?>"><img src="images/clr.gif" height="1" width="1" alt="<?php echo $_template['jump_code']; ?>" border="0" /></a><?php require($_include_path.'html/code_picker.inc.php'); ?><br /></td>
 </tr>
 <tr><td height="1" class="row2" colspan="2"></td></tr>
 <tr><td height="1" class="row2" colspan="2"></td></tr>

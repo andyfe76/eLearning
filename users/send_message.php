@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 $section = 'users';
 $_include_path = '../include/';
@@ -35,16 +40,16 @@ if (($_POST['submit']) || ($_POST['submit_delete'])) {
 		$_POST['subject'] = str_replace('<', '&lt;', $_POST['subject']);
 		$_POST['message'] = str_replace('<', '&lt;', $_POST['message']);
 
-		$sql = "INSERT INTO messages VALUES (0, $_SESSION[member_id], $_POST[to], SYSDATE, 1, 0, '$_POST[subject]', '$_POST[message]')";
+		$sql = "INSERT INTO messages VALUES (0, $_SESSION[member_id], $_POST[to], NOW(), 1, 0, '$_POST[subject]', '$_POST[message]')";
 		
-		$result = $db->query($sql);
+		$result = mysql_query($sql,$db);
 
 		if ($_POST['replied'] != '') {
-			$result = $db->query("UPDATE messages SET replied=1 WHERE message_id=$_POST[replied]",$db);
+			$result = mysql_query("UPDATE messages SET replied=1 WHERE message_id=$_POST[replied]",$db);
 		}
 
 		if ($_POST['submit_delete']) {
-			$result = $db->query("DELETE FROM messages WHERE message_id=$_POST[replied] AND to_member_id=$_SESSION[member_id]",$db);
+			$result = mysql_query("DELETE FROM messages WHERE message_id=$_POST[replied] AND to_member_id=$_SESSION[member_id]",$db);
 		}
 
 		Header ('Location: ./inbox.php?s=1');
@@ -73,8 +78,8 @@ if ($_GET['reply'] != '') {
 	$_GET['reply'] = intval($_GET['reply']);
 
 	// get the member_id of the sender
-	$result = $db->query("SELECT from_member_id,subject,body FROM messages WHERE message_id=$_GET[reply] AND to_member_id=$_SESSION[member_id]",$db);
-	if ($myinfo =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+	$result = mysql_query("SELECT from_member_id,subject,body FROM messages WHERE message_id=$_GET[reply] AND to_member_id=$_SESSION[member_id]",$db);
+	if ($myinfo = mysql_fetch_array($result)) {
 		$reply_to	= $myinfo['from_member_id'];
 		$subject	= $myinfo['subject'];
 		$body		= $myinfo['body'];
@@ -86,10 +91,10 @@ if ($_GET['l'] != '') {
 
 /* check to make sure we're enrolled in atleast one course */
 $sql	= "SELECT COUNT(*) AS cnt FROM course_enrollment WHERE member_id=$_SESSION[member_id] AND approved='y'";
-$result = $db->query($sql);
-$row	=$result->fetchRow(DB_FETCHMODE_ASSOC);
+$result = mysql_query($sql, $db);
+$row	= mysql_fetch_array($result);
 
-if ($row['CNT'] == 0) {
+if ($row['cnt'] == 0) {
 	$errors[]=AT_ERROR_SEND_ENROL;
 	print_errors($errors);
 	require($_include_path.'cc_html/footer.inc.php');
@@ -99,10 +104,10 @@ if ($row['CNT'] == 0) {
 /* check to make sure we're in the same course */
 if ($reply_to) {
 	$sql	= "SELECT COUNT(*) AS cnt FROM course_enrollment E1, course_enrollment E2 WHERE E1.member_id=$_SESSION[member_id] AND E2.member_id=$reply_to AND E1.course_id=E2.course_id AND E1.approved='y' AND E2.approved='y'";
-	$result = $db->query($sql);
-	$row	=$result->fetchRow(DB_FETCHMODE_ASSOC);
+	$result = mysql_query($sql, $db);
+	$row	= mysql_fetch_array($result);
 
-	if ($row['CNT'] == 0) {
+	if ($row['cnt'] == 0) {
 		$errors[]=AT_ERROR_SEND_MEMBERS;
 		print_errors($errors);
 		require($_include_path.'cc_html/footer.inc.php');
@@ -126,21 +131,21 @@ if ($reply_to) {
 		if ($_GET['reply'] == '') {
 			$sql	= "SELECT DISTINCT M.* FROM members M, course_enrollment E1, course_enrollment E2 WHERE E2.member_id=$_SESSION[member_id] AND E2.approved='y' AND E2.course_id=E1.course_id AND M.member_id=E1.member_id AND E1.approved='y' ORDER BY M.login";
 			
-			$result = $db->query($sql);
-			$row	=$result->fetchRow(DB_FETCHMODE_ASSOC);
+			$result = mysql_query($sql, $db);
+			$row	= mysql_fetch_array($result);
 			echo '<select class="formfield" name="to" size="1" id="to">';
 			echo '<option value="0"></option>';
 			do {
-				$name = str_replace('<','&lt;',$row['LOGIN']);
-				echo '<option value="'.$row['MEMBER_ID'].'"';
-				if ($reply_to == $row['MEMBER_ID']){
+				$name = str_replace('<','&lt;',$row['login']);
+				echo '<option value="'.$row['member_id'].'"';
+				if ($reply_to == $row['member_id']){
 					echo ' selected';
 				}
 				if ($log == $name){
 					echo ' selected';
 				}
 				echo '>'.$name.'</option>';
-			} while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC));
+			} while ($row = mysql_fetch_array($result));
 			echo '</select> <small class="spacer">Only users in the same courses as you are listed.</small>';
 		} else {
 			echo get_login($reply_to);

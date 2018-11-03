@@ -21,7 +21,6 @@ $help[]=AT_HELP_FILEMANAGER4;
 
 /********************************************/
 /* Terracotta code from here bellow			*/
-/* Modified by Marian VASILE, koncept.ro 	*/
 /********************************************/
 
 /* Import settings and libraries by importing just one php file */
@@ -289,7 +288,7 @@ $help[]=AT_HELP_FILEMANAGER4;
     *
     */
    include("includes/layout/search.layout"); 
-  } elseif($_REQUEST["action"] == "AddObjects" && ($_SESSION['c_instructor'] || $_SESSION['is_admin'])) {
+  } elseif($_REQUEST["action"] == "AddObjects" && $_SESSION['is_admin']) {
    /* 
     * The user has requested for a addition of items
     * present him/her with the option of adding multiple items
@@ -297,7 +296,7 @@ $help[]=AT_HELP_FILEMANAGER4;
     */   
    include("includes/layout/multiple_items.layout"); 
    
-  } elseif($_REQUEST["action"] == "Add" && ($_SESSION['c_instructor'] || $_SESSION['is_admin'])) {
+  } elseif($_REQUEST["action"] == "Add" && $_SESSION['is_admin']) {
    /* 
     * The user has requested add interface
     *

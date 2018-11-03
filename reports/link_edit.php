@@ -1,3 +1,19 @@
+
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" content="text/html; charset=iso-8859-1">
+<TITLE>Link Editor</TITLE>
+</HEAD>
+<script>
+function update(action)
+{
+ document.forms[0].action.value=action;
+ document.forms[0].editing.value='no';
+ document.forms[0].submit();
+}
+
+</script>
+<BODY>
 <?php
 
 	$section = 'users';
@@ -24,13 +40,13 @@
 
 	if ($action == 'Link Add') {
 		$sql = "INSERT INTO report_links (cat1, attr1, cat2, attr2) VALUES ('$cat1', '$attr1', '$cat2', '$attr2')";
-		$res = $db->query($sql);
+		$res = mysql_query($sql);
 		$action = '';
 	}
 
 	if (($action == 'Link Update') && ($editing == 'no')) {
 		$sql = "UPDATE report_links SET cat1='$cat1', attr1='$attr1', cat2='$cat2', attr2='$attr2' WHERE id=$link_id";
-		$res = $db->query($sql);
+		$res = mysql_query($sql);
 		$action = '';
 		$editing = 'no';
 	}
@@ -40,12 +56,12 @@
 		if ($editing=='') $editing = $_GET['editing'];
 		if ($editing <> 'yes') {
 			$sql = "SELECT * FROM report_links WHERE id=$link_id";
-			$res = $db->query($sql);
-			if ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-				$cat1 = $row['CAT1'];
-				$cat2 = $row['CAT2'];
-				$attr1 = $row['ATTR1'];
-				$attr2 = $row['ATTR2'];
+			$res = mysql_query($sql);
+			if ($row = mysql_fetch_array($res)) {
+				$cat1 = $row['cat1'];
+				$cat2 = $row['cat2'];
+				$attr1 = $row['attr1'];
+				$attr2 = $row['attr2'];
 			}
 		}
 		$action = '';
@@ -54,20 +70,12 @@
 
 	if ($action == 'Link Delete') {
 		$sql = "DELETE FROM report_links WHERE id=$link_id";
-		$res = $db->query($sql);
+		$res = mysql_query($sql);
 		$action = '';
 	}
 	
 ?>
-<script>
-function update(action)
-{
- document.forms[0].action.value=action;
- document.forms[0].editing.value='no';
- document.forms[0].submit();
-}
 
-</script>
 <TABLE border="1" align="center">
 <form action="link_edit.php">
 <tr><td bgcolor="#E0E0E0">Catogory1</td><td bgcolor="#E0E0E0">Attribute1</td><td>&nbsp;</td><td bgcolor="#E0E0E0">Category2</td><td bgcolor="#E0E0E0">Attribute2</td></tr>
@@ -76,10 +84,10 @@ function update(action)
 
 <?php
 	$sql = "SHOW TABLES";
-	$res = $db->query($sql);
+	$res = mysql_query($sql);
 	$cat_old = '';
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$txt = $row['TABLES_IN_KLORE'];
+	while ($row = mysql_fetch_array($res)) {
+		$txt = $row['Tables_in_klore'];
 		if ($cat1=='') $cat1=$txt;
 		if ($cat_old <> $txt) {
 			$cat_old = $txt;
@@ -97,9 +105,9 @@ function update(action)
 <?php
 
 	$sql = "SHOW FIELDS FROM $cat1";
-	$res = $db->query($sql);
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$txt = $row['FIELD'];
+	$res = mysql_query($sql);
+	while ($row = mysql_fetch_array($res)) {
+		$txt = $row['Field'];
 		$selected = '';
 		if ($txt == $attr1) $selected = 'SELECTED ';
 		echo '<OPTION '.$selected.'name="'.$txt.'">'.$txt.'</option>';
@@ -112,10 +120,10 @@ function update(action)
 
 <?php
 	$sql = "SHOW TABLES";
-	$res = $db->query($sql);
+	$res = mysql_query($sql);
 	$cat_old = '';
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$txt = $row['TABLES_IN_KLORE'];
+	while ($row = mysql_fetch_array($res)) {
+		$txt = $row['Tables_in_klore'];
 		if ($cat2 == '') $cat2 = $txt;
 		if ($cat_old <> $txt) {
 			$cat_old = $txt;
@@ -133,9 +141,9 @@ function update(action)
 <?php
 	
 	 $sql = "SHOW FIELDS FROM $cat2";
-	 $res = $db->query($sql);
-	 while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-	 	$txt = $row['FIELD'];
+	 $res = mysql_query($sql);
+	 while ($row = mysql_fetch_array($res)) {
+	 	$txt = $row['Field'];
 	 	$selected = '';
 	 	if ($txt == $attr2) $selected = 'SELECTED ';
 	 	echo '<OPTION '.$selected.'name="'.$txt.'">'.$txt.'</option>';
@@ -157,16 +165,16 @@ function update(action)
 <?php
 
 	$sql = "SELECT * FROM report_links";
-	$res = $db->query($sql);
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+	$res = mysql_query($sql);
+	while ($row = mysql_fetch_array($res)) {
 		?>	
 		<tr>
-		<td><A href="link_edit.php?action=Link Edit&link_id=<?php echo $row['ID']; ?>"><?php echo $row['CAT1']; ?></a>&nbsp;</td>
-		<td><A href="link_edit.php?action=Link Edit&link_id=<?php echo $row['ID']; ?>"><?php echo $row['ATTR1']; ?></a>&nbsp;</td>
+		<td><A href="link_edit.php?action=Link Edit&link_id=<?php echo $row['id']; ?>"><?php echo $row['cat1']; ?></a>&nbsp;</td>
+		<td><A href="link_edit.php?action=Link Edit&link_id=<?php echo $row['id']; ?>"><?php echo $row['attr1']; ?></a>&nbsp;</td>
 		<td><=></td>
-		<td><A href="link_edit.php?action=Link Edit&link_id=<?php echo $row['ID']; ?>"><?php echo $row['CAT2']; ?></a>&nbsp;</td>
-		<td><A href="link_edit.php?action=Link Edit&link_id=<?php echo $row['ID']; ?>"><?php echo $row['ATTR2']; ?></a>&nbsp;</td>
-		<td><A href="link_edit.php?action=Link Delete&link_id=<?php echo $row['ID']; ?>">Delete</a></td>
+		<td><A href="link_edit.php?action=Link Edit&link_id=<?php echo $row['id']; ?>"><?php echo $row['cat2']; ?></a>&nbsp;</td>
+		<td><A href="link_edit.php?action=Link Edit&link_id=<?php echo $row['id']; ?>"><?php echo $row['attr2']; ?></a>&nbsp;</td>
+		<td><A href="link_edit.php?action=Link Delete&link_id=<?php echo $row['id']; ?>">Delete</a></td>
 		</tr>
 		<?php
 	} 

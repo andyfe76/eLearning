@@ -32,7 +32,6 @@ h1 {
 h2 {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	color: black;
-	font-size: 10;
 	font-weight: ;
 	margin-bottom: 0px;
 	margin-top: 0px;
@@ -42,7 +41,6 @@ h2 {
 h3 {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	color: black;
-	font-size: 10pt;
 	font-weight: ;
 	margin-bottom: 0px;
 	margin-top: 0px;
@@ -52,7 +50,6 @@ h3 {
 h4 {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	color: black;
-	font-size: 10pt;
 	font-weight: ;
 	margin-bottom: 0px;
 	margin-top: 0px;
@@ -62,7 +59,6 @@ h4 {
 h5 {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	color: black;
-	font-size: 8pt;
 	font-weight: ;
 	margin-bottom: 0px;
 	margin-top: 0px;
@@ -72,7 +68,6 @@ h5 {
 h6 {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	color: black;
-	font-size: 8pt;
 	font-weight: ;
 	margin-bottom: 0px;
 	margin-top: 0px;
@@ -126,7 +121,6 @@ a:hover {
 
 /* formfield attributes */
 .formfield  { color: black; font-size: 8pt; font-family: Verdana, Arial, Helvetica, sans-serif; border: solid 1px #003399}
-.formfield2  { color: black; font-size: 8pt; font-family: Verdana, Arial, Helvetica, sans-serif; border: solid 1px #88AA88}
 .formfieldR  { color: black; font-size: 8pt; font-family: Verdana, Arial, Helvetica, sans-serif; text-align: right; border: solid 1px #003399}
 form {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
@@ -265,15 +259,7 @@ td.rowpic {
 td.row1, table.row1 { 
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-weight: normal;
-	/* background-color: #F0F0F0;  */
-	vertical-align: top;	
-	padding: 3px;
-	font-size: 8pt;
-}
-td.rowa1, table.rowa1 { 
-	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-weight: normal;
-	background-color: #F8F8F8; 
+	/* background-color: #EFEFEF; */
 	vertical-align: top;	
 	padding: 3px;
 	font-size: 8pt;
@@ -282,8 +268,7 @@ td.rowa1, table.rowa1 {
 td.row1ph, table.row1ph {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-weight: normal;
-	background-color: #F0F0F0;
-	border: 1px #98AAB1 solid;
+	background-color: #EFEFEF;
 	vertical-align: top;	
 	padding: 3px;
 	font-size: 8pt;
@@ -402,19 +387,10 @@ table.cat3 {
 
 /* various line breaks */
 td.row2 { 
-	//background-color: #F8F8FA; 
+	// background-color: #F8F8FA; 
 	font-weight: normal;
 	height: 1px;
 }
-
-td.rowa2 { 
-	font-weight: normal;
-	background-color: #F8F8FA
-	vertical-align: top;	
-	padding: 3px;
-	font-size: 8pt;
-}
-
 td.mrow2 { 
 	font-weight: normal;
 	//background-color: #F8F8FA;
@@ -422,7 +398,7 @@ td.mrow2 {
 	height: 1px;
 }
 td.row3 {
-	background-color: #009A31;
+	background-color: #006699;
 	font-weight: normal;
 	height: 1px;
 }
@@ -450,16 +426,12 @@ td.row4 {
 }
 
 .bodyline { 
-	background-color: #F8FFF8; 
-	border: 1px #98AAB1 solid; 
-}
-
-th.bodyline {
-	background-color: #009A31;
+	/* background-color: #FFFFFF;  */
+	border: 0px #98AAB1 solid; 
 }
 
 .framework {
-	/* background-color: #009A31; */
+	background-color: #EFEFEA;
 	border: 1px #98AAB1 solid;
 }
 
@@ -478,7 +450,7 @@ small.date {
 
 /* page breakline */
 hr {
-	color: #009933;
+	color: #98AAB1;
 	background-color: white;
 	height: 1px;
 }
@@ -624,8 +596,4 @@ select.dropdown  {font-size: 8pt; font-family: Verdana, Arial, Helvetica, sans-s
 .course_title: {
 	FONT-FAMILY: Verdana, Arial, Helvetica;
 	COLOR: #FFFFFF;
-}
-
-li p {
-	margin-right: 5em;
 }

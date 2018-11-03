@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 $_include_path = '../include/';
 require($_include_path.'vitals.inc.php');
@@ -16,17 +21,14 @@ $_section[1][0] = 'Create Student';
 if ($new_user)
 {
 	$sql = "SELECT * FROM members WHERE login='$form_login'";
-	$result = $db->query($sql);
-	$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-	$countres = $db->query($countsql);
-	$count0 = $countres->fetchRow();
-	if ($count0[0] == 1)
+	$result = mysql_query($sql);
+	if (mysql_num_rows($result) == 1)
 	{
 		$error = 'An account with that login already exists.';
 	} else {
 		/* login name rules should go here. what is a valid login? */
 		$sql = "INSERT INTO members VALUES (0,'$form_login','$form_password',0)";
-		$result = $db->query($sql);
+		$result = mysql_query($sql);
 		$success = true;
 	}
 }

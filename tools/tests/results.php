@@ -42,22 +42,16 @@
 	
 	$tid = intval($_GET['tid']);
 	if ($_GET['m'] == 1) {
-		$show = " AND R.final_score='unmk'";
+		$show = ' AND R.final_score=\'\'';
 	} else if ($_GET['m'] == 2) {
-		$show = " AND R.final_score<>'unmk'";
+		$show = ' AND R.final_score<>\'\'';
 	} else {
 		$show = '';
 	}
 
 	$sql	= "SELECT R.*, M.login FROM tests_results R, members M WHERE R.test_id=$tid AND R.member_id=M.member_id $show ORDER BY date_taken";
- 	$result	= $db->query($sql);
- 	if (PEAR::isError($result)) {
- 		print_r($result);
- 	}
- 	$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-	$countres = $db->query($countsql);
-	$count0 = $countres->fetchRow();
-	$num_results = $count0[0];
+ 	$result	= mysql_query($sql, $db);
+	$num_results = mysql_num_rows($result);
 
 	echo '<table cellspacing="1" cellpadding="0" border="0" class="bodyline" summary="" align="center" width="90%">';
 	echo '<tr>';
@@ -68,33 +62,33 @@
 	echo '<th scope="col"><small>'.$_template['delete'].'</small></th>';
 	echo '</tr>';
 
-	if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+	if ($row = mysql_fetch_array($result)) {
 		$count		 = 0;
 		$total_score = 0;
 		do {
 			echo '<tr>';
-			echo '<td class="row1"><small><strong>'.$row['LOGIN'].'</strong></small></td>';
-			echo '<td class="row1"><small>'.$row['DATE_TAKEN'].'</small></td>';
+			echo '<td class="row1"><small><strong>'.$row['login'].'</strong></small></td>';
+			echo '<td class="row1"><small>'.AT_date($_SESSION['lang'], '%j/%n/%y %G:%i', $row['date_taken'], AT_MYSQL_DATETIME).'</small></td>';
 
 			echo '<td class="row1" align="center"><small>';
-			if ((strpos($row['FINAL_SCORE'], 'unmk') === false)) {
-				echo $row['FINAL_SCORE'];
+			if ($row['final_score'] != '') {
+				echo $row['final_score'];
 			} else {
 				echo $_template['unmarked'];
 			}
 			echo '</small></td>';
 
 
-			echo '<td class="row1" align="center"><small><a href="tools/tests/view_results.php?tid='.$tid.SEP.'rid='.$row['RESULT_ID'].SEP.'tt='.$row['LOGIN'].SEP.'tt2='.$_GET['tt'].SEP.'m='.$_GET['m'].'">'.$_template['view_mark_test'].'</a></small></td>';
+			echo '<td class="row1" align="center"><small><a href="tools/tests/view_results.php?tid='.$tid.SEP.'rid='.$row['result_id'].SEP.'tt='.$row['login'].SEP.'tt2='.$_GET['tt'].SEP.'m='.$_GET['m'].'">'.$_template['view_mark_test'].'</a></small></td>';
 
-			//echo '<td class="row1" align="center"><small><a href="tools/tests/delete_result.php?tid='.$tid.SEP.'tt2='.$_GET['tt'].SEP.'rid='.$row['RESULT_ID'].SEP.'tt='.$row['LOGIN'].SEP.'m='.$_GET['m'].'">'.$_template['delete'].'</a></small></td>';
+			echo '<td class="row1" align="center"><small><a href="tools/tests/delete_result.php?tid='.$tid.SEP.'tt2='.$_GET['tt'].SEP.'rid='.$row['result_id'].SEP.'tt='.$row['login'].SEP.'m='.$_GET['m'].'">'.$_template['delete'].'</a></small></td>';
 
 			echo '</tr>';
 			$count++;
 			if ($count < $num_results) {
 				echo '<tr><td height="1" class="row2" colspan="5"></td></tr>';
 			}
-		} while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC));
+		} while ($row = mysql_fetch_array($result));
 
 	} else {
 		echo '<tr><td colspan="5" class="row1"><small><em>'.$_template['no_unmarked_results'].'</em></small></td></tr>';

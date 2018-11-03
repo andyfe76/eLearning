@@ -7,19 +7,19 @@ $_section[0][0] = $_template['tools'];
 
 //get the login name or real name for member_id translation
 $sql14 = "select member_id, login from members";
-$result14=$db->query($sql14);
-while($row=$result14->fetchRow(DB_FETCHMODE_ASSOC)){
-	$this_user[$row['MEMBER_ID']]= $row['LOGIN'];
+$result14=mysql_query($sql14, $db);
+while($row=mysql_fetch_array($result14)){
+	$this_user[$row['member_id']]= $row['login'];
 }
 
 ///////////
 // Create a CSV dump of the tracking data for this course
 if($_GET['csv']=='1'){
 	$sql5 = "select * from g_refs";
-	$result = $db->query($sql5);
+	$result = mysql_query($sql5);
 	$refs = array();
-	while ($row=$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$refs[$row['G_ID']] = $row['REFERENCE'];
+	while ($row= mysql_fetch_array($result)) {
+		$refs[$row['g_id']] = $row['reference'];
 	}
 	//get the g translation for non content pages
 	$sql8= "select
@@ -34,28 +34,36 @@ if($_GET['csv']=='1'){
 		AND
 		course_id='$_SESSION[course_id]'";
 
-	if(!$result8 = $db->query($sql8)){
+	if(!$result8 = mysql_query($sql8)){
 		echo "query failed";
 		require($_include_path.'footer.inc.php');
 		exit;
 	}else{
 
 		$title_refs = array();
-		while ($row=$result8->fetchRow(DB_FETCHMODE_ASSOC)) {
-			$title_refs2[$row['G']] = $row['REFERENCE'];
+		while ($row= mysql_fetch_array($result8)) {
+			$title_refs2[$row['g']] = $row['reference'];
 
 		}
 	}
 	//get the translations for the content id numbers
-	$sql7 = "SELECT C.title, C.content_id FROM  content C WHERE course_id=$_SESSION[course_id]";
-	if(!$result7 = $db->query($sql7)){
+	$sql7 = "select
+			C.title,
+			C.content_id
+
+		from
+			content C
+
+		where
+			course_id='$_SESSION[course_id]'";
+	if(!$result7 = mysql_query($sql7)){
 		echo "query failed";
 		require($_include_path.'footer.inc.php');
 		exit;
 	}
 	$title_refs = array();
-	while ($row=$result7->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$title_refs[$row['CONTENT_ID']] = $row['TITLE'];
+	while ($row= mysql_fetch_array($result7)) {
+		$title_refs[$row['content_id']] = $row['title'];
 
 	}
 
@@ -67,38 +75,35 @@ if($_GET['csv']=='1'){
 	header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 	header('Pragma: public');
 
-	$sqlall="select * from g_click_data where course_id=$_SESSION[course_id]";
+	$sqlall="select * from g_click_data where course_id='$_SESSION[course_id]'";
 
-	$result_all=$db->query($sqlall);
-	// Field Name not supported by PEAR. Go to manual refs.
-	$num_fields = 7; // mysql_num_fields($result_all);
-	$this_row = "MEMBER_ID,COURSE_ID,FROM_CID,TO_CID,G,TIMESTAMP,DURATION";
-	/*for($i=0; $i<$num_fields; $i++){
+	$result_all=mysql_query($sqlall, $db);
+	$num_fields = mysql_num_fields($result_all);
+	for($i=0; $i<$num_fields; $i++){
 		if($i==($num_fields-1)){
 			$this_row .= mysql_field_name($result_all,$i);
 		}else{
 			$this_row .= mysql_field_name($result_all,$i).',';
 		}
 
-	}*/
-	
+	}
 	$this_row .= "\n";
-	while($row=$result_all->fetchRow(DB_FETCHMODE_ASSOC)){
-		$this_row .= quote_csv($this_user[$row['MEMBER_ID']]).",";
-		$this_row .= quote_csv($row['COURSE_ID']).",";
-		if($row['FROM_CID']=='' || $row['FROM_CID']=='0'){
+	while($row=mysql_fetch_array($result_all)){
+		$this_row .= quote_csv($this_user[$row['member_id']]).",";
+		$this_row .= quote_csv($row['course_id']).",";
+		if($row['from_cid']=='' || $row['from_cid']=='0'){
 			$this_row .= '"0",';
 		}else{
-			$this_row .= quote_csv($title_refs[$row['FROM_CID']]).",";
+			$this_row .= quote_csv($title_refs[$row['from_cid']]).",";
 		}
-		if($row['TO_CID']=='' || $row['TO_CID']=='0'){
+		if($row['to_cid']=='' || $row['to_cid']=='0'){
 			$this_row .= '"0",';
 		}else{
-			$this_row .= quote_csv($title_refs[$row['TO_CID']]).",";
+			$this_row .= quote_csv($title_refs[$row['to_cid']]).",";
 		}
-		$this_row .= quote_csv($title_refs2[$row['G']]).",";
-		$this_row.= quote_csv($row['TIMESTAMP']).",";
-		$this_row.= quote_csv($row['DURATION'])."\n";
+		$this_row .= quote_csv($title_refs2[$row['g']]).",";
+		$this_row.= quote_csv($row['timestamp']).",";
+		$this_row.= quote_csv($row['duration'])."\n";
 
 	}
 
@@ -131,8 +136,8 @@ if($_GET['reset']==1){
 	require($_include_path.'footer.inc.php');
 	exit;
 }else if($_GET['reset']==2){
-	$sql_delete= "delete from g_click_data where course_id=$_SESSION[course_id]";
-	if($result_delete_track=$db->query($sql_delete)){
+	$sql_delete= "delete from g_click_data where course_id='$_SESSION[course_id]'";
+	if($result_delete_track=mysql_query($sql_delete, $db)){
 		$feedback[]=AT_FEEDBACK_TRACKING_DELETED;
 	}else{
 		$errors[]=AT_ERRORS_TRACKING_NOT_DELETED;
@@ -145,6 +150,7 @@ if($_GET['reset']==1){
 
 
 ?>
+<h2><a href="tools/?g=11"><?php echo $_template['tools']; ?></a></h2>
 <h3><?php echo $_template['pages_stats']; ?></h3>
 <?php
 print_feedback($feedback);
@@ -161,9 +167,9 @@ if(!$_SESSION['is_admin'] && !$_SESSION['c_instructor']){
 //}
 //see if tracking is turned on
 $sql="SELECT tracking from courses where course_id=$_SESSION[course_id]";
-$result=$db->query($sql);
-while($row=$result->fetchRow(DB_FETCHMODE_ASSOC)){
-	if($row['TRACKING']== "off"){
+$result=mysql_query($sql, $db);
+while($row= mysql_fetch_array($result)){
+	if($row['tracking']== "off"){
 		if($_SESSION['is_admin']){
 			$infos[]=AT_INFOS_TRACKING_OFFIN;
 		}else{
@@ -204,13 +210,13 @@ while($row=$result->fetchRow(DB_FETCHMODE_ASSOC)){
 if($_GET['stats']=='student' || $_GET['member_id']){
 	//[]=AT_HELP_TRACKING;
 	//print_help($help);
-	$sql="select DISTINCT member_id from g_click_data where course_id=$_SESSION[course_id] order by member_id DESC";
-	$result=$db->query($sql);
+	$sql="select DISTINCT member_id from g_click_data where course_id='$_SESSION[course_id]' order by member_id DESC";
+	$result=mysql_query($sql);
 	//get the course enrollment
-	$sql2="select * from course_enrollment where course_id=$_SESSION[course_id] AND approved='y'";
-	$result2=$db->query($sql2);
-	while($row2=$result2->fetchRow(DB_FETCHMODE_ASSOC)){
-		$enrolled[$row2['MEMBER_ID']]=$row2['MEMBER_ID'];
+	$sql2="select * from course_enrollment where course_id='$_SESSION[course_id]' AND approved='y'";
+	$result2=mysql_query($sql2, $db);
+	while($row2=mysql_fetch_array($result2)){
+		$enrolled[$row2['member_id']]=$row2['member_id'];
 	}
 	?>
 	<a name="show_members"></a>
@@ -225,16 +231,16 @@ if($_GET['stats']=='student' || $_GET['member_id']){
 	<form action="<?php echo $PHP_SELF; ?>#show_members" method="get">
 	<select name="member_id">
 	<?php
-	while($row=$result->fetchRow(DB_FETCHMODE_ASSOC)){
-		if($row["MEMBER_ID"] == $enrolled[$row["MEMBER_ID"]]){
-			if($_GET["member_id"]==$row["MEMBER_ID"]){
+	while($row=mysql_fetch_array($result)){
+		if($row["member_id"] == $enrolled[$row["member_id"]]){
+			if($_GET["member_id"]==$row["member_id"]){
 				echo ' selected="selected"';
 			}
-			echo '<option  value="'.$row["MEMBER_ID"].'" ';
-			if($_GET["member_id"]==$row["MEMBER_ID"]){
+			echo '<option  value="'.$row["member_id"].'" ';
+			if($_GET["member_id"]==$row["member_id"]){
 				echo ' selected="selected"';
 			}
-			echo '>'.$this_user[$row["MEMBER_ID"]].'</option>'."\n";
+			echo '>'.$this_user[$row["member_id"]].'</option>'."\n";
 		}
 	}
 	?>
@@ -252,9 +258,9 @@ if($stats =="details" ||
 	$_GET['g_id'] || 
 	$_GET['csv']==1)
 {
-	require($_include_path.'lib/tracker_stats.inc.php');
+require($_include_path.'lib/tracker_stats.inc.php');
 }else{
-	if ($member_id) require($_include_path.'lib/tracker.inc.php');
+require($_include_path.'lib/tracker.inc.php');
 }
 
 	require($_include_path.'footer.inc.php');

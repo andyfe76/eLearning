@@ -1,5 +1,4 @@
 <?php
-global $db;
 		
 	echo '<table border="0" align="center" width="100%"><tr><td align="center">';
 	echo '<small class="spacer">';
@@ -14,12 +13,7 @@ global $db;
 	echo ' - '.$_template['announcements'];
 	echo '</h1>';
 	echo '</td></tr></table>';
-	?>
-	<center>
-	<a href="/start_course.php"><img border="0" src="images/start_curs.jpg"></a>
-	</center>
 	
-	<?php 
 	//help for content pages
 	if ($_SESSION['is_admin'] || $_SESSION['c_instructor']) {
 		if ($_SESSION['prefs'][PREF_MENU]==1){
@@ -28,6 +22,8 @@ global $db;
 			$help[] = AT_HELP_ADD_ANNOUNCEMENT;
 		}
 		$help[] = AT_HELP_ADD_TOP_PAGE;
+
+
 	}
 	echo '<br>';
 	echo '<table cellpadding="0" cellspacing="0" width="100%" border="0"><tr><td>';
@@ -40,45 +36,29 @@ global $db;
 
 
 	/* cache $news here. */
-	$sql = "SELECT * FROM news WHERE course_id=$_SESSION[course_id] ORDER BY data";
-	$result = $db->query($sql);
+	$sql = "SELECT N.* FROM news N WHERE N.course_id=$_SESSION[course_id] ORDER BY date DESC";
+	$result = mysql_query($sql, $db);
 	
 	//echo '<table border="0" cellspacing="1" cellpadding="0" width="98%">';
 	//echo '<tr><td class="row3" height="1" valign="top"><img src="images/clr.gif" height="1" width="1" alt="" /></td></tr>';
 	//echo '</table>';
 //	echo '<br>';
-	$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-	$countres = $db->query($countsql);
-	$count0 = $countres->fetchRow();
 
-	if ($count0[0] == 0) {
+	if (mysql_num_rows($result) == 0) {
 		echo '<i>'.$_template['no_announcements'].'</i>';
 	} else {
 		$news = array();
-
-		
 		/* $news[] = array(news_id, course_id, member_id, date, title, body, author) */
-		while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-			
-					
-		//***
-									
-			$fh = fopen($row['BODY'], 'r');  
-        	$row['BODY'] = fread($fh, filesize($row['BODY']));
-        	fflush($fh);
-     		fclose($fh);
-		
-		//***
-		
-			$news[] = array('news_id'	=> $row['NEWS_ID'], 
-							'course_id' => $row['COURSE_ID'],
-							'data'		=> AT_date(	$_SESSION['lang'], 
+		while ($row = mysql_fetch_array($result)) {
+			$news[] = array('news_id'	=> $row['news_id'], 
+							'course_id' => $row['course_id'],
+							'date'		=> AT_date(	$_SESSION['lang'], 
 													$_template['announcement_date_format'], 
-													$row['DATA'], 
+													$row['date'], 
 													AT_MYSQL_DATETIME),
- 							'title'		=> $row['TITLE'],
-							'body'		=> $row['BODY'],
-							'formatting'=> $row['FORMATTING']);
+ 							'title'		=> $row['title'],
+							'body'		=> $row['body'],
+							'formatting'=> $row['formatting']);
 		}
 		
 		echo '<table border="0" cellspacing="1" cellpadding="0" width="98%" summary="">';
@@ -101,7 +81,6 @@ global $db;
 			echo '<small class="date">'.$_template['posted'].' '.$news_item['date'].'</small><br><br>';
  
 			$news_item['body'] = str_replace('CONTENT_DIR', 'content/'.$_SESSION['course_id'], $news_item['body']);
-			$news_item['body'] = str_replace('\"', '"', $news_item['body']);
 
 			echo '<table border="0" cellspacing="1" cellpadding="0" width="98%"><tr><td>';
 			echo format_content($news_item['body'], $news_item['formatting']);

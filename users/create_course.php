@@ -4,7 +4,8 @@ $section = 'users';
 $_include_path = '../include/';
 require($_include_path.'vitals.inc.php');
 
-if ($_POST['form_course']) {
+if ($_POST['form_course'])
+{
 	$_POST['form_notify']	= intval($_POST['form_notify']);
 	$_POST['form_hide']		= intval($_POST['form_hide']);
 	$_POST['form_title']	= trim($_POST['form_title']);
@@ -15,23 +16,18 @@ if ($_POST['form_course']) {
 	
 		$_POST['form_notify'] = intval($_POST['form_notify']);
 
-		$course_id = $db->nextId("AUTO_COURSES_COURSE_ID");
-		if ($_POST['form_access'] == '') $_POST['form_access'] = 'private';
-		$sql = "INSERT INTO courses VALUES ($course_id, $_SESSION[member_id], '$_POST[form_access]', SYSDATE, '$_POST[form_title]', '$_POST[form_description]', $_POST[form_notify], $MaxCourseSize, $MaxFileSize, $_POST[form_hide], '', '', '', '', '$_POST[tracking]', '$_POST[custom1]', '$_POST[custom2]', '$_POST[custom3]', '$_POST[custom4]', '$_POST[custom5]', '$_POST[custom6]', '$_POST[custom7]', '$_POST[custom8]', '$_POST[custom9]', '$_POST[custom10]', SYSDATE )";
-		$result = $db->query($sql);
+		$sql = "INSERT INTO courses VALUES (0, $_SESSION[member_id], '$_POST[form_access]', NOW(), '$_POST[form_title]', '$_POST[form_description]', $_POST[form_notify], $MaxCourseSize, $MaxFileSize, $_POST[form_hide], '', '', '', '', 'off', '$_POST[custom1]', '$_POST[custom2]', '$_POST[custom3]', '$_POST[custom4]', '$_POST[custom5]', '$_POST[custom6]', '$_POST[custom7]', '$_POST[custom8]', '$_POST[custom9]', '$_POST[custom10]', NOW() )";
+		$result = mysql_query($sql, 	$db);
 
-		if (PEAR::isError($result)) {
-			echo 'DB Error<br>';
-			print_r($result);
+		if (!$result) {
+			echo 'DB Error';
 			exit;
 		}
 
-		if ($_POST['max_stud']=='') $_POST['max_stud'] = 99999999;
-		$sql = "INSERT INTO course_maxstud VALUES ($course_id, $_POST[max_stud])";
-		$res = $db->query($sql);
+		$course_id = mysql_insert_id();
 
-		//$sql	= "INSERT INTO course_enrollment VALUES($_SESSION[member_id], $course_id, 'y', SYSDATE, SYSDATE)";
-		//$result	= $db->query($sql);
+		$sql	= "INSERT INTO course_enrollment VALUES($_SESSION[member_id], $course_id, 'y', NOW(), NOW())";
+		$result	= mysql_query($sql, $db);
 
 		// create the ./contents/COURSE_ID directory
 		$path = '../content/'.$course_id.'/';
@@ -39,41 +35,27 @@ if ($_POST['form_course']) {
 
 		/* insert some default content: */
 		$_SESSION['is_admin'] = 1;
-		//$cid = $contentManager->addContent($course_id, 0, 0, 'Welcome To K-Lore Learning Management System.', 'Enjoy', '', 1, date('d/m/Y H:00:00'));
+		$cid = $contentManager->addContent($course_id,
+											0,
+											0,
+											'Welcome To K-Lore Learning Management System.',
+											'For adding, editting or deleting course pages, please enable the page Editor.',
+											'',
+											1,
+											date('Y-m-d H:00:00'));
 		$announcement = $_template['default_announcement'];
 		
 		$sql 	= "INSERT INTO crel_groups VALUES ($course_id, 0, $_POST[group])";
-		$res 	= $db->query($sql);
+		$res 	= mysql_query($sql, $db);
 		
 		$sql	= "INSERT INTO course_type VALUES ($course_id, $_POST[form_type])";
-		$res 	= $db->query($sql);
+		$res 	= mysql_query($sql, $db);
 	
-		$n_id 	= $db->nextId("AUTO_NEWS_NEWS_ID");
-		//***
-			//file
-			$cfname = 'content/'.$n_id.'.news';
-			
-			ignore_user_abort(true);    ## prevent refresh from aborting file operations and hosing file
-			$fh = fopen('../'.$cfname, 'w');  
-	        fwrite($fh, $announcement);
-	        fflush($fh);
-	     	fclose($fh);
-			ignore_user_abort(false);    ## put things back to normal
+		$sql	= "INSERT INTO news VALUES (0, $course_id, $_SESSION[member_id], NOW(), 1, 'Welcome To K-Lore!', '$announcement')";
+		$result = mysql_query($sql,$db);
 		
-		
-		//*** Notifications intit
-		$sql	= "INSERT INTO notifications VALUES ('','ENROLL',$course_id )";
-		$result = $db->query($sql);
-
-		
-		//***
-		
-		$sql	= "INSERT INTO news VALUES ($n_id, $course_id, $_SESSION[member_id], SYSDATE, 1, 'Welcome To K-Lore!', '$cfname')";
-		$result = $db->query($sql);
-		
-		if (PEAR::isError($result)) {
-			echo 'DB Error: Could not insert course details.<br>';
-			print_r($result);
+		if (!$result) {
+			echo 'DB Error: Could not insert course details.';
 			exit;
 		}
 		
@@ -81,30 +63,15 @@ if ($_POST['form_course']) {
 		$_POST['form_roi_costinstr'] = intval($_POST['form_roi_costinstr']);
 
 		$sql	= "INSERT INTO roi (course_id, cost_student, cost_instructor) VALUES ($course_id, $_POST[form_roi_coststud], $_POST[form_roi_costinstr])";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 	
-		if (PEAR::isError($result)) {
-			echo 'DB Error: Could not insert ROI details<br>';
-			print_r($result);
+		if (!$result) {
+			echo 'DB Error: Could not insert ROI details';
 			exit;
 		}
 		
-		$sql = "SELECT COUNT(course_id) FROM skills WHERE course_id=$course_id";
-		$res = $db->query($sql);
-		$row = $res->fetchRow();
-		if ($_POST['min_grade']=='') $_POST['min_grade'] = 0;
-		if ($row[0] == 0) {
-			$sk_id = $db->nextId("AUTO_SKILLS_SKILL_ID");
-			$sql = "INSERT INTO skills VALUES ($sk_id, '$_POST[skill]', $course_id, $_POST[min_grade])";
-		} else {
-			$sql 	= "UPDATE skills SET skill_desc='$_POST[skill]', min_grade=$_POST[min_grade] WHERE course_id=$course_id";
-		}
-		$result	= $db->query($sql);
-		if (PEAR::isError($result)) {
-			echo 'ERROR: ';
-			print_r($result);
-			exit;
-		}
+		$sql	= "INSERT INTO skills VALUES (0, '$_POST[skill]', $course_id, $_POST[min_grade])";
+		$result	= mysql_query($sql, $db);
 		
 		$day_start	= intval($_POST['day_start']);
 		$month_start= intval($_POST['month_start']);
@@ -155,45 +122,43 @@ if ($_POST['form_course']) {
 			}
 
 			if ($_POST['start_date'] == 1) {
-				$start_date = "$day_start/$month_start/$year_start $hour_start:$min_start:00";
+				$start_date = "$year_start-$month_start-$day_start $hour_start:$min_start:00";
 			} else {
 				$start_date = 0;
 			}
 			if ($_POST['end_date'] == 1) {
-				$end_date	= "$day_end/$month_end/$year_end $hour_end:$min_end:00";
+				$end_date	= "$year_end-$month_end-$day_end $hour_end:$min_end:00";
 			} else {
 				$end_date = 0;
 			}
 			if ($_POST['period'] == 1) {
-				$period	= intval($_POST['period_value']);
+				$period	= intval($_POST['_period']);
 			} else {
 				$period	= 0;
 			}
 			
-			$sql 	= "INSERT INTO course_availability VALUES ($course_id, ";
-			if ($start_date==0) $sql .= "NULL,";
-			else $sql .= "TO_DATE('$start_date', 'DD/MM/YYYY HH24:MI:SS'), ";
-			if ($end_date==0) $sql .= "NULL,";
-			else $sql .= "end_date=TO_DATE('$end_date', 'DD/MM/YYYY HH24:MI:SS'), ";
-			$sql .= "$period)";
-			$result	= $db->query($sql);
-			$sql = "SELECT course_id, TO_CHAR(start_date, 'DD/MM/YYYY HH24:MI:SS') as start_date, TO_CHAR(end_date, 'DD/MM/YYYY HH24:MI:SS') as end_date, period FROM course_availability";
-			$result = $db->query($sql);
-			$row =$result->fetchRow(DB_FETCHMODE_ASSOC);
+			$sql 	= "INSERT INTO course_availability VALUES ($course_id, '$start_date', '$end_date', $period)";
+			$result	= mysql_query($sql, $db);
+			$sql = "SELECT * FROM course_availability";
+			$result = mysql_query($sql, $db);
+			$row = mysql_fetch_array($result);
+		}
 
 		cache_purge('system_courses','system_courses');
 		Header ('Location: ../bounce.php?course='.$course_id.SEP);
 		exit;
-		}
 	}
 }
 
 require($_include_path.'cc_html/header.inc.php'); 
 
 
-/* verify that this user has status to create courses: */
-	
-	if (!$_SESSION['c_instructor']) {
+/* varify that this user has status to create courses: */
+	$sql	= "SELECT status FROM members WHERE member_id=$_SESSION[member_id]";
+	$result = mysql_query($sql, $db);
+	$row	= mysql_fetch_array($result);
+	$status	= $row['status'];
+	if ($status != 1) {
 		$errors[]=AT_ERROR_CREATE_NOPERM;
 		print_errors($errors);
 		require($_include_path.'cc_html/footer.inc.php');
@@ -215,13 +180,13 @@ require($_include_path.'cc_html/header.inc.php');
 		<span style="white-space: nowrap;"><select name="group" class="dropdown" id="group" title="Group">
 		<?php
 			$sql = "SELECT * FROM course_groups";
-			$res = $db->query($sql);
+			$res = mysql_query($sql, $db);
 			$no_groups = 0;
-			if ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+			if ($row = mysql_fetch_array($res)) {
 				do {
-					echo '<option value="'.$row['GROUP_ID'].'">'.$row['NAME'];
+					echo '<option value="'.$row['group_id'].'">'.$row['name'];
 					$no_groups++;
-				} while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC));
+				} while ($row = mysql_fetch_array($res));
 			} else {
 				if ($no_groups == 0) {
 					$errors[] = AT_ERROR_NO_COURSE_GROUPS;
@@ -236,7 +201,14 @@ require($_include_path.'cc_html/header.inc.php');
 	<td nowrap="nowrap" class="row1" align="right"><b><?php  echo $_template['course_name']; ?>:</b></td>
 	<td class="row1"><input type="text" id="title" name="form_title" class="formfield" size="40" /></td>
 </tr>
-
+<tr><td height="1" class="row2" colspan="2"></td></tr>
+<tr>
+	<td class="row1" valign="top" align="right"><b><?php echo $_template['skill']; ?>:</b></td>
+	<td class="row1" valign="top"><textarea id="description" cols="45" rows="4" class="formfield" name="skill"></textarea>
+	&nbsp;&nbsp; <b><?php echo $_template['min_grade']; ?>:</b>
+	<input type="text" size="3" class="formfield" name="min_grade">
+	</td>
+</tr>
 <tr><td height="1" class="row2" colspan="2"></td></tr>
 
 <tr>
@@ -247,26 +219,14 @@ require($_include_path.'cc_html/header.inc.php');
 	</td>
 </tr>
 <tr><td height="1" class="row2" colspan="2"></td></tr>
-	<!--tr><td class="row1" valign="top" align="right">
-	<b><?php //echo $_template['min_grade']; ?>:</b>
-	</td><td class="row1" valign="top">
-	<?php
-		/*if (($_SESSION['is_admin']) || ($_SESSION['c_instructor'])) {
-			echo '<input type="text" size="3" class="formfield" name="min_grade" id="min_grade" value="'.$row_s['MIN_GRADE'].'">';
-		} else {
-			echo $row_s['MIN_GRADE'];
-		}*/
-	?>
-	</td>
-	</tr -->
-
-<tr><td height="1" class="row2" colspan="2"></td></tr>
 <tr>
-	<td class="row1" valign="top" align="right"><b><?php echo $_template['max_number_of_students']; ?>:</b></td>
-	<td class="row1">
-	<input type="hidden" name="form_access" value="private">
-	<input type="text" size="3" class="formfield" name="max_stud">
-	</td>
+	<td class="row1" valign="top" align="right"><b><?php echo $_template['access']; ?>:</b></td>
+	<td class="row1"><input type="radio" name="form_access" value="protected" id="prot" checked="checked" onclick="disableNotify();" /><label for="prot"><b><?php  echo $_template['protected']; ?>: </b></label><?php echo  $_template['about_protected']; ?>
+
+	<br /><br />
+	<input type="radio" name="form_access" value="private" id="priv" onclick="enableNotify();" /><label for="priv"><b><?php  echo $_template['private']; ?>: </b></label><?php echo  $_template['about_private']; ?><br />
+
+	<br /></td>
 </tr>
 <tr><td height="1" class="row2" colspan="2"></td></tr>
 
@@ -321,35 +281,24 @@ require($_include_path.'cc_html/header.inc.php');
 	</table>
 </td>
 </tr>
-<tr><td height="1" class="row2" colspan="2"></td></tr>
-<tr>
-	<td class=row1 align=right nowrap="nowrap"><b><?php echo  $_template['tracking']; ?>:</b></td>
-	<td class=row1 align=left>
-	<?php
-		$on = ' checked="checked" '; ?>
-		<input type="radio" name="tracking" value="off" id="toff" <?php echo $off; ?>><label for="toff"><?php  echo $_template['off']; ?></label> <input type="radio" name="tracking" value="on" id="ton"<?php echo $on; ?>><label for="ton"><?php  echo $_template['on']; ?></label>
-	</td>
-</tr>
+
 <tr><td height="1" class="row2" colspan="2"></td></tr>
 
 
 <?php
 	$sql = "SELECT * FROM course_custom_fields";
-	$res = $db->query($sql);
+	$res = mysql_query($sql, $db);
 	$i =1;
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		if ($row['MANDATORY'] >0) {	
-			echo '<tr><td class="row1" align="right"><b>'.$row['NAME'].' :</b></td>';
+	while ($row = mysql_fetch_array($res)) {
+		if ($row['mandatory'] >0) {	
+			echo '<tr><td class="row1" align="right"><b>'.$row['name'].' :</b></td>';
  			echo '<td class="row1" align="left"><input type="text" size="30" class="formfield" maxlength="60" name="custom'.$i.'" value="'.$_POST['custom'.$i].'"></td>';
 			echo '</tr>';
 		}
 		$i++;
 	}
 ?>
-
-</table>
-<br><br>
-<table cellspacing="1" cellpadding="0" border="0" class="bodyline" width="95%" summary="">
+<tr><td height="1" class="row2" colspan="2"></td></tr>
 <tr>
 	<td class="cat" colspan="2"><h4><?php echo $_template['optional']; ?> </h4></td>
 </tr>
@@ -359,15 +308,14 @@ require($_include_path.'cc_html/header.inc.php');
 	<td class="row1"><textarea id="description" cols="45" rows="4" class="formfield" name="form_description"></textarea></td>
 </tr>
 <tr><td height="1" class="row2" colspan="2"></td></tr>
-
 <?php
 	$sql = "SELECT * FROM course_custom_fields";
-	$res = $db->query($sql);
+	$res = mysql_query($sql, $db);
 	$i =1;
-	while($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		if (($row['MANDATORY'] ==0) && ($row['NAME'] <>'')) {
+	while($row = mysql_fetch_array($res)) {
+		if (($row['mandatory'] ==0) && ($row['name'] <>'')) {
 			echo '<tr>';
-			echo '<td class="row1" align="right"><b>'.$row['NAME'].' :</b></td>';
+			echo '<td class="row1" align="right"><b>'.$row['name'].' :</b></td>';
 			echo '<td class="row1" align="left"><input class="formfield" name="custom'.$i.'" type="text" size="30" value="'.$_POST['custom'.$i].'" /></td>';
 			echo '</tr>';
 		}
@@ -394,16 +342,31 @@ require($_include_path.'cc_html/header.inc.php');
 		<br /><br />
 	</td>
 </tr>
-</table>
-<br><br> 
-
-<table cellspacing="1" cellpadding="0" border="0" class="bodyline" width="95%" summary="">
+<tr><td height="1" class="row2" colspan="2"></td></tr>
+<tr><td height="1" class="row2" colspan="2"></td></tr>
 <tr>
 	<td class="row1" align="center" colspan="2"><input type="submit" name="submit" class="button" value=" <?php echo  $_template['create_course']; ?> Alt-s" accesskey="s" /></td>
 </tr>
 </table>
 </form>
 
+<script type="text/javascript">
+<!--
+function enableNotify()
+{
+	document.course_form.form_notify.disabled = false;
+	document.course_form.form_hide.disabled   = false;
+}
+
+function disableNotify()
+{
+	document.course_form.form_notify.disabled = true;
+	document.course_form.form_hide.disabled	  = true;
+}
+
+//-->
+</script>
+
 <?php
-	require($_include_path.'cc_html/footer.inc.php'); 
+require($_include_path.'cc_html/footer.inc.php'); 
 ?>

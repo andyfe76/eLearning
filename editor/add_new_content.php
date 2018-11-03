@@ -13,6 +13,58 @@
 		exit;
 	}
 
+	if( ($_POST['submit_file'] == 'Upload') && ($_FILES['uploadedfile']['name'] == ''))	{
+		$errors[] = AT_ERROR_FILE_NOT_SELECTED;
+	} else if ($_POST['submit_file']) {
+		if ($_FILES['uploadedfile']['name']
+			&& (($_FILES['uploadedfile']['type'] == 'text/plain')
+			|| ($_FILES['uploadedfile']['type'] == 'text/html')) )
+		{
+			$fd = fopen ($_FILES['uploadedfile']['tmp_name'], 'r');
+			$_POST['text'] = fread ($fd, filesize($_FILES['uploadedfile']['tmp_name']));
+
+			$path_parts = pathinfo($_FILES['uploadedfile']['name']);
+			$ext = strtolower($path_parts['extension']);
+			if (in_array($ext, array('html', 'htm'))) {
+				/* get the <title></title> of this page				*/
+
+				$start_pos	= strpos(strtolower($_POST['text']), '<title>');
+				$end_pos	= strpos(strtolower($_POST['text']), '</title>');
+
+				if (($start_pos !== false) && ($end_pos !== false)) {
+					$start_pos += strlen('<title>');
+					$_POST['title'] = trim(substr($_POST['text'], $start_pos, $end_pos-$start_pos));
+				}
+
+				unset($start_pos);
+				unset($end_pos);
+
+				/* strip everything before <body> */
+				$start_pos	= strpos(strtolower($_POST['text']), '<body');
+				if ($start_pos !== false) {
+					$start_pos	+= strlen('<body');
+					$end_pos	= strpos(strtolower($_POST['text']), '>', $start_pos);
+					$end_pos	+= strlen('>');
+
+					$_POST['text'] = substr($_POST['text'], $end_pos);
+				}
+
+				/* strip everything after </body> */
+				$end_pos	= strpos(strtolower($_POST['text']), '</body>');
+				if ($end_pos !== false) {
+					$_POST['text'] = trim(substr($_POST['text'], 0, $end_pos));
+				}
+
+				/* change formatting to HTML? */
+				/* $_POST['formatting']	= 1; */
+			}
+			$feedback[]=AT_FEEDBACK_FILE_PASTED;
+			fclose ($fd);
+		} else {
+			$errors[] = AT_ERROR_BAD_FILE_TYPE;
+		}
+	}
+
 	if ($_POST['submit']) {
 		$_POST['title'] = trim($_POST['title']);
 		$_POST['body']	= trim($_POST['body']);
@@ -46,7 +98,7 @@
 			if (strlen($min) == 1){
 				$min = "0$min";
 			}
-			$release_date = "$day/$month/$year $hour:$min:00";
+			$release_date = "$year-$month-$day $hour:$min:00";
 
 			$cid = $contentManager->addContent($_SESSION['course_id'],
 												  $_POST['pid'],
@@ -56,9 +108,9 @@
 												  $_POST['related'],
 												  '1',
 												  $release_date);
-												  
+
 			/* check if a definition is being used that isn't already in the glossary */
-			$r = preg_match_all("/(\[\?\])([\s\w\d])*(\[\/\?\])/i", $_POST['body'], $matches, PREG_PATTERN_ORDER);
+			$r = preg_match_all("/(\[\?\])([\s\w\d])*(\[\/\?\])/i", $_POST['text'], $matches, PREG_PATTERN_ORDER);
 
 			if ($r != 0) {
 				Header('Location: ./add_new_glossary.php?pcid='.$cid);
@@ -91,17 +143,42 @@
 	//$help[] = AT_HELP_CONTENT_PATH;
 
 print_help($help);
+	?>
+<p>(<a href="frame.php?p=<?php echo urlencode($_my_uri); ?>"><?php echo $_template['open_frame'];  ?></a>).</p>
+<?php
 
 	/* print any errors that occurred */
 	print_feedback($feedback);
 	print_errors($errors);
 ?>
 
-	<form action="<?php echo $PHP_SELF; ?>" method="post" name="form">
+	<form action="<?php echo $PHP_SELF; ?>" method="post" name="form" enctype="multipart/form-data">
 	<input type="hidden" name="pid" value="<?php echo $pid; ?>" />
 	<input type="hidden" name="MAX_FILE_SIZE" value="204000" />
 	<p>
 		<table cellspacing="1" cellpadding="0" border="0" class="bodyline" summary="" align="center"		 width="90%">
+		<tr>
+			<th colspan="2"class="left"><?php echo $_template['add_content']; ?></th>
+			</tr>
+		<tr>
+			<td align="right" class="row1" valign="top"><?php
+				$errors[]=AT_ERROR_BAD_DATE;
+				$def = 'text<b>as</b>';
+				print_popup_help(AT_HELP_PASTE_FILE);
+				?>
+			<b><?php echo $_template['paste_file']; ?>:</b></td>
+			<td class="row1" valign="top">
+			<input type="file" name="uploadedfile" class="formfield" size="20" /> <input type="submit" name="submit_file" value="<?php echo $_template['upload']; ?>" class="button" /><?php
+			?><br />
+			<small class="spacer"><?php echo $_template['html_only']; ?><br />
+			<?php echo $_template['edit_after_upload']; ?></small>
+
+			</td>
+		</tr>
+		<tr><td height="1" class="row2" colspan="2"></td></tr>
+		<tr>
+			<td align="center" class="row1" colspan="2"><b><?php echo $_template['or']; ?></b></td>
+		</tr>
 		<tr><td height="1" class="row2" colspan="2"></td></tr>
 		<tr>
 			<td align="right" class="row1"><b><label for="title"><?php echo $_template['title']; ?>:</label></b></td>

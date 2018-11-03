@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 $fid  = intval($_POST['fid']);
  
@@ -27,7 +32,7 @@ if ($_POST['submit']){
 
 //	exit;
 	$sql	= "UPDATE forums_threads SET locked=$_POST[lock] WHERE post_id=$_POST[pid] AND course_id=$_SESSION[course_id]";
-	$result = $db->query($sql);
+	$result = mysql_query($sql, $db);
 	//debug($_POST);
 
 	//exit;
@@ -58,12 +63,12 @@ if (!$_SESSION['is_admin']){
 */
 	/*if ($_GET['unlock']) {
 		$sql	= "UPDATE forums_threads SET locked=0 WHERE post_id=$pid AND course_id=$_SESSION[course_id]";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 		echo '<p><b>Thread has been unlocked successfully.</b></p>';
 	} else {
 	*/
 /*	$sql	= "UPDATE forums_threads SET locked=$_POST[lock] WHERE post_id=$_POST[pid] AND course_id=$_SESSION[course_id]";
-	$result = $db->query($sql);
+	$result = mysql_query($sql, $db);
 	//$feedback[]=AT_FEEDBACK_THREAD_LOCKED;
 	//Header('Location: '.$_base_href.'forum/?fid='.$fid.';f='.urlencode_feedback(AT_FEEDBACK_THREAD_LOCKED));
 	//echo '<p><b>Thread has been locked successfully.</b></p>';
@@ -80,12 +85,12 @@ if ($_POST['submit']) {
 */
 	/*if ($_GET['unlock']) {
 		$sql	= "UPDATE forums_threads SET locked=0 WHERE post_id=$pid AND course_id=$_SESSION[course_id]";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 		echo '<p><b>Thread has been unlocked successfully.</b></p>';
 	} else {
 	*/
 /*	$sql	= "UPDATE forums_threads SET locked=$_POST[lock] WHERE post_id=$_POST[pid] AND course_id=$_SESSION[course_id]";
-	$result = $db->query($sql);
+	$result = mysql_query($sql, $db);
 	$feedback[]=AT_FEEDBACK_THREAD_LOCKED;
 	//echo '<p><b>Thread has been locked successfully.</b></p>';
 	require($_include_path.'footer.inc.php');

@@ -3,11 +3,11 @@
     <form id="jump" method="post" action="bounce.php" target="_top"><?php
 
 		$sql	= "SELECT login, email, status FROM members WHERE member_id=$_SESSION[member_id]";
-		$result = $db->query($sql);
-		$row	=$result->fetchRow(DB_FETCHMODE_ASSOC);
-		$status	= $row['STATUS'];
-		$email  = $row['EMAIL'];
-		$login  = $row['LOGIN'];
+		$result = mysql_query($sql, $db);
+		$row	= mysql_fetch_array($result);
+		$status	= $row['status'];
+		$email  = $row['email'];
+		$login  = $row['login'];
 
 		$pipe = "\n".' <span class="spacer">|</span> '."\n";
 		echo '<br>';
@@ -34,7 +34,7 @@
 			}
 		}
 		echo '<br>';
-		echo '<span style="font-size:8pt;"><b>'.$_template['role'].': </b>';
+		echo '<span style="font-size:8pt;"><b>'.$_template['status'].': </b>';
 		if ($status == 0) {
 			echo $_template['student'];
 		} else if ($status ==1) {
@@ -66,18 +66,18 @@
 		
 /*		if ($_SESSION['valid_user']) {
 			$sql	= "SELECT E.course_id FROM course_enrollment E WHERE E.member_id=$_SESSION[member_id] AND E.approved='y'";
-			$result = $db->query($sql);
+			$result = mysql_query($sql,$db);
 		
 			echo "\n".'&nbsp;<label for="j" accesskey="j"></label><span style="white-space: nowrap;"><select name="course"'.$tip_jump.' class="dropdown" id="j" title="Jump: '.$_template['accesskey'].' ALT-j" onChange="document.jump.submit()">'."\n";
 			echo '<option value="0">'.$_template['my_control_centre'].'</option>'."\n";
 			echo '<option value="">-- '.$_template['courses_below'].' --</option>'."\n";
-			while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-				echo '<option value="'.$row['COURSE_ID'].'"';
-				if ($_SESSION['course_id'] == $row['COURSE_ID']) {
+			while ($row = mysql_fetch_array($result)) {
+				echo '<option value="'.$row['course_id'].'"';
+				if ($_SESSION['course_id'] == $row['course_id']) {
 					echo ' selected="selected"';
 				}
-				echo '>'.$system_courses[$row['COURSE_ID']]['title'];
-				echo $row['TITLE'];
+				echo '>'.$system_courses[$row['course_id']]['title'];
+				echo $row['title'];
 				echo '</option>'."\n";
 			}
 			echo '</select>&nbsp;'."\n";
@@ -97,20 +97,20 @@
 		if ($_SESSION['valid_user']) {
 			//echo $pipe;
 			$sql	= "SELECT COUNT(*) AS cnt FROM messages WHERE to_member_id=$_SESSION[member_id] AND new=1";
-			$result	= $db->query($sql);
-			$row	=$result->fetchRow(DB_FETCHMODE_ASSOC);
+			$result	= mysql_query($sql, $db);
+			$row	= mysql_fetch_array($result);
 
 			if ($_SESSION['course_id'] == 0) {
 				$temp_path = 'users/';
 			}
 
-			if ($row['CNT'] > 0) {
+			if ($row['cnt'] > 0) {
 				if ($_SESSION['prefs'][PREF_LOGIN_ICONS] != 2) {
 					echo '<a class="white" href="'.$temp_path.'inbox.php?g=21" title="'.$_template['you_have_messages'].'"><img src="images/inbox2.gif" border="0" class="menuimage" width="14" height="10" alt="'.$_template['you_have_messages'].'" /></a>';
 				}
 				if ($_SESSION['prefs'][PREF_LOGIN_ICONS] != 1) {
 					echo ' <a class="white" href="'.$temp_path.'inbox.php?g=21" title="'.$_template['you_have_messages'].'"><b> '.$_template['inbox'].' </b></a>';
-					echo '<span style="font-size:8pt;">&nbsp; ('.$row['CNT'].'&nbsp;unread)</span>';
+					echo '<span style="font-size:8pt;">&nbsp; ('.$row['cnt'].'&nbsp;unread)</span>';
 				}
 			} else {
 				if ($_SESSION['prefs'][PREF_LOGIN_ICONS] != 2) {

@@ -2,6 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 $section = 'users';
 $_include_path = '../include/';
@@ -16,31 +23,31 @@ if ($course == 0) {
 	exit;
 }
 
-$sql	= "SELECT accesstype, member_id FROM courses WHERE course_id=$course";
-$result = $db->query($sql);
-$course_info =$result->fetchRow(DB_FETCHMODE_ASSOC);
+$sql	= "SELECT access, member_id FROM courses WHERE course_id=$course";
+$result = mysql_query($sql, $db);
+$course_info = mysql_fetch_array($result);
 
 if ($_POST['submit']) {
 	$_SESSION['enroll'] = true;
 	$_POST['form_course_id'] = intval($_POST['form_course_id']);
 
 	if ($course_info[0] == 'private') {
-		$sql	= "INSERT INTO course_enrollment VALUES ($_SESSION[member_id], $_POST[form_course_id], 'n', SYSDATE, NULL)";
-		$result = $db->query($sql);
+		$sql	= "INSERT INTO course_enrollment VALUES ($_SESSION[member_id], $_POST[form_course_id], 'n', NOW(), NULL)";
+		$result = mysql_query($sql, $db);
 
 		// send the email thing. if needed
 
 		$sql	= "SELECT notify, member_id FROM courses WHERE course_id=$_POST[form_course_id] AND notify=1";
-		$result = $db->query($sql);
-		if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+		$result = mysql_query($sql, $db);
+		if ($row = mysql_fetch_array($result)) {
 			// notify is enabled. get the email
-			$sql	= "SELECT email FROM members WHERE member_id=$row[MEMBER_ID]";
-			$result = $db->query($sql);
-			$row	=$result->fetchRow(DB_FETCHMODE_ASSOC);
+			$sql	= "SELECT email FROM members WHERE member_id=$row[member_id]";
+			$result = mysql_query($sql, $db);
+			$row	= mysql_fetch_array($result);
 
-			$to_email = $row['EMAIL'];
+			$to_email = $row['email'];
 
-			$message  = $row['LOGIN'].",\n\n";
+			$message  = $row['login'].",\n\n";
 			$message .= $_template['enrol_message1'].' "'.$system_courses[$_POST[form_course_id]][title].'".';
 			$message .= $_template['enrol_message2'];
 			if ($to_email != '') {
@@ -49,8 +56,8 @@ if ($_POST['submit']) {
 		}
 	} else {
 		// public or protected
-		$sql	= "INSERT INTO course_enrollment VALUES ($_SESSION[member_id], $_POST[form_course_id], 'y', SYSDATE, SYSDATE)";
-		$result = $db->query($sql);
+		$sql	= "INSERT INTO course_enrollment VALUES ($_SESSION[member_id], $_POST[form_course_id], 'y', NOW(), NOW())";
+		$result = mysql_query($sql, $db);
 	}
 }
 
@@ -63,8 +70,8 @@ require($_include_path.'cc_html/header.inc.php');
 if ($_SESSION['valid_user']) {
 
 	$sql	= "SELECT * FROM course_enrollment WHERE member_id=$_SESSION[member_id] AND course_id=$course";
-	$result = $db->query($sql);
-	$row	=$result->fetchRow(DB_FETCHMODE_ASSOC);
+	$result = mysql_query($sql, $db);
+	$row	= mysql_fetch_array($result);
 
 	if ((!$_POST['submit']) && ($row == '')) {
 ?>

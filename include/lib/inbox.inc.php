@@ -3,7 +3,12 @@
 /* klore														*/
 /****************************************************************/
 /* Copyright (c) 2002-2003 by Greg Gay & Joel Kronenberg        */
-
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 require($_include_path.'lib/forum_codes.inc.php');
 
@@ -17,7 +22,7 @@ if (!$_SESSION['valid_user']) {
 if ($_GET['delete']) {
 	$_GET['delete'] = intval($_GET['delete']);
 
-	if($result = $db->query("DELETE FROM messages WHERE to_member_id=$_SESSION[member_id] AND message_id=$_GET[delete]",$db)){
+	if($result = mysql_query("DELETE FROM messages WHERE to_member_id=$_SESSION[member_id] AND message_id=$_GET[delete]",$db)){
 		$feedback[] = AT_FEEDBACK_MSG_DELETED;
 	}
 
@@ -40,26 +45,26 @@ if (isset($_GET['s'])) {
 
 if ($_GET['view']) {
 
-	$sql	= "SELECT message_id, from_member_id, to_member_id, TO_CHAR(date_sent, 'DD/MM/YYYY HH24:MI:SS') as date_sent, new, replied, subject, body FROM messages WHERE message_id=$_GET[view] AND to_member_id=$_SESSION[member_id]";
-	$result = $db->query($sql);
+	$sql	= "SELECT * FROM messages WHERE message_id=$_GET[view] AND to_member_id=$_SESSION[member_id]";
+	$result = mysql_query($sql, $db);
 
-	if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+	if ($row = mysql_fetch_array($result)) {
 ?>
 	<table border="0" cellpadding="2" cellspacing="1" width="98%" class="bodyline" summary="">
 	<tr>
 		<th valign="top" class="left"><?php
-			echo $row['SUBJECT'];
+			echo $row['subject'];
 		?></th>
 	</tr>
 	<tr>
 		<td><?php
-			$from = get_login($row['FROM_MEMBER_ID']);
+			$from = get_login($row['from_member_id']);
 
 			echo '<span class="bigspacer">'.$_template['from'].' <b>'.$from.'</b> '.$_template['posted_on'].' ';
-			echo AT_date($_SESSION['lang'], $_template['inbox_date_format'], $row['DATE_SENT'], AT_MYSQL_DATETIME);
+			echo AT_date($_SESSION['lang'], $_template['inbox_date_format'], $row['date_sent'], AT_MYSQL_DATETIME);
 			echo '</span>';
 			echo '<p>';
-			echo format_final_output(' '.$row['BODY'].' ');
+			echo format_final_output(' '.$row['body'].' ');
 			echo $body;
 			echo '</p>';
 		?></td>
@@ -73,10 +78,10 @@ if ($_GET['view']) {
 
 
 
-$sql	= "SELECT message_id, from_member_id, to_member_id, TO_CHAR(date_sent, 'DD/MM/YYYY HH24:MI:SS') as date_sent, new, replied, subject, body FROM messages WHERE to_member_id=$_SESSION[member_id] ORDER BY date_sent DESC";
-$result = $db->query($sql);
+$sql	= "SELECT * FROM messages WHERE to_member_id=$_SESSION[member_id] ORDER BY date_sent DESC";
+$result = mysql_query($sql,$db);
 
-if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+if ($row = mysql_fetch_array($result)) {
 	echo '<table border="0" cellspacing="1" cellpadding="0" width="98%" class="bodyline" summary="">
 	<tr>
 		<th><img src="images/clr.gif" alt="" width="40" height="1"></th>
@@ -85,10 +90,7 @@ if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
 		<th width="150" align="center">'.$_template['date'].'</font></th>
 	</tr>';
 	$count = 0;
-	$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-	$countres = $db->query($countsql);
-	$count0 = $countres->fetchRow();
-	$total = $count0[0];
+	$total = mysql_num_rows($result);
 	do {
 		$count ++;
 
@@ -96,18 +98,18 @@ if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
 
 		
 		echo '<td valign="middle" width="10" align="center" class="row1">';
-		if ($row['NEW'] == 1)	{
+		if ($row['new'] == 1)	{
 			echo '<small>'.$_template['new'].'&nbsp;</small>';
-		} else if ($row['REPLIED'] == 1) {
+		} else if ($row['replied'] == 1) {
 			echo '<small>'.$_template['replied'].'</small>';
 		}
 		echo '</td>';
 
-		$name = get_login($row['FROM_MEMBER_ID']);
+		$name = get_login($row[1]);
 
 		echo '<td align="left" class="row1">';
 
-		if ($view != $row['MESSAGE_ID']) {
+		if ($view != $row[0]) {
 			echo $name.'&nbsp;</td>';
 		} else {
 			echo '<b>'.$name.'</b>&nbsp;</td>';
@@ -115,16 +117,16 @@ if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
 
 
 		echo '<td valign="middle" class="row1">';
-		if ($view != $row['MESSAGE_ID']) {
-			echo '<a href="'.$PHP_SELF.'?view='.$row['MESSAGE_ID'].'">'.$row['SUBJECT'].'</a></td>';
+		if ($view != $row[0]) {
+			echo '<a href="'.$PHP_SELF.'?view='.$row[0].'">'.$row['subject'].'</a></td>';
 		} else {
-			echo '<b>'.$row['SUBJECT'].'</b></td>';
+			echo '<b>'.$row['subject'].'</b></td>';
 		}
 	
 		echo '<td valign="middle" align="right" class="row1"><small>';
 		echo AT_date(	$_SESSION['lang'],
 						$_template['inbox_date_format'],
-						$row['DATE_SENT'],
+						$row['date_sent'],
 						AT_MYSQL_DATETIME);
 		echo '</small></td>';
 		echo '</tr>';
@@ -133,7 +135,7 @@ if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
 			echo '<tr><td height="1" class="row2" colspan="4"></td></tr>';
 		}
 
-	} while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC));
+	} while ($row = mysql_fetch_array($result));
 	echo '</tr>
 		</table>';
 } else {

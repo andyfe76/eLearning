@@ -2,7 +2,7 @@
 // phphoo2 - a yahoo-like link directory written in PHP3
 // Copyright (C) 1999/2000 Rolf V. Ostergaard http://www.cable-modems.org/phpHoo/
 
-require('oracle.php');			// Access to all the database functions
+require('mysql.php');			// Access to all the database functions
 require('myheadfoot.php');		 // The header and footer files
 $_include_path= '../../include/';
 require ($_include_path.'vitals.inc.php');
@@ -19,12 +19,12 @@ $FULL_ADMIN_ACCESS = true;		// True to allow admin to create categories
 $TOP_CAT_NAME = $_template['newest_links'];			// Name of the top "category"
 
 
-if (($_SESSION['is_admin'] || $_SESSION['c_instructor'])) {
+if (($_SESSION['is_admin']) && ($_SESSION['prefs'][PREF_EDIT])) {
 	$ADMIN_MODE = true;
 }
 
 // Open the database
-$db2 = new ORACLE;
+$db2 = new MySQL;
 if(!$db2->init()) {
 	$errors[]=AT_ERROR_NO_DB_CONNECT;
 	print_errors($errors);
@@ -112,14 +112,14 @@ function start_page($CatID="",$title="",$msg="")
 	global $PHP_SELF;
 	global $SITE_URL;
 	global $_template;
-	//print_header($CatID,$title,$msg);
+	print_header($CatID,$title,$msg);
 	
 	if(!empty($msg)) {
 		print_feedback($msg);
 	}
 
 	$warnings[] = AT_WARNING_LINK_WINDOWS;
-	//print_help($help);
+	print_help($help);
 	print_warnings($warnings);
 
 	print '<center><form action="'.$PHP_SELF.'" method="post">';
@@ -168,7 +168,7 @@ function start_browse($CatID='')
 		}
 		$help[] = AT_HELP_CREATE_LINKS1;
 
-		//print_help($help);
+		print_help($help);
 
 		print '<center>';
 		print '<table border="0" cellpadding="2" cellspacing="0" summary=""><tr><td width="50%" align="left" valign="top">';

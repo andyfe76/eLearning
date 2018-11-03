@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 $_include_path = '../../include/';
 require ($_include_path.'vitals.inc.php');
@@ -16,13 +21,14 @@ $_section[2][0] = $_template['delete_category'];
 if ($_GET['d']){
 if ($_SESSION['is_admin']) {
 			$sql	= "DELETE FROM resource_categories WHERE CatID=$_GET[CatID] AND course_id=$_SESSION[course_id]";
-			$result	= $db->query($sql);
+
+			$result	= mysql_query($sql, $db);
 
 			$num_deleted = mysql_affected_rows($db);
 
 			if ($num_deleted > 0) {
 				$sql	= "DELETE FROM resource_links WHERE CatID=$_GET[CatID]";
-				$result	= $db->query($sql);
+				$result	= mysql_query($sql, $db);
 			}
 
 			//$feedback[] = AT_FEEDBACK_LINK_CAT_DELETED;
@@ -44,8 +50,8 @@ $_GET['CatID'] = intval($_GET['CatID']);
 
 <?php 
 	$sql	= "SELECT CatID FROM resource_categories WHERE CatParent=$_GET[CatID] LIMIT 1";
-	$result	= $db->query($sql);
-	if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+	$result	= mysql_query($sql, $db);
+	if ($row = mysql_fetch_array($result)) {
 		$error[] = AT_ERROR_LINK_CAT_NOT_EMPTY;
 		print_errors($error);
 		require ($_include_path.'footer.inc.php');

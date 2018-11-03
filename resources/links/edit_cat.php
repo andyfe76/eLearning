@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 $_include_path = '../../include/';
 require ($_include_path.'vitals.inc.php');
@@ -18,7 +23,7 @@ if ($_POST['submit']) {
 	$_POST['CatID'] = intval($_POST['CatID']);
 	$sql	= "UPDATE resource_categories SET CatName='$_POST[cat_name]' WHERE CatID=$_POST[CatID] AND course_id=$_SESSION[course_id]";
 
-	$result	= $db->query($sql);
+	$result	= mysql_query($sql, $db);
 
 	//$feedback[] = AT_FEEDBACK_LINK_CAT_EDITED;
 	//print_feedback($feedback);

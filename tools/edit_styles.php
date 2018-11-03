@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 $_include_path = '../include/';
 require($_include_path.'vitals.inc.php');
@@ -108,7 +113,7 @@ print_warnings($warnings);  ?>
 <p align="center">(<a href="frame.php?p=<?php echo urlencode($_my_uri); ?>"><?php   echo $_template['open_frame'];  ?></a> | <a href="<?php echo $PHP_SELF ?>?copy=1"><?php echo  $_template['load_default_css'];  ?></a>)</p>
 
 
-<form action="<?php echo $PHP_SELF; ?>" method="post" name="form">
+<form action="<?php echo $PHP_SELF; ?>" method="post" name="form" enctype="multipart/form-data">
 <input type="hidden" name="MAX_FILE_SIZE" value="204000" />
 <table cellspacing="1" cellpadding="0" border="0" class="bodyline" summary="" align="center">
 	<tr>

@@ -1,9 +1,40 @@
-<?php
-	// TO DO:
-	// Add: student mark on test T
-	// Add: start period
-	// Add: end period
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" content="text/html; charset=iso-8859-1">
+<TITLE>Report Builder</TITLE>
+</HEAD>
+<link rel="stylesheet" href="stylesheet.css" type="text/css" />
+<style type="text/css">
+	* {font-size: 8pt}
+</style>
 
+<script>
+function click_sel()
+{
+ document.all.val.value=document.all.sel.value;
+}
+
+function update(action)
+{
+ document.report_form.action.value=action;
+ document.forms[0].editing.value='no';
+ document.forms[0].submit();
+}
+
+function filllist()
+{
+ document.report_form.val.value=document.report_form.form_list.value;
+}
+
+function change_cat()
+{
+ document.report_form.attr.value='';
+ document.forms[0].submit();
+}
+
+</script>
+<BODY>
+<?php
 	$section = 'users';
 	$_include_path = '../include/';
 	require($_include_path.'vitals.inc.php');
@@ -52,32 +83,32 @@
 
 	// OK. Now get to business
 
+	echo '<br>'.$action;
+	
 	if (($action == 'ReportUpdate') || ($action=='Column Update') || ($action=='Query Update') || (($action=='') && ($report_name<>''))){
 		$sql = "UPDATE report_reports SET name='$report_name', description='$report_desc' WHERE id=$report_id";
 		if ($_SESSION['debug']) echo '<br>Update : '.$sql.'<br>';
-		$res = $db->query($sql);
+		$res = mysql_query($sql);
 	}
 	
 	if (($report_name == '') || ($report_desc=='')) {
 		$sql = "SELECT * FROM report_reports WHERE id=$report_id";
-		$res = $db->query($sql);
-		if ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-			$report_name = $row['NAME'];
-			$report_desc = $row['DESCRIPTION'];
+		$res = mysql_query($sql);
+		if ($row = mysql_fetch_array($res)) {
+			$report_name = $row['name'];
+			$report_desc = $row['description'];
 		}
 	}
 	
 	if ($action == 'Query Add') {
-		$repid = $db->nextId("AUTO_REPORT_QUERY_ID_SEQ");
-		$sql = "INSERT INTO report_query VALUES ($report_id, $repid, '$cat', '$attr', '$val', '$op', '$func')";
-		echo $sql;
-		$res = $db->query($sql);
+		$sql = "INSERT INTO report_query (cat, attr, op, val, report, function) VALUES ('$cat', '$attr', '$op', '$val', '$report_id', '$func')";
+		$res = mysql_query($sql);
 		$action = '';
 	}
 	
 	if (($action == 'Query Update' ) && ($editing=='no')) {
 		$sql = "UPDATE report_query SET cat='$cat', attr='$attr', op='$op', val='$val', function='$func' WHERE id='$query_id'";
-		$res = $db->query($sql);
+		$res = mysql_query($sql);
 		$action = '';
 		$editing = 'no';
 	}
@@ -87,13 +118,13 @@
 		if ($editing == '') $edition = $_GET['editing'];
 		if ($editing<>'yes') {
 			$sql = "SELECT * FROM report_query WHERE id='$query_id'";
-			$res = $db->query($sql);
-			if ($row=$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-				$cat = $row['CAT'];
-				$attr = $row['ATTR'];
-				$op = $row['OP'];
-				$val = $row['VAL'];
-				$func = $row['FUNCTION'];
+			$res = mysql_query($sql);
+			if ($row=mysql_fetch_array($res)) {
+				$cat = $row['cat'];
+				$attr = $row['attr'];
+				$op = $row['op'];
+				$val = $row['val'];
+				$func = $row['func'];
 			}
 		}
 		$action = 'Query Update';
@@ -101,21 +132,20 @@
 	}
 
 	if ($action == 'Query Delete') {
-		$sql = "DELETE FROM report_query WHERE id=$query_id";
-		$res = $db->query($sql);
+		$sql = "DELETE FROM report_query WHERE id=$query_id;";
+		$res = mysql_query($sql);
 		$action = '';
 	}
 
 	if ($action == 'Column Add') {
-		$colid = $db->nextId("AUTO_REPORT_COLUMNS_ID");
-		$sql = "INSERT INTO report_columns VALUES ($colid, $report_id, '$column_cat', '$column_attr')";
-		$res = $db->query($sql);
+		$sql = "INSERT INTO report_columns (cat, attr, report) VALUES ('$column_cat', '$column_attr', '$report_id')";
+		$res = mysql_query($sql);
 		$action = '';
 	}
 
 	if ($action == 'Column Delete') {
 		$sql = "DELETE FROM report_columns WHERE id=$column_id";
-		$res = $db->query($sql);
+		$res = mysql_query($sql);
 		$action = '';
 	}
 		
@@ -123,11 +153,11 @@
 		$editing = $_POST['editing'];
 		if ($editing=='') $editing=$_GET['editing'];
 		$sql = "SELECT * FROM report_columns WHERE id=$column_id";
-		$res = $db->query($sql);
-		if ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-			$column_cat = $row['CAT'];
-			$column_attr = $row['ATTR'];
-			$column_id = $row['ID'];
+		$res = mysql_query($sql);
+		if ($row = mysql_fetch_array($res)) {
+			$column_cat = $row['cat'];
+			$column_attr = $row['attr'];
+			$column_id = $row['id'];
 		}
 		$action = 'Column Update';
 		$editing = 'yes';
@@ -135,42 +165,15 @@
 
 	if (($action == 'Column Update') && ($editing == 'no')) {
 		$sql = "UPDATE report_columns SET cat='$column_cat', attr='$column_attr' WHERE id=$column_id";
-		$res = $db->query($sql);
+		$res = mysql_query($sql);
 		$action = '';
 		$editing = 'no';
 	}
-	require($_include_path.'cc_html/header.inc.php');
 	
 ?>
-
-<script>
-function click_sel()
-{
- document.all.val.value=document.all.sel.value;
-}
-
-function update(action)
-{
- document.report_form.action.value=action;
- document.report_form.editing.value='no';
- document.report_form.submit();
-}
-
-function filllist()
-{
- document.report_form.val.value=document.report_form.form_list.value;
-}
-
-function change_cat()
-{
- document.report_form.attr.value='';
- document.report_form.submit();
-}
-
-</script>
 <br>
-<h1>K-Lore Report Builder</h1><br>
-<form action="<?php echo $PHP_SELF; ?>" name="report_form">
+
+<form action="report_build.php" name="report_form">
 <table cellspacing="0" cellpadding="0" border="0" align="center" width="75%"><tr><td>
 <b>Report Name: </b>
 
@@ -200,16 +203,16 @@ function change_cat()
 	<td><img src="images/spacer.gif" width="100" height="1"></td>
 	<td><img src="images/spacer.gif" width="200" height="1"></td>
 	<td><img src="images/spacer.gif" width="80" height="1"></td>
-	<td><img src="images/spacer.gif" width="130" height="1"></td>
+	<td><img src="images/spacer.gif" width="90" height="1"></td>
 </tr>
 <td align="center" valign="bottom"><SELECT name="cat" onchange="change_cat();">
 <?php 
 
 	$sql = "SELECT * FROM report_definitions ORDER BY cat";
-	$res = $db->query($sql);
+	$res = mysql_query($sql);
 	$cat_old = '';
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$txt = $row['CAT'];
+	while ($row = mysql_fetch_array($res)) {
+		$txt = $row['cat'];
 		if ($cat=='') $cat = $txt;
 		if ($cat_old <> $txt) {
 			$cat_old = $txt;
@@ -226,10 +229,11 @@ function change_cat()
 <?php
 
 	$sql = "SELECT DISTINCT * FROM report_definitions WHERE cat='$cat'";
-	$res = $db->query($sql);
-	while ( $row =$res->fetchRow(DB_FETCHMODE_ASSOC) ) {
-		if ($attr == '') $attr = $row['ATTR'];		
-		$txt = $row['ATTR'];
+	$res = mysql_query($sql);
+	while ( $row = mysql_fetch_array($res) ) {
+		if ($attr == '') $attr = $row['attr'];		
+		$txt = $row['attr'];
+		echo $txt.'!!'.$attr;
 		$selected = '';
 		if ($txt==$attr) $selected = 'SELECTED ';
 		echo '<OPTION '.$selected.'name="'.$txt.'">'.$txt.'</option>';
@@ -237,13 +241,13 @@ function change_cat()
 ?>
 
 </select></td>
-<td align="center" valign="bottom"><SELECT name="op" onchange="document.report_form.submit()">
+<td align="center" valign="bottom"><SELECT name="op" onchange="document.forms[0].submit()">
 <?php 
 
 	$sql = "SELECT DISTINCT * FROM report_operators";
-	$res = $db->query($sql);
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$txt = $row['TEXT'];
+	$res = mysql_query($sql);
+	while ($row = mysql_fetch_array($res)) {
+		$txt = $row['text'];
 		$selected = '';
 		if ($txt==$op) $selected = 'SELECTED ';
 		echo '<OPTION '.$selected.'name="'.$txt.'">'.$txt.'</OPTION>';
@@ -252,25 +256,25 @@ function change_cat()
 
 </SELECT></td>
 <td align="center" valign="bottom"><INPUT type="text" name="val" value="<?php echo $val ?>" size="20"></td>
-<td align="left" valign="bottom"><SELECT name="form_list" id="form_list" cols="10" onchange="filllist();">
+<td align="center" valign="bottom"><SELECT name="form_list" id="form_list" cols="10" onchange="filllist();">
 
 
 <?php 
 	
 	$sql = "SELECT * FROM report_definitions WHERE cat='$cat' AND attr='$attr'";
-	$res = $db->query($sql);
+	$res = mysql_query($sql);
 	$t = '';
 	$f = '';
 	
-	if ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$t = $row['TBL'];
-		$f = $row['FIELD'];
+	if ($row = mysql_fetch_array($res)) {
+		$t = $row['tbl'];
+		$f = $row['field'];
 	}
 	
 	if ($t <> '') {
 		$sql = "SELECT $f FROM $t";
-		$res = $db->query($sql);
-		while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+		$res = mysql_query($sql);
+		while ($row = mysql_fetch_array($res)) {
 			$selected = '';
 			$v = $row[$f];
 			if ($v==$val) $selected = 'SELECTED ';
@@ -280,7 +284,7 @@ function change_cat()
 ?>
 
 </select>
-<td align="center" valign="bottom"><SELECT name="func" onchange="document.report_form.submit()">
+<td align="center" valign="bottom"><SELECT name="func" onchange="document.forms[0].submit()">
 
 <?php 
 
@@ -309,26 +313,20 @@ function change_cat()
 	if ($action == '') $txt_action = 'Query Add';
 	if ($action == 'Query Edit') $txt_action = 'Update Query';
 	if ( strpos($txt_action, 'Column', 1) || strpos($txt_action, 'Report', 1) ) $txt_action='Query Add';
-	echo '<a href="javascript:void(update(\''.$txt_action.'\'))">';
-	if ($txt_action=='Query Add') {
-		echo '<img border="0" src="images/menu/query_add.gif">';
-	} else if (($action == 'Query Update') || ($action=='Query Edit')){
-		echo '<img border="0" src="images/menu/query_update.gif">';
-	}
-	echo ' &nbsp;'.$txt_action.'</a> &nbsp; </td></tr>';
+	echo '<a href="javascript:void(update(\''.$txt_action.'\'))">'.$txt_action.'</a> &nbsp; </td></tr>';
 	
 	$sql = "SELECT DISTINCT * FROM report_query WHERE report= $report_id";
-	$res = $db->query($sql);
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+	$res = mysql_query($sql);
+	while ($row = mysql_fetch_array($res)) {
 		?>
 		<tr><td colspan="7"><hr></td></tr>
 		<tr>
-		<td><A class="breadcrumbs" HREF="reports/report_build.php?report_id=<?php echo $report_id ?>&query_id=<?php echo $row['ID']; ?>&action=Query Edit&editing=no"><?php echo $row['CAT']; ?></a>&nbsp;</td>
-		<td><A class="breadcrumbs" HREF="reports/report_build.php?report_id=<?php echo $report_id ?>&query_id=<?php echo $row['ID']; ?>&action=Query Edit&editing=no"><?php echo $row['ATTR']; ?></a>&nbsp;</td>
-		<td><A class="breadcrumbs" HREF="reports/report_build.php?report_id=<?php echo $report_id ?>&query_id=<?php echo $row['ID']; ?>&action=Query Edit&editing=no"><?php echo $row['OP']; ?></a>&nbsp;</td>
-		<td colspan="2"><A class="breadcrumbs" HREF="reports/report_build.php?report_id=<?php echo $report_id ?>&query_id=<?php echo $row['ID']; ?>&action=Query Edit&editing=no"><?php echo $row['VAL']; ?></a>&nbsp;</td>
-		<td><A class="breadcrumbs" HREF="reports/report_build.php?report_id=<?php echo $report_id ?>&query_id=<?php echo $row['ID']; ?>&action=Query Edit&editing=no"><?php echo $row['FUNCTION']; ?></a>&nbsp;</td>
-		<td><A class="breadcrumbs" HREF="reports/report_build.php?report_id=<?php echo $report_id ?>&query_id=<?php echo $row['ID']; ?>&report_name=<?php echo $report_name; ?>&report_desc=<?php echo $report_desc; ?>&action=Query Delete"><img border="0" src="images/menu/delete.gif">Delete</a></td>
+		<td><A class="breadcrumbs" HREF="report_build.php?report_id=<?php echo $report_id ?>&query_id=<?php echo $row['id']; ?>&action=Query Edit&editing=no"><?php echo $row['cat']; ?></a>&nbsp;</td>
+		<td><A class="breadcrumbs" HREF="report_build.php?report_id=<?php echo $report_id ?>&query_id=<?php echo $row['id']; ?>&action=Query Edit&editing=no"><?php echo $row['attr']; ?></a>&nbsp;</td>
+		<td><A class="breadcrumbs" HREF="report_build.php?report_id=<?php echo $report_id ?>&query_id=<?php echo $row['id']; ?>&action=Query Edit&editing=no"><?php echo $row['op']; ?></a>&nbsp;</td>
+		<td colspan="2"><A class="breadcrumbs" HREF="report_build.php?report_id=<?php echo $report_id ?>&query_id=<?php echo $row['id']; ?>&action=Query Edit&editing=no"><?php echo $row['val']; ?></a>&nbsp;</td>
+		<td><A class="breadcrumbs" HREF="report_build.php?report_id=<?php echo $report_id ?>&query_id=<?php echo $row['id']; ?>&action=Query Edit&editing=no"><?php echo $row['function']; ?></a>&nbsp;</td>
+		<td><A class="breadcrumbs" HREF="report_build.php?report_id=<?php echo $report_id ?>&query_id=<?php echo $row['id']; ?>&report_name=<?php echo $report_name; ?>&report_desc=<?php echo $report_desc; ?>&action=Query Delete">Delete</a></td>
 		</tr>
 		
 		<?php
@@ -352,14 +350,14 @@ function change_cat()
 </tr>
 
 <tr>
-<td align="center" valign="bottom"><SELECT name="column_cat" onchange="document.report_form.submit();">
+<td align="center" valign="bottom"><SELECT name="column_cat" onchange="document.forms[0].submit()">
 <?php
 
 	$sql = "SELECT * FROM report_definitions ORDER BY cat";
-	$res = $db->query($sql);
+	$res = mysql_query($sql);
 	$cat_old = '';
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$txt = $row['CAT'];
+	while ($row = mysql_fetch_array($res)) {
+		$txt = $row['cat'];
 		if ($column_cat == '') $column_cat = $txt;
 		if ($cat_old <> $txt) {
 			$cat_old = $txt;
@@ -371,14 +369,14 @@ function change_cat()
 ?>
  
 </select></td>
-<td align="center" valign="bottom"><SELECT name="column_attr" onchange="document.report_form.submit();">
+<td align="center" valign="bottom"><SELECT name="column_attr" onchange="document.forms[0].submit()">
 <?php 
 
 	$sql = "SELECT DISTINCT * FROM report_definitions WHERE cat='$column_cat'";
-	$res = $db->query($sql);
+	$res = mysql_query($sql);
 	
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-		$txt = $row['ATTR'];
+	while ($row = mysql_fetch_array($res)) {
+		$txt = $row['attr'];
 		$selected = '';
 		if ($txt == $column_attr) $selected = 'SELECTED ';
 		echo '<OPTION '.$selected.'name="'.$txt.'">'.$txt.'</OPTION>';
@@ -388,24 +386,17 @@ function change_cat()
 	
 	$txt_action = $action;
 	if ($txt_action <> 'Column Update') $txt_action = 'Column Add';
-	echo '<td><a href="javascript:void(update(\''.$txt_action.'\'))">';
-	if ($txt_action == 'Column Update') {
-		echo '<img border="0" src="images/menu/column_update.gif">';
-	} else if ($txt_action=='Column Add'){
-		echo '<img border="0" src="images/menu/column_add.gif">';
-	}
-	echo ' &nbsp;'.$txt_action.'</a> &nbsp;</td>';
+	echo '<td><a href="javascript:void(update(\''.$txt_action.'\'))">'.$txt_action.'</a> &nbsp;</td>';
 	echo '</tr>';
-	echo '<tr><td colspan="3"><hr></td></tr>';
 	
 	$sql = "SELECT * FROM report_columns WHERE report=$report_id";
-	$res = $db->query($sql);
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+	$res = mysql_query($sql);
+	while ($row = mysql_fetch_array($res)) {
 		?>
 		<tr>
-		<td><A href="reports/report_build.php?action=Column Edit&column_id=<?php echo $row['ID']; ?>&report_id=<?php echo $report_id; ?>"><?php echo $row['CAT']; ?></a>&nbsp;</td>
-		<td><A href="reports/report_build.php?action=Column Edit&column_id=<?php echo $row['ID']; ?>&report_id=<?php echo $report_id; ?>"><?php echo $row['ATTR']; ?></a>&nbsp;</td>
-		<td><A href="reports/report_build.php?action=Column Delete&report_name=<?php echo $report_name; ?>&report_desc=<?php echo $report_desc; ?>&column_id=<?php echo $row['ID']; ?>&report_id=<?php echo $report_id; ?>"><img border="0" src="images/menu/delete.gif">Delete</a></td>
+		<td><A href="report_build.php?action=Column Edit&column_id=<?php echo $row['id']; ?>&report_id=<?php echo $report_id; ?>"><?php echo $row['cat']; ?></a>&nbsp;</td>
+		<td><A href="report_build.php?action=Column Edit&column_id=<?php echo $row['id']; ?>&report_id=<?php echo $report_id; ?>"><?php echo $row['attr']; ?></a>&nbsp;</td>
+		<td><A href="report_build.php?action=Column Delete&report_name=<?php echo $report_name; ?>&report_desc=<?php echo $report_desc; ?>&column_id=<?php echo $row['id']; ?>&report_id=<?php echo $report_id; ?>">Delete</a></td>
 		</tr>
 		<?php	
 	}
@@ -414,12 +405,9 @@ function change_cat()
 </TABLE>
 
 <br>
-<table cellpadding="0" cellspacing="0" border="0" class="framework" align="center" width="300px">
-<tr><td align="center">
-	<A href="reports/index.php"><img border="0" src="images/menu/ok.gif">Return to Reports Page</a>
-</td></tr>
-</table>
+<center>
+	<A href="index.php">Ok. Return to Reports Page</a>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A href="index.php">Cancel</a></center>
 </form>
-<?php 
-	require ($_include_path.'cc_html/footer.inc.php');
-?>
+</BODY>
+</HTML>

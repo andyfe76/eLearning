@@ -23,41 +23,41 @@ $course = intval($_GET['course']);
 
 		// news:
 		$sql	= "SELECT * FROM del_news WHERE course_id=$course";
-		$res	= $db->query($sql);
-		while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)){
-			$sql	= "INSERT INTO news VALUES ($row[NEWS_ID], $row[COURSE_ID], $row[MEMBER_ID], '$row[DATA]', $row[FORMATTING], '$row[TITLE]', '$row[BODY]')";
-			$result = $db->query($sql);
+		$res	= mysql_query($sql, $db);
+		while ($row = mysql_fetch_array($res)){
+			$sql	= "INSERT INTO news VALUES ($row[news_id], $row[course_id], $row[member_id], '$row[date]', $row[formatting], '$row[title]', '$row[body]')";
+			$result = mysql_query($sql, $db);
 		}
 		$sql	= "DELETE FROM del_news WHERE course_id=$course";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 		echo $_template['announcements'].': '.mysql_affected_rows($db)."\n";
 		//echo $sql;
 
 		// related_content + content:
 		$sql	= "SELECT * FROM del_content WHERE course_id=$course";
-		$res	= $db->query($sql);
-		while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)){
-			$sql	= "INSERT INTO content VALUES ($row[CONTENT_ID], $row[COURSE_ID], $row[CONTENT_PARENT_ID], $row[ORDERING], TO_DATE('$row[LAST_MODIFIED]', 'DD/MM/YYYY HH24:MI:SS'), $row[REVISION], $row[FORMATTING], TO_DATE('$row[RELEASE_DATE]', 'DD/MM/YYYY HH24:MI:SS'), '$row[TITLE]', '$row[TEXT]')";
-			$result = $db->query($sql);
+		$res	= mysql_query($sql, $db);
+		while ($row = mysql_fetch_array($res)){
+			$sql	= "INSERT INTO content VALUES ($row[content_id], $row[course_id], $row[content_parent_id], $row[ordering], '$row[last_modified]', $row[revision], $row[formatting], '$row[release_date]', '$row[title]', '$row[text]')";
+			$result = mysql_query($sql, $db);
 		}
 		
 		$sql = "DELETE FROM del_content WHERE course_id=$course";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 		echo $_template['content'].':                            '.mysql_affected_rows($db)."\n";
 
 		$sql = "OPTIMIZE TABLE del_content";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 
 		
 		// courses:
 		$sql	= "SELECT * FROM del_courses WHERE course_id=$course";
-		$res	= $db->query($sql);
-		while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)){
-			$sql	= "INSERT INTO courses VALUES ($row[COURSE_ID], $row[MEMBER_ID], '$row[ACCESSTYPE]', '$row[CREATED_DATE]', '$row[TITLE]', '$row[DESCRIPTION]', $row[NOTIFY], '$row[MAX_QUOTA]', '$row[MAX_FILE_SIZE]', '$row[HIDE]', '$row[PREFERENCES]', '$row[HEADER]', '$row[FOOTER]', '$row[COPYRIGHT]', '$row[TRACKING]', '$row[CUSTOM1]', '$row[CUSTOM2]', '$row[CUSTOM3]', '$row[CUSTOM4]', '$row[CUSTOM5]', '$row[CUSTOM6]', '$row[CUSTOM7]', '$row[CUSTOM8]', '$row[CUSTOM9]', '$row[CUSTOM10]', '$row[MODIF_DATE]')";
-			$result = $db->query($sql);
+		$res	= mysql_query($sql, $db);
+		while ($row = mysql_fetch_array($res)){
+			$sql	= "INSERT INTO courses VALUES ($row[course_id], $row[member_id], '$row[access]', '$row[created_date]', '$row[title]', '$row[description]', $row[notify], '$row[max_quota]', '$row[max_file_size]', '$row[hide]', '$row[preferences]', '$row[header]', '$row[footer]', '$row[copyright]', '$row[tracking]', '$row[custom1]', '$row[custom2]', '$row[custom3]', '$row[custom4]', '$row[custom5]', '$row[custom6]', '$row[custom7]', '$row[custom8]', '$row[custom9]', '$row[custom10]', '$row[modif_date]')";
+			$result = mysql_query($sql, $db);
 		}
 		$sql = "DELETE FROM del_courses WHERE course_id=$course";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 		echo '<b>'.$_template['course'].': '.mysql_affected_rows($db).' '.$_template['always_one'].'</b>'."\n";
 
 		echo '</pre><br />'.$_template['return'].' ';

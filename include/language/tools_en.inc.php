@@ -184,7 +184,7 @@ $_template['use_enrol_button'] = 'Use the button below to enroll in this course.
 
 //extractor.php (print compiler)
 
-$_template['print_compiler'] = 'Course export & print';
+$_template['print_compiler'] = 'Print Compiler';
 $_template['content_selector'] = 'Content Selector';
 $_template['select'] = 'Select';
 $_template['select_all'] = 'Select All to Display';
@@ -204,7 +204,6 @@ $_template['denied'] = 'Denied';
 $_template['questions'] = 'Questions';
 $_template['out_of'] = 'Out of';
 $_template['take_test'] = 'Take Test';
-$_template['continue_test'] = 'Continue test';
 $_template['retry_test'] = 'Retry Test';
 $_template['ongoing'] = 'On Going!';
 $_template['expired'] = 'Expired';
@@ -214,11 +213,9 @@ $_template['completed_tests'] = 'Completed Tests - Grouped by Course';
 $_template['feedback'] = 'Feedback';
 $_template['date_taken'] = 'Date Taken';
 $_template['mark'] = 'Mark';
-$_template['mark_this'] = 'Mark';
 $_template['offline_marking'] = 'Offline Marking';
 $_template['global_weight'] = 'Global Weight';
 $_template['marks'] = 'marks';
-$_template['points'] = 'points';
 $_template['leave_blank'] = 'Leave blank';
 $_template['left_blank'] = 'Left blank';
 $_template['true'] = 'True';
@@ -686,6 +683,5 @@ $_template['not_your_course'] = 'This is not your course.';
 //popup_help.php
 $_template['close_help_window'] = 'Close Help Window';
 $_template['klore_help_window'] = 'K-Lore Help Window';
-$_template['mark_as_complete'] = 'Mark';
 
 ?>

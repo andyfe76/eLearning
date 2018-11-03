@@ -6,7 +6,7 @@
 	$_GET['view'] = intval($_GET['view']);
 
 	if ($_GET['view']) {
-		$result = $db->query("UPDATE messages SET new=0 WHERE to_member_id=$_SESSION[member_id] AND message_id=$_GET[view]",$db);
+		$result = mysql_query("UPDATE messages SET new=0 WHERE to_member_id=$_SESSION[member_id] AND message_id=$_GET[view]",$db);
 	}
 
 	$current_path = 'users/';

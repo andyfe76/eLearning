@@ -4,17 +4,25 @@ $section = 'users';
 $_include_path = '../include/';
 require($_include_path.'vitals.inc.php');
 require($_include_path.'classes/pclzip.lib.php');
-
 $course = intval($_GET['course']);
-
-if ($course==0) $course = intval($_POST['course']);
-
-$sql	= "SELECT * FROM courses WHERE course_id=$course";
-$result	= $db->query($sql);
-$row2 = $result->fetchRow(DB_FETCHMODE_ASSOC);
 
 if ($_POST['cancel']) {
 	Header('Location: index.php?f='.AT_FEEDBACK_EXPORT_CANCELLED);
+	exit;
+}
+
+if ($course == 0) {
+	$course = intval($_POST['course']);
+}
+
+/* make sure we own this course that we're exporting */
+$sql	= "SELECT * FROM courses WHERE course_id=$course AND member_id=$_SESSION[member_id]";
+$result	= mysql_query($sql, $db);
+if (!$row2 = mysql_fetch_array($result)) {
+	require($_include_path.'cc_html/header.inc.php');
+	$errors[] = AT_ERROR_NOT_OWNER;
+	print_errors($errors);
+	require ($_include_path.'cc_html/footer.inc.php'); 
 	exit;
 }
 
@@ -34,8 +42,8 @@ function save_csv($name, $sql, $fields) {
 	$content = '';
 	$num_fields = count($fields);
 
-	$result = $db->query($sql);
-	while ($row = $result->fetchRow(DB_FETCHMODE_ASSOC)) {
+	$result = mysql_query($sql, $db);
+	while ($row = mysql_fetch_array($result)) {
 		for ($i=0; $i< $num_fields; $i++) {
 			if ($fields[$i][1] == NUMBER) {
 				$content .= $row[$fields[$i][0]] . ',';
@@ -46,7 +54,7 @@ function save_csv($name, $sql, $fields) {
 		$content = substr($content, 0, strlen($content)-1);
 		$content .= "\n";
 	}
-	$result->free(); 
+	@mysql_free_result($result); 
 
 	$fp = @fopen('../content/export/'.$name.'.csv', 'w');
 	if (!$fp) {
@@ -58,11 +66,11 @@ function save_csv($name, $sql, $fields) {
 }
 
 if ($_POST['submit']) {
-	$row2['TITLE'] = str_replace(' ',  '_', $row2['TITLE']);
-	$row2['TITLE'] = str_replace('%',  '',  $row2['TITLE']);
-	$row2['TITLE'] = str_replace('\'', '',  $row2['TITLE']);
-	$row2['TITLE'] = str_replace('"',  '',  $row2['TITLE']);
-	$row2['TITLE'] = str_replace('`',  '',  $row2['TITLE']);
+	$row2['title'] = str_replace(' ',  '_', $row2['title']);
+	$row2['title'] = str_replace('%',  '',  $row2['title']);
+	$row2['title'] = str_replace('\'', '',  $row2['title']);
+	$row2['title'] = str_replace('"',  '',  $row2['title']);
+	$row2['title'] = str_replace('`',  '',  $row2['title']);
 
 	/* check if ../content/export/ exists */
 	if (!is_dir('../content/export/')) {
@@ -80,15 +88,15 @@ if ($_POST['submit']) {
 	$sql	= 'SELECT * FROM content WHERE course_id='.$course.' ORDER BY content_parent_id, ordering';
 
 	$fields = array();
-	$fields[0] = array('CONTENT_ID',		NUMBER);
-	$fields[1] = array('CONTENT_PARENT_ID', NUMBER);
-	$fields[2] = array('ORDERING',			NUMBER);
-	$fields[3] = array('LAST_MODIFIED',		TEXT);
-	$fields[4] = array('REVISION',			NUMBER);
-	$fields[5] = array('FORMATTING',		NUMBER);
-	$fields[6] = array('RELEASE_DATE',		TEXT);
-	$fields[7] = array('TITLE',				TEXT);
-	$fields[8] = array('TEXT',				TEXT);
+	$fields[0] = array('content_id',		NUMBER);
+	$fields[1] = array('content_parent_id', NUMBER);
+	$fields[2] = array('ordering',			NUMBER);
+	$fields[3] = array('last_modified',		TEXT);
+	$fields[4] = array('revision',			NUMBER);
+	$fields[5] = array('formatting',		NUMBER);
+	$fields[6] = array('release_date',		TEXT);
+	$fields[7] = array('title',				TEXT);
+	$fields[8] = array('text',				TEXT);
 
 	save_csv('content', $sql, $fields);
 	/****************************************************/
@@ -96,8 +104,8 @@ if ($_POST['submit']) {
 	/* forums.csv */
 	$sql	= 'SELECT * FROM forums WHERE course_id='.$course.' ORDER BY forum_id ASC';
 	$fields = array();
-	$fields[0] = array('TITLE',			TEXT);
-	$fields[1] = array('DESCRIPTION',	TEXT);
+	$fields[0] = array('title',			TEXT);
+	$fields[1] = array('description',	TEXT);
 
 	save_csv('forums', $sql, $fields);
 	/****************************************************/
@@ -105,8 +113,8 @@ if ($_POST['submit']) {
 	/* related_content.csv */
 	$sql	= 'SELECT R.content_id, R.related_content_id FROM related_content R, content C WHERE C.course_id='.$course.' AND R.content_id=C.content_id ORDER BY R.content_id ASC';
 	$fields = array();
-	$fields[0] = array('CONTENT_ID',			NUMBER);
-	$fields[1] = array('RELATED_CONTENT_ID',	NUMBER);
+	$fields[0] = array('content_id',			NUMBER);
+	$fields[1] = array('related_content_id',	NUMBER);
 
 	save_csv('related_content', $sql, $fields);
 	/****************************************************/
@@ -114,10 +122,10 @@ if ($_POST['submit']) {
 	/* glossary.csv */
 	$sql	= 'SELECT * FROM glossary WHERE course_id='.$course.' ORDER BY word_id ASC';
 	$fields = array();
-	$fields[0] = array('WORD_ID',			NUMBER);
-	$fields[1] = array('WORD',				TEXT);
-	$fields[2] = array('DEFINITION',		TEXT);
-	$fields[3] = array('RELATED_WORD_ID',	NUMBER);
+	$fields[0] = array('word_id',			NUMBER);
+	$fields[1] = array('word',				TEXT);
+	$fields[2] = array('definition',		TEXT);
+	$fields[3] = array('related_word_id',	NUMBER);
 
 	save_csv('glossary', $sql, $fields);
 	/****************************************************/
@@ -125,9 +133,9 @@ if ($_POST['submit']) {
 	/* resource_categories.csv */
 	$sql	= 'SELECT * FROM resource_categories WHERE course_id='.$course.' ORDER BY CatID ASC';
 	$fields = array();
-	$fields[0] = array('CATID',		NUMBER);
-	$fields[1] = array('CATNAME',	TEXT);
-	$fields[2] = array('CATPARENT', NUMBER);
+	$fields[0] = array('CatID',		NUMBER);
+	$fields[1] = array('CatName',	TEXT);
+	$fields[2] = array('CatParent', NUMBER);
 
 	save_csv('resource_categories', $sql, $fields);
 	/****************************************************/
@@ -135,15 +143,15 @@ if ($_POST['submit']) {
 	/* resource_links.csv */
 	$sql	= 'SELECT L.* FROM resource_links L, resource_categories C WHERE C.course_id='.$course.' AND L.CatID=C.CatID ORDER BY LinkID ASC';
 	$fields = array();
-	$fields[0] = array('CATID',			NUMBER);
-	$fields[1] = array('URL',			TEXT);
-	$fields[2] = array('LINKNAME',		TEXT);
-	$fields[3] = array('DESCRIPTION',	TEXT);
-	$fields[4] = array('APPROVED',		NUMBER);
-	$fields[5] = array('SUBMITNAME',	TEXT);
-	$fields[6] = array('SUBMITEMAIL',	TEXT);
-	$fields[7] = array('SUBMITDATE',	TEXT);
-	$fields[8] = array('HITS',			NUMBER);
+	$fields[0] = array('CatID',			NUMBER);
+	$fields[1] = array('Url',			TEXT);
+	$fields[2] = array('LinkName',		TEXT);
+	$fields[3] = array('Description',	TEXT);
+	$fields[4] = array('Approved',		NUMBER);
+	$fields[5] = array('SubmitName',	TEXT);
+	$fields[6] = array('SubmitEmail',	TEXT);
+	$fields[7] = array('SubmitDate',	TEXT);
+	$fields[8] = array('hits',			NUMBER);
 
 	save_csv('resource_links', $sql, $fields);
 	/****************************************************/
@@ -151,10 +159,10 @@ if ($_POST['submit']) {
 	/* news.csv */
 	$sql	= 'SELECT * FROM news WHERE course_id='.$course.' ORDER BY news_id ASC';
 	$fields = array();
-	$fields[0] = array('DATA',		TEXT);
-	$fields[1] = array('FORMATTING',NUMBER);
-	$fields[2] = array('TITLE',		TEXT);
-	$fields[3] = array('BODY',		TEXT);
+	$fields[0] = array('date',		TEXT);
+	$fields[1] = array('formatting',NUMBER);
+	$fields[2] = array('title',		TEXT);
+	$fields[3] = array('body',		TEXT);
 	
 	save_csv('news', $sql, $fields);
 	/****************************************************/
@@ -162,14 +170,14 @@ if ($_POST['submit']) {
 	/* tests.csv */
 	$sql	= 'SELECT * FROM tests WHERE course_id='.$course.' ORDER BY test_id ASC';
 	$fields = array();
-	$fields[] = array('TEST_ID',			NUMBER);
-	$fields[] = array('TITLE',				TEXT);
-	$fields[] = array('FORMAT',				NUMBER);
-	$fields[] = array('START_DATE',			TEXT);
-	$fields[] = array('END_DATE',			TEXT);
-	$fields[] = array('RANDOMIZE_ORDER',	NUMBER);
-	$fields[] = array('NUM_QUESTIONS',		NUMBER);
-	$fields[] = array('INSTRUCTIONS',		TEXT);
+	$fields[] = array('test_id',			NUMBER);
+	$fields[] = array('title',				TEXT);
+	$fields[] = array('format',				NUMBER);
+	$fields[] = array('start_date',			TEXT);
+	$fields[] = array('end_date',			TEXT);
+	$fields[] = array('randomize_order',	NUMBER);
+	$fields[] = array('num_questions',		NUMBER);
+	$fields[] = array('instructions',		TEXT);
 	save_csv('tests', $sql, $fields);
 	/****************************************************/
 
@@ -177,34 +185,34 @@ if ($_POST['submit']) {
 	$sql	= 'SELECT * FROM tests_questions WHERE course_id='.$course.' ORDER BY test_id ASC';
 	$fields = array();
 	//$fields[0] = array('question_id',		NUMBER);
-	$fields[] = array('TEST_ID',			NUMBER);
-	$fields[] = array('ORDERING',			NUMBER);
-	$fields[] = array('TYPE',				NUMBER);
-	$fields[] = array('WEIGHT',				NUMBER);
-	$fields[] = array('REQUIRED',			NUMBER);
-	$fields[] = array('FEEDBACK',			TEXT);
-	$fields[] = array('QUESTION',			TEXT);
-	$fields[] = array('CHOICE_0',			TEXT);
-	$fields[] = array('CHOICE_1',			TEXT);
-	$fields[] = array('CHOICE_2',			TEXT);
-	$fields[] = array('CHOICE_3',			TEXT);
-	$fields[] = array('CHOICE_4',			TEXT);
-	$fields[] = array('CHOICE_5',			TEXT);
-	$fields[] = array('CHOICE_6',			TEXT);
-	$fields[] = array('CHOICE_7',			TEXT);
-	$fields[] = array('CHOICE_8',			TEXT);
-	$fields[] = array('CHOICE_9',			TEXT);
-	$fields[] = array('ANSWER_0',			NUMBER);
-	$fields[] = array('ANSWER_1',			NUMBER);
-	$fields[] = array('ANSWER_2',			NUMBER);
-	$fields[] = array('ANSWER_3',			NUMBER);
-	$fields[] = array('ANSWER_4',			NUMBER);
-	$fields[] = array('ANSWER_5',			NUMBER);
-	$fields[] = array('ANSWER_6',			NUMBER);
-	$fields[] = array('ANSWER_7',			NUMBER);
-	$fields[] = array('ANSWER_8',			NUMBER);
-	$fields[] = array('ANSWER_9',			NUMBER);
-	$fields[] = array('ANSWER_SIZE',		NUMBER);
+	$fields[] = array('test_id',			NUMBER);
+	$fields[] = array('ordering',			NUMBER);
+	$fields[] = array('type',				NUMBER);
+	$fields[] = array('weight',				NUMBER);
+	$fields[] = array('required',			NUMBER);
+	$fields[] = array('feedback',			TEXT);
+	$fields[] = array('question',			TEXT);
+	$fields[] = array('choice_0',			TEXT);
+	$fields[] = array('choice_1',			TEXT);
+	$fields[] = array('choice_2',			TEXT);
+	$fields[] = array('choice_3',			TEXT);
+	$fields[] = array('choice_4',			TEXT);
+	$fields[] = array('choice_5',			TEXT);
+	$fields[] = array('choice_6',			TEXT);
+	$fields[] = array('choice_7',			TEXT);
+	$fields[] = array('choice_8',			TEXT);
+	$fields[] = array('choice_9',			TEXT);
+	$fields[] = array('answer_0',			NUMBER);
+	$fields[] = array('answer_1',			NUMBER);
+	$fields[] = array('answer_2',			NUMBER);
+	$fields[] = array('answer_3',			NUMBER);
+	$fields[] = array('answer_4',			NUMBER);
+	$fields[] = array('answer_5',			NUMBER);
+	$fields[] = array('answer_6',			NUMBER);
+	$fields[] = array('answer_7',			NUMBER);
+	$fields[] = array('answer_8',			NUMBER);
+	$fields[] = array('answer_9',			NUMBER);
+	$fields[] = array('answer_size',		NUMBER);
 
 	save_csv('tests_questions', $sql, $fields);
 	/****************************************************/
@@ -219,12 +227,8 @@ if ($_POST['submit']) {
 
 	$path = '../content/export/';
 
-	$sql = "SELECT title FROM courses WHERE course_id=$course";
-	$res = $db->query($sql);
-	$cline = $res->fetchRow();
-	
 	/* create the archive */
-	$archive = new PclZip($path.escapeshellcmd($row2['TITLE']).'.zip');
+	$archive = new PclZip($path.escapeshellcmd($row2['title']).'.zip');
 	// $list = $archive->add($path.'content/ '.$path.'content.csv '.$path.'forums.csv '.$path.'related_content.csv '.$path.'glossary.csv '.$path.'resource_categories.csv '.$path.'resource_links.csv '.$path.'news.csv '.$path.'tests.csv '.$path.'tests_questions.csv', PCLZIP_OPT_REMOVE_PATH, $path);
 	$list = $archive->add($path.'content.csv '.$path.'forums.csv '.$path.'related_content.csv '.$path.'glossary.csv '.$path.'resource_categories.csv '.$path.'resource_links.csv '.$path.'news.csv '.$path.'tests.csv '.$path.'tests_questions.csv', PCLZIP_OPT_REMOVE_PATH, $path);
 
@@ -267,16 +271,16 @@ if ($_POST['submit']) {
 	@unlink('../content/export/news.csv');
 	@unlink('../content/export/tests.csv');
 	@unlink('../content/export/tests_questions.csv');
-	
+
 	header('Content-Type: application/x-zip-compressed');
-    header('Content-Disposition: inline; filename="'.escapeshellcmd($row2['TITLE']).'.zip"');
+    header('Content-Disposition: inline; filename="'.escapeshellcmd($row2['title']).'.zip"');
     header('Expires: 0');
     header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
     header('Pragma: public');
 
 
-	@readfile('../content/export/'.escapeshellcmd ($row2['TITLE']).'.zip');
-	@unlink('../content/export/'.escapeshellcmd ($row2['TITLE']).'.zip');
+	@readfile('../content/export/'.escapeshellcmd ($row2['title']).'.zip');
+	@unlink('../content/export/'.escapeshellcmd ($row2['title']).'.zip');
 
 	exit;
 }
@@ -291,7 +295,7 @@ $help[]=AT_HELP_IMPORT_EXPORT1;
 <?php print_help($help);  ?>
 <h2><?php echo $_template['import_course']; ?></h2>
 
-<p>Importing into <b><?php echo $row2['TITLE']; ?></b>.</p>
+<p>Importing into <b><?php echo $row2['title']; ?></b>.</p>
 
 <form name="form1" method="post" action="users/import.php" enctype="multipart/form-data" onsubmit="openWindow('<?php echo $_base_href; ?>tools/prog.php');">
 <input type="hidden" name="MAX_FILE_SIZE" value="2000000" />
@@ -316,7 +320,7 @@ $help[]=AT_HELP_IMPORT_EXPORT1;
 <br /><br />
 
 <h2><?php echo $_template['export_course']; ?></h2>
-<p><?php echo $_template['exporting']; ?><b><?php echo $row2['TITLE']; ?></b>.</p>
+<p><?php echo $_template['exporting']; ?><b><?php echo $row2['title']; ?></b>.</p>
 <form method="post" action="<?php echo $PHP_SELF; ?>">
 <input type="hidden" name="course" value="<?php echo $course; ?>">
 

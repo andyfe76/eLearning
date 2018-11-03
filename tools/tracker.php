@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 $_include_path = '../include/';
 require($_include_path.'vitals.inc.php');
@@ -16,9 +21,9 @@ print_warnings($warnings);
 
 //get names for member_ids
 $sql14 = "select member_id, login from members";
-$result14=$db->query($sql14);
-while($row=$result14->fetchRow(DB_FETCHMODE_ASSOC)){
-	$this_user[$row['MEMBER_ID']]= $row['LOGIN'];
+$result14=mysql_query($sql14, $db);
+while($row=mysql_fetch_array($result14)){
+	$this_user[$row['member_id']]= $row['login'];
 }
 
 /////////////////////////////
@@ -31,9 +36,9 @@ while($row=$result14->fetchRow(DB_FETCHMODE_ASSOC)){
 
 //see if tracking is turned on
 $sql="SELECT tracking FROM courses where course_id=$_SESSION[course_id]";
-$result=$db->query($sql);
-while($row=$result->fetchRow(DB_FETCHMODE_ASSOC)){
-	if($row['TRACKING']== "off"){
+$result=mysql_query($sql, $db);
+while($row= mysql_fetch_array($result)){
+	if($row['tracking']== "off"){
 		if($_SESSION['is_admin']){
 			$infos[]=AT_INFOS_TRACKING_OFFIN;
 		}else{

@@ -6,7 +6,7 @@ $_include_path = 'include/';
 require ('include/vitals.inc.php');
 
 $sql = "DELETE FROM users_online WHERE member_id=$_SESSION[member_id]";
-$result = @$db->query($sql);
+$result = @mysql_query($sql, $db);
 
 session_destroy(); 
 session_unset();

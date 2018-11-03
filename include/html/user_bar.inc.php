@@ -23,11 +23,11 @@
 		<table cellpadding="0" cellspacing="0" border="0">
 		<tr>
 			<td bgcolor="F0F0F2">
-				<img src="images/menu/logo.jpg" border="0">
+				<img src="images/menu/logo_connex.gif" border="0">
 				<img src="images/spacer.gif" width="53" height="1"></td>
 		</tr><tr>
 			<td background="images/menu/left_artifact.gif" valign="top">
-				<table cellpadding="2" cellspacing="0" border="0" id="top">
+				<table cellpadding="2" cellspacing="0" border="0">
 				<tr><td>
 					<?php
 						echo '<span style="font-family: Verdana, Arial; font-size: 10pt; color: #C0D7CF; margin-top: 0px;">';
@@ -41,7 +41,14 @@
 				</td>
 		</tr><tr>
 			<td>
-			<?
+				<?php /*echo '<span class="nblack">Status:';
+				if ($status == 0) {
+					echo $_template['student'];
+				} else if ($status == 1) {
+					echo $_template['instructor'];
+				} else {
+					echo $_template['administrator'];
+				} */
 				echo '&nbsp;</span></td>'; ?>
 				
 		</tr>
@@ -49,28 +56,61 @@
 		
 	</td><td valign="top" width="100%">
 		
-		<table cellpadding="0" cellspacing="0" border="0" width="100%" align="right" id="top">
+		<table cellpadding="0" cellspacing="0" border="0" width="100%" align="right">
 		<tr>
 			<td bgcolor="f0f0f2" align="right" valign="top" width="100%">
 				<img src="images/spacer.gif" width="1" height="42">
 				<a href="users/"><img src="images/menu/home.gif" border="0"></a>
 				<?php
-					if ($_SESSION['c_instructor'] || $_SESSION['is_admin'] || $_SESSION['group_mng'] || $_SESSION['coordinator']) {
+					if ($_SESSION['c_instructor'] || $_SESSION['is_admin']) {
 						echo '<img src="images/menu/menu_sep.gif" border="0">';
-						if ($_SESSION['is_admin'] || $_SESSION['c_instructor']) {
-							echo '<a href="users/coursemng.php"><img src="images/menu/course_management_'.$_SESSION['lang'].'.gif" border="0"></a>';
-							echo '&nbsp;&nbsp;&nbsp;<img src="images/menu/menu_sep.gif" border="0">';
-						}
-						echo '<a href="users/usermng.php"><img src="images/menu/user_management_'.$_SESSION['lang'].'.gif" border="0"></a>';
+						echo '<a href="users/coursemng.php"><img src="images/menu/course_management.gif" border="0"></a>';
 						echo '<img src="images/menu/menu_sep.gif" border="0">';
-						echo '<a href="reports/index.php"><img src="images/menu/reports_'.$_SESSION['lang'].'.gif" border="0"></a>';
+						echo '<a href="users/usermng.php"><img src="images/menu/user_management.gif" border="0"></a>';
+						echo '<img src="images/menu/menu_sep.gif" border="0">';
+						echo '<a href="reports/index.php"><img src="images/reports.gif" border="0"></a>';
 					}
 			
 		
 			//echo '</td><td bgcolor="F0F0F2" valign="middle">';
 			
+				
+					if ($_SESSION['valid_user']) {
+						/* show the list of courses with jump linke */
+						$sql	= "SELECT E.course_id FROM course_enrollment E WHERE E.member_id=$_SESSION[member_id] AND E.approved='y'";
+						$result = mysql_query($sql,$db);
 					
-					echo "\n".'&nbsp;&nbsp;&nbsp;&nbsp;<label for="l" accesskey="l"></label><span style="white-space: nowrap;">';
+						echo "\n".'&nbsp;<label for="j" accesskey="j"></label><span style="white-space: nowrap;">';
+						//echo $_template['jump'].': ';
+						echo '<select name="course"'.$tip_jump.' class="dropdown" id="j" title="Jump: '.$_template['accesskey'].' ALT-j" onChange="change_course();">'."\n";
+						echo '<option value="0">'.$_template['my_control_centre'].'</option>'."\n";
+						echo '<option value="">-- '.$_template['courses_below'].' --</option>'."\n";
+						while ($row = mysql_fetch_array($result)) {
+							echo '<option value="'.$row['course_id'].'"';
+							if ($_SESSION['course_id'] == $row['course_id']) {
+								echo ' selected="selected"';
+							}
+							echo '>'.$system_courses[$row['course_id']]['title'];
+							echo $row['title'];
+							echo '</option>'."\n";
+						}
+						echo '</select>&nbsp;'."\n";
+						//echo '<input type="submit" name="jump" value="'.$_template['jump'].'" class="button2" />';
+						echo '</span>&nbsp;';
+						echo '<input type="hidden" name="g" value="22" />';
+			
+					} else {
+						/* this user is a guest */
+						//echo $pipe;
+						if ($_SESSION['prefs'][PREF_LOGIN_ICONS] != 2) {
+							//echo '<a class="white" href="browse.php" title="'.$_template['browse_courses'].'"><img src="images/browse.gif" border="0" alt="'.$_template['browse_courses'].'" height="14" width="16" /></a>';
+						}
+						if ($_SESSION['prefs'][PREF_LOGIN_ICONS] != 1) {
+							//echo ' <a class="white" href="browse.php">'.$_template['browse_courses'].'</a>';
+						}
+					}
+					
+					echo "\n".'&nbsp;<label for="l" accesskey="l"></label><span style="white-space: nowrap;">';
 					//echo $_template['language'].': ';
 					//echo '<img src="images/menu/menu_sep.gif" border="0"> &nbsp;';
 					
@@ -119,14 +159,14 @@
 				
 				if ($_SESSION['valid_user']) {
 					$sql	= "SELECT COUNT(*) AS cnt FROM messages WHERE to_member_id=$_SESSION[member_id] AND new=1";
-					$result	= $db->query($sql);
-					$row	=$result->fetchRow(DB_FETCHMODE_ASSOC);
+					$result	= mysql_query($sql, $db);
+					$row	= mysql_fetch_array($result);
 		
 					if ($_SESSION['course_id'] == 0) {
 						$temp_path = 'users/';
 					}
 		
-					if ($row['CNT'] > 0) {
+					if ($row['cnt'] > 0) {
 							echo '<a href="'.$temp_path.'inbox.php?g=21" title="'.$_template['you_have_messages'].'"><img src="images/menu/inbox.gif" border="0" alt="'.$_template['you_have_messages'].'" /></a>';
 					} else {
 							echo '<a href="'.$temp_path.'inbox.php?g=21" title="'.$_template['inbox'].'"><img src="images/menu/inbox.gif" border="0" alt="'.$_template['inbox'].'" /></a>';
@@ -137,9 +177,9 @@
 				<?php
 					if ($_SESSION['course_id'] >0) {
 						echo '<img src="images/menu/menu_sepw.gif" border="0">';
-						echo '<a href="tools/preferences.php?g=20" title="'.$_template['preferences'].'"><img src="images/menu/preferences_'.$_SESSION['lang'].'.gif" alt="'.$_template['preferences'].'" border="0"" /></a>';
+						echo '<a href="tools/preferences.php?g=20" title="'.$_template['preferences'].'"><img src="images/menu/preferences.gif" alt="'.$_template['preferences'].'" border="0"" /></a>';
 						echo '<img src="images/menu/menu_sepw.gif" border="0">';
-						echo '<a href="tools/sitemap/?g=23" title="'.$_template['sitemap'].'"><img src="images/menu/site_map_'.$_SESSION['lang'].'.gif" alt="'.$_template['sitemap'].'" border="0"/></a>';
+						echo '<a href="tools/sitemap/?g=23" title="'.$_template['sitemap'].'"><img src="images/menu/site_map.gif" alt="'.$_template['sitemap'].'" border="0"/></a>';
 					}
 				?>
 				<img src="images/menu/menu_sepw.gif" border="0">

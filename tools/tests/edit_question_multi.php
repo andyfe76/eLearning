@@ -31,6 +31,7 @@
 
 		if ($_POST['question'] == ''){
 			$errors[]=AT_ERRORS_QUESTION_EMPTY;
+
 		}
 
 		if (!$errors) {
@@ -44,7 +45,7 @@
 				}
 			}
 
-			$sql	= "UPDATE tests_questions SET weight=$_POST[weight],
+			$sql	= "UPDATE tests_questions SET	weight=$_POST[weight],
 				required=$_POST[required],
 				feedback='$_POST[feedback]',
 				question='$_POST[question]',
@@ -71,7 +72,7 @@
 
 				WHERE question_id=$_POST[qid] AND test_id=$_POST[tid] AND course_id=$_SESSION[course_id]";
 
-			$result	= $db->query($sql);
+			$result	= mysql_query($sql, $db);
 
 			Header('Location: questions.php?tid='.$_POST['tid'].SEP.'f='.urlencode_feedback(AT_FEEDBACK_QUESTION_UPDATED));
 			exit;
@@ -82,6 +83,8 @@
 
 ?>
 
+<h2><a href="tools/?g=11"><?php echo $_template['tools']; ?></a></h2>
+<h3><a href="tools/tests/?g=11"><?php echo $_template['test_manager']; ?></a></h3>
 <h3><?php echo $_template['edit_mc_question']; ?>
 <?php echo $_SESSION['test_name']; ?></h3>
 
@@ -90,23 +93,22 @@
 
 	if (!$_POST['submit']) {
 		$sql	= "SELECT * FROM tests_questions WHERE question_id=$qid AND test_id=$tid AND course_id=$_SESSION[course_id] AND type=1";
-		$result	= $db->query($sql);
+		$result	= mysql_query($sql, $db);
 
-		if (!($row =$result->fetchRow(DB_FETCHMODE_ASSOC))){
+		if (!($row = mysql_fetch_array($result))){
 			$errors[]=AT_ERROR_QUESTION_NOT_FOUND;
 			print_errors($errors);
 			require ($_include_path.'footer.inc.php');
 			exit;
 		}
-		
-		$_POST['feedback']	= $row['FEEDBACK'];
-		$_POST['required']	= $row['REQUIRED'];
-		$_POST['weight']	= $row['WEIGHT'];
-		$_POST['question']	= $row['QUESTION'];
+		$_POST['feedback']	= $row['feedback'];
+		$_POST['required']	= $row['required'];
+		$_POST['weight']	= $row['weight'];
+		$_POST['question']	= $row['question'];
 
 		for ($i=0; $i<10; $i++) {
-			$_POST['choice'][$i] = $row['CHOICE_'.$i];
-			$_POST['answer'][$i] = $row['ANSWER_'.$i];
+			$_POST['choice'][$i] = $row['choice_'.$i];
+			$_POST['answer'][$i] = $row['answer_'.$i];
 		}
 	}
 
@@ -136,7 +138,7 @@ print_errors($errors);
 <tr><td height="1" class="row2" colspan="2"></td></tr-->
 <tr>
 	<td class="row1" align="right"><label for="weight"><b><?php echo $_template['weight']; ?>:</b></label></td>
-	<td class="row1"><input type="text" name="weight" id="weight" class="formfieldR" size="2" maxlength="2" value="<?php echo $_POST['weight']; ?>" /></td>
+	<td class="row1"><input type="text" value="5" name="weight" id="weight" class="formfieldR" size="2" maxlength="2" value="<?php echo $_POST['weight']; ?>" /></td>
 </tr>
 <tr><td height="1" class="row2" colspan="2"></td></tr>
 <tr>

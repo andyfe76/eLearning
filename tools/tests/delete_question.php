@@ -3,7 +3,12 @@
 /* klore														*/
 /****************************************************************/
 /* Copyright (c) 2002-2003 by Greg Gay & Joel Kronenberg        */
-
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 	$_include_path = '../../include/';
 	require($_include_path.'vitals.inc.php');
@@ -23,7 +28,7 @@
 		$qid = intval($_GET['qid']);
 
 		$sql	= "DELETE FROM tests_questions WHERE question_id=$qid AND test_id=$tid AND course_id=$_SESSION[course_id]";
-		$result	= $db->query($sql);
+		$result	= mysql_query($sql, $db);
 		
 		Header('Location: ../tests/questions.php?tid='.$tid.SEP.'f='.urlencode_feedback(AT_FEEDBACK_QUESTION_DELETED));
 		exit;

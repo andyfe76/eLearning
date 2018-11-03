@@ -43,27 +43,27 @@
 				$sql .= "($q_id, $_SESSION[member_id], '$ans')";
 			}
 			$sql_s = "SELECT * FROM tmp_testansw WHERE question_id=$q_id AND member_id=$_SESSION[member_id]";
-			$res_s = $db->query($sql_s);
-			$row_s =$res_s->fetchRow(DB_FETCHMODE_ASSOC);
-			if ($row_s['QUESTION_ID'] >0) {
+			$res_s = mysql_query($sql_s, $db);
+			$row_s = mysql_fetch_array($res_s);
+			if ($row_s['question_id'] >0) {
 				// UPDATE ONLY
 				$sql = "UPDATE tmp_testansw SET answer='$ans' WHERE question_id=$q_id AND member_id=$_SESSION[member_id]";
-				$res_u = $db->query($sql);
+				$res_u = mysql_query($sql, $db);
 			} else {
 				// INSERT NEW VALUES
 				$sql	= 'INSERT INTO tmp_testansw VALUES '.$sql;
-				$result	= $db->query($sql);
+				$result	= mysql_query($sql, $db);
 			}
 		}
 		/* Also get the answers for this page, if available. */
 		$sql = "SELECT question_id FROM tmp_tests WHERE member_id=$_SESSION[member_id] AND page=$_POST[page] AND test_id=$_POST[tid]";
-		$res = $db->query($sql);
+		$res = mysql_query($sql, $db);
 		$answers[] = '';
-		while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)){
-			$sql = "SELECT answer FROM tmp_testansw WHERE member_id=$_SESSION[member_id] AND question_id=$row[QUESTION_ID]";
-			$result = $db->query($sql);
-			if ($row_a =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-				$answers[ $row['QUESTION_ID'] ] = $row_a['ANSWER'];
+		while ($row = mysql_fetch_array($res)){
+			$sql = "SELECT answer FROM tmp_testansw WHERE member_id=$_SESSION[member_id] AND question_id=$row[question_id]";
+			$result = mysql_query($sql, $db);
+			if ($row_a = mysql_fetch_array($result)) {
+				$answers[ $row['question_id'] ] = $row_a['answer'];
 			} else {
 				$answers = '';
 			}
@@ -78,34 +78,34 @@
 		CHECK IF TEMPORARY ANSWERS ARE SET
 		*/
 		$sql 	= "SELECT * FROM tmp_testansw WHERE member_id=$_SESSION[member_id]";
-		$res 	= $db->query($sql);
-		if ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+		$res 	= mysql_query($sql, $db);
+		if ($row = mysql_fetch_array($res)) {
 			/*	tmp_testans found. Compiling answers from temporary. */
-			$result_id = $db->nextId("AUTO_TEST_RESULTS_RESULT_ID");
-			$sql	= "INSERT INTO tests_results VALUES ($result_id, $tid, $_SESSION[member_id], SYSDATE, 'unmk')";
-			$result	= $db->query($sql);
+			$sql	= "INSERT INTO tests_results VALUES (0, $tid, $_SESSION[member_id], NOW(), '')";
+			$result	= mysql_query($sql, $db);
 			
 			$sql = '';
 	
+			$result_id = mysql_insert_id($db);
 			$open_question = false;
 			
 			do {
 				if ($sql != '') {
 					$sql .= ', ';	
 				}
-				$ans = $row['ANSWER'];
-				$q_id = $row['QUESTION_ID'];
-				$sql .= "($result_id, $q_id, $_SESSION[member_id], '$ans', '', '', 'yes')";
-			} while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC));
+				$ans = $row['answer'];
+				$q_id = $row['question_id'];
+				$sql .= "($result_id, $q_id, $_SESSION[member_id], '$ans', '', '')";
+			} while ($row = mysql_fetch_array($res));
 			$sql	= 'INSERT INTO tests_answers VALUES '.$sql;
-			$result	= $db->query($sql);
+			$result	= mysql_query($sql, $db);
 			
 		} else {
 			/*	tmp_testans empty for this user. Compiling answers from POST. */
-			$result_id = $db->nextId("AUTO_TEST_RESULTS_RID");
-			$sql	= "INSERT INTO tests_results VALUES ($result_id, $tid, $_SESSION[member_id], SYSDATE, 'unmk')";
-			$result	= $db->query($sql);
-			
+			$sql	= "INSERT INTO tests_results VALUES (0, $tid, $_SESSION[member_id], NOW(), '')";
+			$result	= mysql_query($sql, $db);
+	
+			$result_id = mysql_insert_id($db);
 			$open_question = false;
 	
 			if (is_array($_POST['answers'])){
@@ -114,7 +114,7 @@
 					if ($sql != '') {
 						$sql .= ', ';	
 					}
-
+	
 					if ($ans=='-4') {
 						// multiple answers converted to string representation (Argint, 23.05.2003)
 						$ans = '';
@@ -128,27 +128,20 @@
 						$open_question = true;
 						if (isset($_POST['answers_o'.$q_id])) {
 							$ans = $_POST['answers_o'.$q_id];
-							if (is_array($ans)) {
-								$ans = $ans[$q_id];
-							}
 						}
 					}
-					$sql = "INSERT INTO tests_answers VALUES ($result_id, $q_id, $_SESSION[member_id], '$ans', '', '', 'yes')";
-					$db->query($sql);
+					$sql .= "($result_id, $q_id, $_SESSION[member_id], '$ans', '', '')";
 				}
-				$result	= $db->query($sql);
+				$sql	= 'INSERT INTO tests_answers VALUES '.$sql;
+				$result	= mysql_query($sql, $db);
 			}
 		}
-		
-		$sql = "UPDATE test_process SET S_TIME=0 WHERE test_id=$tid AND member_id=$_SESSION[member_id]";
-		$res = $db->query($sql);
 
 		if (!$open_question) {
 			Header('Location: ../tools/tests/view_results.php?tid='.$tid.SEP.'rid='.$result_id.SEP.'tt='.$_SESSION[login].SEP.'tt2='.$_GET['tt'].SEP.'m='.SEP.'f='.urlencode_feedback(AT_FEEDBACK_TEST_SAVED));
 		} else {
 			Header('Location: ../tools/my_tests.php?f='.urlencode_feedback(AT_FEEDBACK_TEST_SAVED));
 		}
-
 		exit;
 		//$feedback[]=AT_FEEDBACK_TEST_SAVED;
 		//print_feedback($feedback);
@@ -164,48 +157,47 @@
 	}
 	
 	$sql = "SELECT * FROM tests WHERE test_id=$tid";
-	$res = $db->query($sql);
-	$row_d =$res->fetchRow(DB_FETCHMODE_ASSOC);
-	$duration = ($row_d['DURATION'] *60); // conversion to seconds
+	$res = mysql_query($sql, $db);
+	$row_d = mysql_fetch_array($res);
+	$duration = ($row_d['duration'] *60); // conversion to seconds
 	if ($duration==0) $duration = 86400; // just a long time: 24 h
 	
-	$randomize_order = $row_d['RANDOMIZE_ORDER'];
-	$num_questions = $row_d['NUM_QUESTIONS'];
-	$min_grade = $row_d['MIN_GRADE'];
+	$randomize_order = $row_d['randomize_order'];
+	$num_questions = $row_d['num_questions'];
+	$min_grade = $row_d['min_grade'];
 	
 	$sql = "SELECT * FROM test_process WHERE test_id=$tid AND member_id=$_SESSION[member_id]";
-	$pres = $db->query($sql);
-	$row_p =$pres->fetchRow(DB_FETCHMODE_ASSOC);
-	/*if (($_GET['retry'] == '1') || ($_POST['retry'] == '1')) {
-		if ($row_p['RETRIES'] >0){
+	$pres = mysql_query($sql, $db);
+	$row_p = mysql_fetch_array($pres);
+	if (($_GET['retry'] == '1') || ($_POST['retry'] == '1')) {
+		if ($row_p['retries'] >0){
 			$_SESSION['test_timing'] = 0;
 		}
-	}*/
-	$_SESSION['test_timing'] = intval($row_p['S_TIME']);
+	}
 	if ($_SESSION['test_timing'] >0) {
 		$duration = $duration - (time() - $_SESSION['test_timing']);
 		if ($duration <0) {
-			Header('Location: ../tools/tests/view_results.php?tid='.$tid.SEP.'f='.urlencode_feedback(AT_FEEDBACK_TEST_TIME_EXPIRED));
+			Header('Location: ../tools/my_tests.php?f='.urlencode_feedback(AT_FEEDBACK_TEST_TIME_EXPIRED));
 			exit;
 		} else {
 			$reentry = true;
 		}
 	} else {
-		//$_SESSION['test_timing'] = time(); -- already done in prepare_test. No need for this.
-		if ($row_p['TEST_ID'] ==0) {
+		$_SESSION['test_timing'] = time();
+		if ($row_p['test_id'] ==0) {
 			/* it means the student is first time here */
-			$retries = $row_d['RETRIES'];
-			$sql = "INSERT INTO test_process VALUES ($tid, $_SESSION[member_id], $retries, $_SESSION[test_timinig])";
-			$res = $db->query($sql);
+			$retries = $row_d['retries'];
+			$sql = "INSERT INTO test_process VALUES ($tid, $_SESSION[member_id], $retries)";
+			$res = mysql_query($sql, $db);
 		} else {
-			$retries = $row_p['RETRIES'];
+			$retries = $row_p['retries'];
 			if ($retries == 0) {
-				Header('Location: ../tools/tests/view_results.php?tid='.$tid.SEP.'f='.urlencode_feedback(AT_FEEDBACK_TEST_RETRIES_NOMORE));
+				Header('Location: ../tools/my_tests.php?f='.urlencode_feedback(AT_FEEDBACK_TEST_RETRIES_NOMORE));
 				exit;
 			} else {
 				$retries--;
 				$sql = "UPDATE test_process SET retries=$retries WHERE test_id=$tid AND member_id=$_SESSION[member_id]";
-				$res = $db->query($sql);
+				$res = mysql_query($sql, $db);
 			}
 		}
 	}
@@ -245,235 +237,216 @@
 		$testpageno = 1;
 		// INITIALIZE TEST PAGES
 		$sql = "DELETE FROM tmp_tests WHERE member_id=$_SESSION[member_id] AND test_id=$tid";
-		$res = $db->query($sql);
+		$res = mysql_query($sql, $db);
 		$sql = "DELETE FROM tmp_testansw WHERE member_id=$_SESSION[member_id]";
-		$res = $db->query($sql);
-		$sql = "SELECT COUNT(question_id) FROM tests_questions WHERE course_id=$_SESSION[course_id] AND test_id=$tid";
-		$res = $db->query($sql);
-		$row = $res->fetchRow();
-		$q_count = $row[0];
+		$res = mysql_query($sql, $db);
 		$sql	= "SELECT question_id FROM tests_questions WHERE course_id=$_SESSION[course_id] AND test_id=$tid ORDER BY ordering, question_id";
-		$result	= $db->query($sql);
+		$result	= mysql_query($sql, $db);
 		$count = 1;
 		$questions[] = '';
 		$i = 0;
-		if ($randomize_order || ($num_questions<$q_count)) {
-			if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+		if ($randomize_order || (!$num_questions)) {
+			if ($row = mysql_fetch_array($result)) {
 				do {
-					$questions[$i] = $row['QUESTION_ID'];
+					$questions[$i] = $row['question_id'];
 					$i++;
-				} while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC));
-				
-				//*** modif
- 				// resolve random arrangement of questions
-				shuffle($questions);
-				$sql = '';
+				} while ($row = mysql_fetch_array($result));
+				// resolve random arrangement of questions
+				$q_count = $i;
 				$pageno = 1;
 				$q_page = 1;
-				$counter = 0;
-				$i=$num_questions;
+				$qfill[] = '';
 				while ($i >0) {
-					$i--;
-					$q_page++;
-					$counter++;
-					$sql= "INSERT INTO tmp_tests VALUES ($_SESSION[member_id], $tid, $pageno, $questions[$i], $counter)";
-					$res = $db->query($sql);
-					if ($q_page > $num_questions) {
-						$q_page = 1;
-						$pageno++;
-					}		
-
+					$qno = intval(rand(1, $q_count));
+					if (!in_array($qno, $qfill)) {
+						$qid = $questions[$qno-1];
+						$qfill[$i] = $qno;
+						$i--;
+						$sql = "INSERT INTO tmp_tests VALUES ($_SESSION[member_id], $tid, $pageno, $qid)";
+						$res = mysql_query($sql, $db);
+						$q_page++;
+						if ($q_page > $num_questions) {
+							$q_page = 1;
+							$pageno++;
+						}		
+					}
 				}
-					
-					
-			//*** end modif
 			}
 		} else {
-			if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)){
-				$counter = 0;
+			if ($row = mysql_fetch_array($result)){
 				do {
-					$sql = "INSERT INTO tmp_tests VALUES ($_SESSION[member_id], $tid, 1, $row[QUESTION_ID], $counter)";
-					$res = $db->query($sql);
-					$counter++;
-				} while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC));
+					$sql = "INSERT INTO tmp_tests VALUES ($_SESSION[member_id], $tid, 1, $row[question_id])";
+					$res = mysql_query($sql, $db);
+				} while ($row = mysql_fetch_array($result));
 			}
 		}
 	}
 	
-	$sql = "SELECT question_id FROM tmp_tests WHERE member_id=$_SESSION[member_id] AND test_id=$tid AND page=$testpageno ORDER BY Q_POS";
-	$res_tmp = $db->query($sql);
+	$sql = "SELECT question_id FROM tmp_tests WHERE member_id=$_SESSION[member_id] AND test_id=$tid AND page=$testpageno";
+	$res_tmp = mysql_query($sql, $db);
 	
-	echo '<form method="post" action="'.$PHP_SELF.'" name="form1">';
-	echo '<input type="hidden" name="timp" id="timp" value="'.$duration.'">';
-	?>
-	<script language="JavaScript">
-		var start=new Date();
-		start=Date.parse(start)/1000;
-		var counts=document.all.timp.value;
-		function CountDown(){
-			var now=new Date();
-			now=Date.parse(now)/1000;
-			var x=parseInt(counts-(now-start),10);
-			if(document.form1){
-				document.all.clock.value = parseInt(x/60 -0.001)+1;
-				document.all.sec_clock.value = x;
-			}
-			if(x <=60){
-				document.all.sec_clock.style.visibility = "visible";
-			}
-			if(x>0){
-				timerID=setTimeout("CountDown()", 100);
-			}else{
-				document.all.submitted.value = "2";
-				document.form1.submit();
-			}
-			document.all.timp.value=document.all.clock.value;
-		}
-		function do_submit(){
-			document.all.submitted.value = "2";
-		}
-		window.setTimeout('CountDown()', 100);
-	</script>
-	<?php
-	
-	$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-	$countres = $db->query($countsql);
-
-	$count0 = $countres->fetchRow();
-	$num_results = $count0[0];
-	
-	if ($num_results >0) {
-		echo '<ol>';
-		while ($row_tmp = $res_tmp->fetchRow(DB_FETCHMODE_ASSOC)){
-			$qid = $row_tmp['QUESTION_ID'];
-			$sql = "SELECT * FROM tests_questions WHERE course_id=$_SESSION[course_id] AND question_id=$qid";
-			$result = $db->query($sql);
-			
-			$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-			$countres = $db->query($countsql);
-			$count0 = $countres->fetchRow();
-			$num_results = $count0[0];
+	while ($row_tmp = mysql_fetch_array($res_tmp)){
+		$qid = $row_tmp['question_id'];
+		$sql = "SELECT * FROM tests_questions WHERE course_id=$_SESSION[course_id] AND question_id=$qid";
+		$result = mysql_query($sql, $db);
 		
-			while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)){
-					$count++;
-					$qid = $row['QUESTION_ID'];
-					switch ($row['TYPE']) {
-						case 1:
-							/* multiple choice question */
-							echo '<li>('.$row['WEIGHT'].' '.$_template['points'].')<p>'.$row['QUESTION'].'</p><p>';
-							echo '<input type="hidden" name="answers['.$row['QUESTION_ID'].']" value="-4">';
-							// check to see if prev/next page --> already answered question
-							if ( is_array($answers) ){
-								$ans = $answers[$qid];
-							}
-							for ($i=0; $i < 10; $i++) {
-								if ($row['CHOICE_'.$i] != '') {
-									if ($i > 0) {
-										echo '<br />';
-									}
-									echo '<input type="checkbox" name="answers_m'.$qid.'['.$i.']" value="'.$i.'" id="choice_'.$qid.'_'.$i.'"';
-									if ( is_array($answers) ){
-										if ( strpos($ans, strval($i)) || ( $ans[0] == strval($i) )){
-											echo ' checked="checked"';
-										}
-									}
-									echo ' /><label for="choice_'.$qid.'_'.$i.'">'.$row['CHOICE_'.$i].'</label>';
-								}
-							}
-		
-							echo '<br />';
-							//echo '<input type="checkbox" name="answers_m'.$row['QUESTION_ID'].'['.intval($i+1);
-							//echo ']" value="A" id="choice_'.$row['QUESTION_ID'].'_x" checked="unchecked" />';
-							//echo '<label for="choice_'.$row['QUESTION_ID'].'_x"><i>'.$_template['leave_blank'].'</i></label>';
-							echo '</p></li>';
-							break;
-		
-						case 2:
-							/* true or false quastion */
-							echo '<li>('.$row['WEIGHT'].' '.$_template['points'].')<p>'.$row['QUESTION'].'</p><p>';
-							if (is_array($answers)) {
-								$ans = $answers[$qid];
-							}
-		
-							echo '<input type="radio" name="answers['.$row['QUESTION_ID'].']" value="1" id="choice_'.$row['QUESTION_ID'].'_0"';
-							if ($ans == '1') {
-								echo 'checked="checked"';
-							}
-							echo '/><label for="choice_'.$row['QUESTION_ID'].'_0">'.$_template['true'].'</label>';
-							
-							echo ', ';
-							echo '<input type="radio" name="answers['.$row['QUESTION_ID'].']" value="2" id="choice_'.$row['QUESTION_ID'].'_1"';
-							if ($ans == '2') {
-								echo 'checked="checked"';
-							}
-							echo '/><label for="choice_'.$row['QUESTION_ID'].'_1">'.$_template['false'].'</label>';
-							
-							echo '<br />';
-							//echo '<input type="radio" name="answers['.$row['QUESTION_ID'].']" value="-1" id="choice_'.$row['QUESTION_ID'].'_x" checked="checked" /><label for="choice_'.$row['QUESTION_ID'].'_x"><i>'.$_template['leave_blank'].'</i></label>';
-		
-							echo '</p><br /></li>';
-							break;
-		
-						case 3:
-							/* long answer question */
-							echo '<input type="hidden" name="answers['.$answers[$row['QUESTION_ID']].']" value="-5">';
-							echo '<li>('.$row['WEIGHT'].' '.$_template['points'].')<p>'.$row['QUESTION'].'</p><p>';
-							switch ($row['ANSWER_SIZE']) {
-								case 1:
-										/* one word */
-										echo '<input type="text" name="answers_o'.$qid.'['.$row['QUESTION_ID'].']" class="formfield" size="15" />';
-									break;
-		
-								case 2:
-										/* sentence */
-										echo '<input type="text" name="answers_o'.$qid.'['.$row['QUESTION_ID'].']" class="formfield" size="45" />';
-									break;
-							
-								case 3:
-										/* paragraph */
-										echo '<textarea cols="55" rows="5" name="answers_o'.$qid.'['.$row['QUESTION_ID'].']" class="formfield"></textarea>';
-									break;
-		
-								case 4:
-										/* page */
-										echo '<textarea cols="55" rows="25" name="answers_o'.$qid.'['.$row['QUESTION_ID'].']" class="formfield"></textarea>';
-									break;
-							}
-							echo '</p><br /></li>';
-							break;
+		if ($row = mysql_fetch_array($result)){
+			echo '<form method="post" action="'.$PHP_SELF.'" name="form1">';
+			echo '<input type="hidden" name="timp" id="timp" value="'.$duration.'">';
+			?>
+			<script language="JavaScript">
+				var start=new Date();
+				start=Date.parse(start)/1000;
+				var counts=document.all.timp.value;
+				function CountDown(){
+					var now=new Date();
+					now=Date.parse(now)/1000;
+					var x=parseInt(counts-(now-start),10);
+					if(document.form1){
+						document.all.clock.value = parseInt(x/60 -0.001)+1;
+						document.all.sec_clock.value = x;
 					}
-					echo '<hr />';
+					if(x <=60){
+						document.all.sec_clock.style.visibility = "visible";
+					}
+					if(x>0){
+						timerID=setTimeout("CountDown()", 100);
+					}else{
+						document.all.submitted.value = "2";
+						document.form1.submit();
+					}
+					document.all.timp.value=document.all.clock.value;
+				}
+				function do_submit(){
+					document.all.submitted.value = "2";
+				}
+				window.setTimeout('CountDown()', 100);
+			</script>
+			<?php
+			
+			echo '<ol>';
+			do {
+				$count++;
+				$qid = $row['question_id'];
+				switch ($row['type']) {
+					case 1:
+						/* multiple choice question */
+						echo '<li>('.$row['weight'].' '.$_template['marks'].')<p>'.$row['question'].'</p><p>';
+						echo '<input type="hidden" name="answers['.$row['question_id'].']" value="-4">';
+						// check to see if prev/next page --> already answered question
+						if ( is_array($answers) ){
+							$ans = $answers[$qid];
+						}
+						for ($i=0; $i < 10; $i++) {
+							if ($row['choice_'.$i] != '') {
+								if ($i > 0) {
+									echo '<br />';
+								}
+								echo '<input type="checkbox" name="answers_m'.$qid.'['.$i.']" value="'.$i.'" id="choice_'.$qid.'_'.$i.'"';
+								if ( is_array($answers) ){
+									if ( strpos($ans, strval($i)) || ( $ans[0] == strval($i) )){
+										echo ' checked="checked"';
+									}
+								}
+								echo ' /><label for="choice_'.$qid.'_'.$i.'">'.$row['choice_'.$i].'</label>';
+							}
+						}
+	
+						echo '<br />';
+						//echo '<input type="checkbox" name="answers_m'.$row['question_id'].'['.intval($i+1);
+						//echo ']" value="A" id="choice_'.$row['question_id'].'_x" checked="unchecked" />';
+						//echo '<label for="choice_'.$row['question_id'].'_x"><i>'.$_template['leave_blank'].'</i></label>';
+						echo '</p></li>';
+						break;
+	
+					case 2:
+						/* true or false quastion */
+						echo '<li>('.$row['weight'].' '.$_template['marks'].')<p>'.$row['question'].'</p><p>';
+						if (is_array($answers)) {
+							$ans = $answers[$qid];
+						}
+	
+						echo '<input type="radio" name="answers['.$row['question_id'].']" value="1" id="choice_'.$row['question_id'].'_0"';
+						if ($ans == '1') {
+							echo 'checked="checked"';
+						}
+						echo '/><label for="choice_'.$row['question_id'].'_0">'.$_template['true'].'</label>';
+						
+						echo ', ';
+						echo '<input type="radio" name="answers['.$row['question_id'].']" value="2" id="choice_'.$row['question_id'].'_1"';
+						if ($ans == '2') {
+							echo 'checked="checked"';
+						}
+						echo '/><label for="choice_'.$row['question_id'].'_1">'.$_template['false'].'</label>';
+						
+						echo '<br />';
+						//echo '<input type="radio" name="answers['.$row['question_id'].']" value="-1" id="choice_'.$row['question_id'].'_x" checked="checked" /><label for="choice_'.$row['question_id'].'_x"><i>'.$_template['leave_blank'].'</i></label>';
+	
+						echo '</p><br /></li>';
+						break;
+	
+					case 3:
+						/* long answer question */
+						echo '<input type="hidden" name="answers['.$answers[$row['question_id']].']" value="-5">';
+						echo '<li>('.$row['weight'].' '.$_template['marks'].')<p>'.$row['question'].'</p><p>';
+						switch ($row['answer_size']) {
+							case 1:
+									/* one word */
+									echo '<input type="text" name="answers_o'.$qid.'['.$row['question_id'].']" class="formfield" size="15" />';
+								break;
+	
+							case 2:
+									/* sentence */
+									echo '<input type="text" name="answers_o'.$qid.'['.$row['question_id'].']" class="formfield" size="45" />';
+								break;
+						
+							case 3:
+									/* paragraph */
+									echo '<textarea cols="55" rows="5" name="answers_o'.$qid.'['.$row['question_id'].']" class="formfield"></textarea>';
+								break;
+	
+							case 4:
+									/* page */
+									echo '<textarea cols="55" rows="25" name="answers_o'.$qid.'['.$row['question_id'].']" class="formfield"></textarea>';
+								break;
+						}
+	
+						echo '</p><br /></li>';
+						break;
+				}
+				echo '<hr />';
+			} while ($row = mysql_fetch_array($result));
+	
+			echo '</ol>';
+			echo '<input type="hidden" name="tid" value="'.$tid.'">';
+			echo '<input type="hidden" name="tt" value="'.$tt.'">';
+			echo '<input type="hidden" name="submitted" value="1">';
+			echo '<input type="hidden" name="page" value="'.$testpageno.'">';
+			
+			// CHECK IF MULTIPLE PAGE TEST
+			if ($testpageno >1) {
+				echo '<input type="submit" name="prevpage" value="'.$_template['prev_page'].' Alt-p" class="button" accesskey="p" />';
 			}
-		}
-		echo '</ol>';
-		echo '<input type="hidden" name="tid" value="'.$tid.'">';
-		echo '<input type="hidden" name="tt" value="'.$tt.'">';
-		echo '<input type="hidden" name="submitted" value="1">';
-		echo '<input type="hidden" name="page" value="'.$testpageno.'">';
-		
-		// CHECK IF MULTIPLE PAGE TEST
-		if ($testpageno >1) {
-			echo '<input type="submit" name="prevpage" value="'.$_template['prev_page'].' Alt-p" class="button" accesskey="p" />';
-		}
-		
-		$testpageno++;
-		$sql = "SELECT question_id FROM tmp_tests WHERE member_id=$_SESSION[member_id] AND test_id=$tid AND page=$testpageno";
-		$res_t = $db->query($sql);
-		if ($row =$res_t->fetchRow(DB_FETCHMODE_ASSOC)) {
-			if ($row['QUESTION_ID'] >0) {
-				// new page found:
-				$newpage_found = true;
-				echo '<input type="submit" name="nextpage" value="'.$_template['next_page'].' Alt-n" class="button" accesskey="n" />';
+			
+			$testpageno++;
+			$sql = "SELECT question_id FROM tmp_tests WHERE member_id=$_SESSION[member_id] AND test_id=$tid AND page=$testpageno";
+			$res_tmp = mysql_query($sql, $db);
+			if ($row = mysql_fetch_array($res_tmp)) {
+				if ($row['question_id'] >0) {
+					// new page found:
+					$newpage_found = true;
+					echo '<input type="submit" name="nextpage" value="'.$_template['next_page'].' Alt-n" class="button" accesskey="n" />';
+				} else {
+					echo '<input type="submit" name="ok" onClick="do_submit();" value="'.$_template['submit_test'].' Alt-s" class="button" accesskey="s" />';
+				}
 			} else {
 				echo '<input type="submit" name="ok" onClick="do_submit();" value="'.$_template['submit_test'].' Alt-s" class="button" accesskey="s" />';
 			}
+			echo '</form><br />';
+			echo '</td></tr></table>';
 		} else {
-			echo '<input type="submit" name="ok" onClick="do_submit();" value="'.$_template['submit_test'].' Alt-s" class="button" accesskey="s" />';
+			echo '<p>'.$_template['no_questions'].'</p>';
 		}
-		echo '</form><br />';
-		echo '</td></tr></table>';
-	} else {
-		echo '<p>'.$_template['no_questions'].'</p>';
 	}
 
 	require($_include_path.'footer.inc.php');

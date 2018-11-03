@@ -657,7 +657,7 @@ $_template['notify'] = 'Notify';
 $_template['course_quota'] = 'Course Quota';
 $_template['max_file_size'] = 'Max File Size';
 $_template['update_course_properties'] = 'Update Course Properties';
-$_template['default_max'] = 'Default values for Course Quota and Max File Size are defined in <code>config.inc.php</code> in the <code>include/</code> directory. See <a href=""></a> for official documentation.';
+$_template['default_max'] = 'Default values for Course Quota and Max File Size are defined in <code>config.inc.php</code> in the <code>include/</code> directory. See <a href="http://k-lore.koncept.ro">k-lore.koncept.ro</a> for official documentation.';
 $_template['bytes'] = 'Bytes';
 $_template['max'] = 'Max';
 $_template['unlimited'] = '-1 for unlimited.';
@@ -752,8 +752,7 @@ $_template['description'] = 'Description';
 $_template['forgot'] = 'Forgot your password or login?';
 $_template['free_account'] = ' Create an account here';
 $_template['no_account'] = 'Don\'t have an account?';
-
-$_template['password_blurb'] = 'Enter your login name below and your password will be sent to the email you used when creating your <a href="/registration.php">account</a>.';
+$_template['password_blurb'] = 'Enter your email address below and your login and password will be sent to you. The email address must be the same as the one you used when creating your <a href="http://www.koncept.ro/klore/registration.php">account</a>.';
 $_template['password_success'] = 'Your login and password have been successfully emailed.';
 $_template['contain_only'] = 'May contain only letters, numbers, or underscores.';
 $_template['20_max_chars'] = '20 character maximum';
@@ -762,13 +761,12 @@ $_template['15_max_chars'] = '15 character maximum.';
 $_template['welcome_to_klore'] = 'Welcome to klore!';
 $_template['klore_is'] = 'klore is a Web-based Learning Content Management System (LCMS). It allows educators to easily develop online content to be presented in a structured adaptable learning environment. It allows online learners to navigate through content in many different ways, adapting it to their preferred style, or method, of learning Web-based instructional material.';
 $_template['acquiring_klore'] = 'Acquiring K-Lore';
-$_template['klore_available'] = 'Inquiries concerning commercial use of K-Lore should be directed to <a href="mailto:"></a>.';
+$_template['klore_available'] = 'Inquiries concerning commercial use of K-Lore should be directed to <a href="mailto:info@k-lore.koncept.ro">info@k-lore.koncept.ro</a>.';
 $_template['more_information'] = 'More Information';
-$_template['find_latest'] = 'You will find the latest information about K-Lore development, and find help on installing and configuring klore, on the <a href="">K-Lore Web Site</a>. Browse the official <a href="">K-Lore <i>How To</i> 1.1 course</a> for general help on using K-Lore.';
+$_template['find_latest'] = 'You will find the latest information about K-Lore development, and find help on installing and configuring klore, on the <a href="http://k-lore.koncept.ro">K-Lore Web Site</a>. Browse the official <a href="http://k-lore.koncept.ro/howto.php">K-Lore <i>How To</i> 1.1 course</a> for general help on using K-Lore.';
 
 $_template['profile'] = 'Profile';
 $_template['status'] = 'Status';
-$_template['role']= 'Role';
 $_template['login_name'] = 'Login Name';
 $_template['login_into_klore'] = 'Log into your K-Lore Account';
 $_template['auto_login2'] = 'Auto-Login: Next time log me in automatically.';
@@ -918,12 +916,7 @@ $_template['send'] = 'Send';
 
 $_template['newest_links'] = 'Newest Links';
 
-//import_usr.php 
-$_template['import_usr_about']='You can import user files created by the "Export Users" tool below. (NOTE: Users may take some time to import, depending on the number of users and your Internet connection speed. Please be patient.)<br><font color=red>WARNNING : All existent users will be deleted !</font>';
-
-
 ?>
-
 <?php
 /****************************************************************/
 

@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 $section = 'users';
 $_include_path = '../../include/';
@@ -21,7 +26,7 @@ if ($_POST['submit']) {
 	$_POST['old_status']	= intval($_POST['old_status']);
 
 	$sql = "UPDATE members SET status=$_POST[form_status] WHERE member_id=$_POST[form_id]";
-	$result = $db->query($sql);
+	$result = mysql_query($sql, $db);
 
 	if (!$result) {
 		echo 'DB Error';
@@ -31,16 +36,16 @@ if ($_POST['submit']) {
 	if ($_POST['form_status'] > $_POST['old_status']) {
 		/* delete the request: */
 		$sql = "DELETE FROM instructor_approvals WHERE member_id=$_POST[form_id]";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 
 		/* notify the users that they have been approved: */
 		$sql   = "SELECT email FROM members WHERE member_id=$_POST[form_id]";
-		$result = $db->query($sql);
-		if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+		$result = mysql_query($sql, $db);
+		if ($row = mysql_fetch_array($result)) {
 			/* assumes that there is a first and last name for this user, but not required during registration */
-			$to_email = $row['EMAIL'];
+			$to_email = $row['email'];
 
-			$message  = $row['LOGIN'].",\n\n";
+			$message  = $row['login'].",\n\n";
 			//$message .= 'Your instructor account request for the klore system has been approved. Go to '.$_base_href.' to login to your control centre and start creating your courses. ';
 			$message .= $_template['instructor_request_msg1'].' '.$_base_href.' '.$_template['instructor_request_msg2'];
 
@@ -61,26 +66,26 @@ require($_include_path.'admin_html/header.inc.php');
 <?php
 		$id		= intval($_GET[id]);
 		$sql	= "SELECT * FROM members WHERE member_id=$id";
-		$result = $db->query($sql);
-		if (!($row =$result->fetchRow(DB_FETCHMODE_ASSOC)))
+		$result = mysql_query($sql);
+		if (!($row = mysql_fetch_array($result)))
 		{
 			echo $_template['no_user_found'];
 		} else {
-			echo $_template['login'].": <b>$row[LOGIN]</b>";
+			echo $_template['login'].": <b>$row[login]</b>";
 			echo '<br />';
 			echo '<form method="post" action="'.$PHP_SELF.'">';
 			echo '<input type="hidden" name="form_id" value="'.$id.'">';
-			if ($row['STATUS'])
+			if ($row['status'])
 			{
 				$inst = ' checked="checked"';
 			} else {
 				$stnd = ' checked="checked"';
 			}
-			echo $_template['role'].': <input type="radio" name="form_status" value="1" id="inst"'.$inst.' /><label for="inst">'.$_template['instructor'].'</label>, <input type="radio" name="form_status" value="0" id="stnd"'.$stnd.' /><label for="stnd">'.$_template['student1'].'</label>';
+			echo $_template['status'].': <input type="radio" name="form_status" value="1" id="inst"'.$inst.' /><label for="inst">'.$_template['instructor'].'</label>, <input type="radio" name="form_status" value="0" id="stnd"'.$stnd.' /><label for="stnd">'.$_template['student1'].'</label>';
 			echo '<br />';
 			echo '<br />';
 			echo '<input type="submit" name="submit" value="'.$_template['update_status'].'" class="button" />';
-			echo '<input type="hidden" name="old_status" value="'.$row['STATUS'].'" />';
+			echo '<input type="hidden" name="old_status" value="'.$row['status'].'" />';
 			echo '</form>';
 		}
 ?>

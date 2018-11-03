@@ -38,9 +38,8 @@
 					$_POST['answer'][$i] = 0;
 				}
 			}
-			
-			$qid = $db->nextId("AUTO_TESTS_QUESTIONS_SEQ");
-			$sql	= "INSERT INTO tests_questions VALUES (	$qid,
+
+			$sql	= "INSERT INTO tests_questions VALUES (	0,
 				$_POST[tid],
 				$_SESSION[course_id],
 				0,
@@ -70,7 +69,7 @@
 				0,
 				0,
 				$_POST[answer_size])";
-			$result	= $db->query($sql);
+			$result	= mysql_query($sql, $db);
 
 			Header('Location: questions.php?tid='.$_POST['tid'].SEP.'f='.urlencode_feedback(AT_FEEDBACK_QUESTION_ADDED));
 			exit;
@@ -80,6 +79,8 @@
 	require($_include_path.'header.inc.php');
 ?>
 
+<h2><a href="tools/?g=11"><?php echo $_template['tools']; ?></a></h2>
+<h3><a href="tools/tests/?g=11"><?php echo $_template['test_manager']; ?></a></h3>
 <h3><?php echo $_template['add_open_question']; ?>
 <?php echo $_SESSION['test_name']; ?></h3>
 

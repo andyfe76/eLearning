@@ -35,11 +35,8 @@
 	echo '<br />';
 
 	$sql	= "SELECT * FROM tests_questions WHERE course_id=$_SESSION[course_id] AND test_id=$tid ORDER BY ordering, question_id";
-	$result	= $db->query($sql);
-	$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-	$countres = $db->query($countsql);
-	$count0 = $countres->fetchRow();
-	$num_qs = $count0[0];
+	$result	= mysql_query($sql, $db);
+	$num_qs = mysql_num_rows($result);
 	if($num_qs){
 		echo '<p>(<a href="tools/tests/preview.php?tid='.$tid.SEP.'tt='.$_SESSION['test_name'].'">'.$_template['preview_test'].'</a>)</p>';
 	}
@@ -54,21 +51,21 @@
 	echo '<th scope="col"><small>'.$_template['delete'].'</small></th>';
 	echo '</tr>';
 
-	if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+	if ($row = mysql_fetch_array($result)) {
 		do {
-			$total_weight += $row['WEIGHT'];
+			$total_weight += $row['weight'];
 			$count++;
 			echo '<tr>';
 			echo '<td class="row1" align="center"><small><b>'.$count.'</b></small></td>';
 			echo '<td class="row1"><small>';
-			if (strlen($row['QUESTION']) > 45) {
-				echo substr($row['QUESTION'], 0, 43) . '...';
+			if (strlen($row['question']) > 45) {
+				echo substr($row['question'], 0, 43) . '...';
 			} else {
-				echo $row['QUESTION'];
+				echo $row['question'];
 			}
 			echo '</small></td>';
 			echo '<td class="row1"><small>';
-			switch ($row['TYPE']) {
+			switch ($row['type']) {
 				case 1:
 					echo $_template['test_mc'];
 					break;
@@ -83,9 +80,9 @@
 			}
 				
 			echo '</small></td>';
-			echo '<td class="row1" align="center"><small>'.$row['WEIGHT'].'</small></td>';
+			echo '<td class="row1" align="center"><small>'.$row['weight'].'</small></td>';
 			echo '<td class="row1" align="center"><small>';
-			switch ($row['REQUIRED']) {
+			switch ($row['required']) {
 				case 0:
 					echo $_template['no1'];
 					break;
@@ -98,26 +95,26 @@
 			echo '</small></td>';
 			echo '<td class="row1"><small>';
 			
-			switch ($row['TYPE']) {
+			switch ($row['type']) {
 				case 1:
-					echo '<a href="tools/tests/edit_question_multi.php?tid='.$tid.SEP.'qid='.$row['QUESTION_ID'].'">';
+					echo '<a href="tools/tests/edit_question_multi.php?tid='.$tid.SEP.'qid='.$row['question_id'].'">';
 					break;
 				
 				case 2:
-					echo '<a href="tools/tests/edit_question_tf.php?tid='.$tid.SEP.'qid='.$row['QUESTION_ID'].'">';
+					echo '<a href="tools/tests/edit_question_tf.php?tid='.$tid.SEP.'qid='.$row['question_id'].'">';
 					break;
 			
 				case 3:
-					echo '<a href="tools/tests/edit_question_long.php?tid='.$tid.SEP.'qid='.$row['QUESTION_ID'].'">';
+					echo '<a href="tools/tests/edit_question_long.php?tid='.$tid.SEP.'qid='.$row['question_id'].'">';
 					break;
 			}
 
 			echo $_template['edit'].'</a></small></td>';
-			echo '<td class="row1"><small><a href="tools/tests/delete_question.php?tid='.$tid.SEP.'qid='.$row['QUESTION_ID'].'">'.$_template['delete'].'</a></small></td>';
+			echo '<td class="row1"><small><a href="tools/tests/delete_question.php?tid='.$tid.SEP.'qid='.$row['question_id'].'">'.$_template['delete'].'</a></small></td>';
 			echo '</tr>';
 			
 			echo '<tr><td height="1" class="row2" colspan="7"></td></tr>';
-		} while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC));
+		} while ($row = mysql_fetch_array($result));
 		echo '<tr><td height="1" class="row2" colspan="7"></td></tr>';
 		echo '<tr>';
 		echo '<td class="row1"></td>';

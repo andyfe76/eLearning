@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 $_include_path = '../include/';
 require($_include_path.'vitals.inc.php');
@@ -20,23 +25,23 @@ if ($_GET['d'] == '1') {
 
 	if ($ppid == 0) {
 		$sql	= "DELETE FROM forums_threads WHERE (parent_id=$pid OR post_id=$pid) AND course_id=$_SESSION[course_id]";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 
 
 	} else {
 		$sql	= "UPDATE forums_threads SET num_comments=num_comments-1 WHERE post_id=$ppid AND course_id=$_SESSION[course_id]";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 
 		$sql	= "DELETE FROM forums_threads WHERE post_id=$pid AND course_id=$_SESSION[course_id]";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 
 	}
 
 	$sql	= "DELETE FROM forums_subscriptions WHERE post_id=$pid";
-	$result = $db->query($sql);
+	$result = mysql_query($sql, $db);
 
 	$sql	= "DELETE FROM forums_accessed WHERE post_id=$pid";
-	$result = $db->query($sql);
+	$result = mysql_query($sql, $db);
 	
 	if ($ppid) {
 		Header('Location: view.php?fid='.$fid.SEP.'pid='.$ppid.SEP.'f='.urlencode_feedback(AT_FEEDBACK_MESSAGE_DELETED));
@@ -89,23 +94,23 @@ if (!$_GET['d']) {
 
 	if ($ppid == 0) {
 		$sql	= "DELETE FROM forums_threads WHERE (parent_id=$pid OR post_id=$pid) AND course_id=$_SESSION[course_id]";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 
 
 	} else {
 		$sql	= "UPDATE forums_threads SET num_comments=num_comments-1 WHERE post_id=$ppid AND course_id=$_SESSION[course_id]";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 
 		$sql	= "DELETE FROM forums_threads WHERE post_id=$pid AND course_id=$_SESSION[course_id]";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 
 	}
 
 	$sql	= "DELETE FROM forums_subscriptions WHERE post_id=$pid";
-	$result = $db->query($sql);
+	$result = mysql_query($sql, $db);
 
 	$sql	= "DELETE FROM forums_accessed WHERE post_id=$pid";
-	$result = $db->query($sql);
+	$result = mysql_query($sql, $db);
 
 	$feedback[]=AT_FEEDBACK_THREAD_DELETED;
 	print_feedback($feedback);

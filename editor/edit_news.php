@@ -20,22 +20,8 @@ if ($_POST['edit_news'] && $_SESSION['is_admin']) {
 	}
 
 	if (!$errors) {
-		
-		//***
-
-   				$cfname = 'content/'.$_POST['aid'].'news';		
-				ignore_user_abort(true);    ## prevent refresh from aborting file operations and hosing file
-				$fh = fopen('../'.$cfname, 'w+');    
-   				fwrite($fh, $_POST['body']);
-   				fflush($fh);
-				fclose($fh);
-				ignore_user_abort(false);    ## put things back to normal
-		
-		//***
-
-		
-		$sql = "UPDATE news SET title='$_POST[title]', body='$cfname', formatting=1 WHERE news_id=$_POST[aid] AND course_id=$_SESSION[course_id]";
-		$result = $db->query($sql);
+		$sql = "UPDATE news SET title='$_POST[title]', body='$_POST[body]', formatting=1 WHERE news_id=$_POST[aid] AND course_id=$_SESSION[course_id]";
+		$result = mysql_query($sql,$db);
 
 		Header('Location: ../index.php?f='.urlencode_feedback(AT_FEEDBACK_NEWS_UPDATED));
 		exit;
@@ -69,8 +55,8 @@ require($_editor_path.'spaw_control.class.php');
 	}
 	
 	$sql = "SELECT * FROM news WHERE news_id=$aid AND member_id=$_SESSION[member_id] AND course_id=$_SESSION[course_id]";
-	$result = $db->query($sql);
-	if (!($row =$result->fetchRow(DB_FETCHMODE_ASSOC))) {
+	$result = mysql_query($sql,$db);
+	if (!($row = mysql_fetch_array($result))) {
 		$errors[]=AT_ERROR_ANN_NOT_FOUND;
 		print_errors($errors);
 		require ($_include_path.'footer.inc.php');
@@ -81,7 +67,7 @@ require($_editor_path.'spaw_control.class.php');
 ?>
 <form action="<?php echo $PHP_SELF; ?>" method="post" name="form">
 <input type="hidden" name="edit_news" value="true">
-<input type="hidden" name="aid" value="<?php echo $row['NEWS_ID']; ?>">
+<input type="hidden" name="aid" value="<?php echo $row['news_id']; ?>">
 <p>
 <table cellspacing="1" width="98%" cellpadding="0" border="0" class="bodyline" summary="" align="center">
 <tr>
@@ -90,23 +76,14 @@ require($_editor_path.'spaw_control.class.php');
 </tr>
 <tr>
 	<td align="right" class="row1"><b><?php echo $_template['title']; ?>:</b></td>
-	<td class="row1"><input type="text" name="title" id="title" value="<?php echo $row['TITLE']; ?>" class="formfield" size="40"></td>
+	<td class="row1"><input type="text" name="title" id="title" value="<?php echo $row['title']; ?>" class="formfield" size="40"></td>
 </tr>
 <tr><td height="1" class="row2" colspan="2"></td></tr>
 <tr>
 	<td class="row1" valign="top" align="right"><b><?php echo $_template['body']; ?>:</b></td>
 	<td class="row1">
-		<!-- <textarea name="body" cols="55" rows="15" id="body" class="formfield" wrap="wrap"><?php // echo $row['BODY']; ?></textarea> -->
-		<?php 
-		//***
-									
-			$fh = fopen('../'.$row['BODY'], 'r');  
-        	$chf_text = fread($fh, filesize('../'.$row['BODY']));
-        	fflush($fh);
-     		fclose($fh);
-							
-		//***
-		$sw = new SPAW_Wysiwyg('body',stripslashes($chf_text));
+		<!-- <textarea name="body" cols="55" rows="15" id="body" class="formfield" wrap="wrap"><?php // echo $row['body']; ?></textarea> -->
+		<?php $sw = new SPAW_Wysiwyg('body',stripslashes($row['body']));
 		$sw->show(); ?>
 		</td>
 </tr>

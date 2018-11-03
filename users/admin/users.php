@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 $section = 'users';
 $_include_path = '../../include/';
@@ -79,7 +84,7 @@ ${'highlight_'.$col} = ' style="text-decoration: underline;"';
 
 	<th scope="col"><small<?php echo $highlight_last_name; ?>><?php echo $_template['last_name']; ?> <a href="<?php echo $PHP_SELF; ?>?col=last_name<?php echo SEP; ?>order=asc<?php echo SEP; ?>L=<?php echo $_GET['L']; ?>#list" title="<?php echo $_template['last_name_ascending']; ?>">A</a>/<a href="<?php echo $PHP_SELF; ?>?col=last_name<?php echo SEP; ?>order=desc<?php echo SEP; ?>L=<?php echo $_GET['L']; ?>#list" title="<?php echo $_template['last_name_descending']; ?>">D</a></small></th>
 
-	<th scope="col"><small<?php echo $highlight_status; ?>><?php echo $_template['role']; ?> <a href="<?php echo $PHP_SELF; ?>?col=status<?php echo SEP; ?>order=desc<?php echo SEP; ?>L=<?php echo $_GET['L']; ?>#list" title="<?php echo $_template['status_ascending']; ?>">A</a>/<a href="<?php echo $PHP_SELF; ?>?col=status<?php echo SEP; ?>order=asc<?php echo SEP; ?>L=<?php echo $_GET['L']; ?>#list" title="<?php echo $_template['status_descending']; ?>">D</a></small></th>
+	<th scope="col"><small<?php echo $highlight_status; ?>><?php echo $_template['status']; ?> <a href="<?php echo $PHP_SELF; ?>?col=status<?php echo SEP; ?>order=desc<?php echo SEP; ?>L=<?php echo $_GET['L']; ?>#list" title="<?php echo $_template['status_ascending']; ?>">A</a>/<a href="<?php echo $PHP_SELF; ?>?col=status<?php echo SEP; ?>order=asc<?php echo SEP; ?>L=<?php echo $_GET['L']; ?>#list" title="<?php echo $_template['status_descending']; ?>">D</a></small></th>
 
 	<th><small><?php echo $_template['courses']; ?> </small></th>
 	<th><small>&nbsp;</small></th>
@@ -87,9 +92,9 @@ ${'highlight_'.$col} = ' style="text-decoration: underline;"';
 <?php
 
 $sql	= "SELECT * FROM members WHERE 1 $letter_sql $next_letter_sql ORDER BY $col $order";
-$result = $db->query($sql);
+$result = mysql_query($sql);
 
-if (!($row =$result->fetchRow(DB_FETCHMODE_ASSOC))) {
+if (!($row = mysql_fetch_array($result))) {
 	if($L){
 		echo '<tr><td colspan="7" class="row1">'.$_template['no_users_found_for'].' <b>'.$L.'</b></td></tr>';
 	}else{
@@ -99,31 +104,28 @@ if (!($row =$result->fetchRow(DB_FETCHMODE_ASSOC))) {
 
 
 } else {
-	$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-	$countres = $db->query($countsql);
-	$count0 = $countres->fetchRow();
-	$num_rows = $count0[0];
+	$num_rows = mysql_num_rows($result);
 
 	do {
 		echo '<tr>';
-		echo '<td class="row1"><small>'.$row['MEMBER_ID'].'</small></td>';
-		echo '<td class="row1"><small><a href="users/admin/profile.php?member_id='.$row['MEMBER_ID'].'"><b>'.$row['LOGIN'].'</b></a></small></td>';
-		echo '<td class="row1"><small><a href="users/admin/admin_edit.php?id='.$row['MEMBER_ID'].'">';
-		if ($row['STATUS']) {
+		echo '<td class="row1"><small>'.$row['member_id'].'</small></td>';
+		echo '<td class="row1"><small><a href="users/admin/profile.php?member_id='.$row['member_id'].'"><b>'.$row['login'].'</b></a></small></td>';
+		echo '<td class="row1"><small><a href="users/admin/admin_edit.php?id='.$row['member_id'].'">';
+		if ($row['status']) {
 			echo '<b>'.$_template['instructor'].'</b></a></small></td>';
-			echo '<td class="row1"><small><a href="users/admin/courses.php?member_id='.$row['MEMBER_ID'].'"><b>'.$_template['courses'].'</b></a></small></td>';
+			echo '<td class="row1"><small><a href="users/admin/courses.php?member_id='.$row['member_id'].'"><b>'.$_template['courses'].'</b></a></small></td>';
 		} else {
 			echo '<b>'.$_template['student1'].'</b></a></small></td>';
 			echo '<td class="row1"><small class="spacer">'.$_template['na'].'</small></td>';
 		}
-		//echo '<td class="row1"><small>'.$row['EMAIL'].'</small></td>';
-		echo '<td class="row1"><a href="users/admin/admin_delete.php?L='.$L.SEP.'id='.$row['MEMBER_ID'].'"><img src="images/icon_delete.gif" border="0" alt="'.$_template['delete'].'"  title="'.$_template['delete'].'" /></a></td>';
+		//echo '<td class="row1"><small>'.$row['email'].'</small></td>';
+		echo '<td class="row1"><a href="users/admin/admin_delete.php?L='.$L.SEP.'id='.$row['member_id'].'"><img src="images/icon_delete.gif" border="0" alt="'.$_template['delete'].'"  title="'.$_template['delete'].'" /></a></td>';
 		echo '</tr>';
 		if ($count < $num_rows-1) {
 			echo '<tr><td height="1" class="row2" colspan="7"></td></tr>';
 		}
 		$count++;
-	} while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC));
+	} while ($row = mysql_fetch_array($result));
 }
 
 echo '</table></p>';

@@ -2,8 +2,13 @@
 /****************************************************************/
 /* klore														*/
 /****************************************************************/
-
-
+/* Copyright (c) 2002 by Greg Gay & Joel Kronenberg             */
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 	$_include_path = '../../include/';
 	require($_include_path.'vitals.inc.php');
@@ -13,7 +18,8 @@
 
 
 	require($_include_path.'header.inc.php');
-	echo '<br><br><h3>'.$_template['sitemap'].'</h3><p><br>';
+	echo '<h2><a href="tools/?g=11">'.$_template['tools'].'</a></h2>';
+	echo '<h3>'.$_template['sitemap'].'</h3><p>';
 
 	echo '<a href="./">'.$_template['home'].'</a><br />';
 	echo '<img src="images/tree/tree_split.gif" alt="" /> ';
@@ -30,9 +36,6 @@
 	echo '<br />';
 	echo '<img src="images/tree/tree_vertline.gif" alt="" />';
 	echo '<img src="images/tree/tree_split.gif" alt="" /> <a href="tools/preferences.php">'.$_template['preferences'].'</a>';
-	echo '<br />';
-	echo '<img src="images/tree/tree_vertline.gif" alt="" />';
-	echo '<img src="images/tree/tree_split.gif" alt="" /><img src="images/menu_feedback.gif" alt="" border="0" /><a href="feedback/"> '.$_template['feedback'].'</a>';
 	echo '<br />';
 	echo '<img src="images/tree/tree_vertline.gif" alt="" />';
 	echo '<img src="images/tree/tree_split.gif" alt="" /><img src="images/glossary.gif" alt="" /> <a href="glossary/">'.$_template['glossary'].'</a>';
@@ -52,24 +55,21 @@
 	}
 
 	echo '<br />';
-	//echo '<img src="images/tree/tree_split.gif" alt="" /> <a href="resources/">'.$_template['resources'].'</a>';
-	//echo '<br />';
-	//echo '<img src="images/tree/tree_vertline.gif" alt="" />';
-	//echo '<img src="images/tree/tree_end.gif" alt="" /> <a href="resources/links/">'.$_template['links_database'].'</a>';
+	echo '<img src="images/tree/tree_split.gif" alt="" /> <a href="resources/">'.$_template['resources'].'</a>';
+	echo '<br />';
+	echo '<img src="images/tree/tree_vertline.gif" alt="" />';
+	echo '<img src="images/tree/tree_end.gif" alt="" /> <a href="resources/links/">'.$_template['links_database'].'</a>';
 
-	//echo '<br />';
+	echo '<br />';
 	echo '<img src="images/tree/tree_split.gif" alt="" /> <a href="discussions/">'.$_template['discussions'].'</a>';
 	echo '<br />';
 	echo '<img src="images/tree/tree_vertline.gif" alt="" />';
 	echo '<img src="images/tree/tree_split.gif" alt="" /> '.$_template['forums'].' ';
 
 	$sql	= "SELECT * FROM forums WHERE course_id=$_SESSION[course_id] ORDER BY title";
-	$result = $db->query($sql);
-	$countsql = "SELECT COUNT(*) FROM (".$sql.")";
-	$countres = $db->query($countsql);
-	$count0 = $countres->fetchRow();
-	$num_forums = $count0[0];
-	if ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+	$result = mysql_query($sql, $db);
+	$num_forums = mysql_num_rows($result);
+	if ($row = mysql_fetch_array($result)) {
 		do {
 			$count++;
 			echo '<br />';
@@ -81,8 +81,8 @@
 			} else {
 				echo '<img src="images/tree/tree_end.gif" alt="" />';
 			}
-			echo ' <a href="forum/?fid='.$row['FORUM_ID'].'">'.$row['TITLE'].'</a>';
-		} while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC));
+			echo ' <a href="forum/?fid='.$row['forum_id'].'">'.$row['title'].'</a>';
+		} while ($row = mysql_fetch_array($result));
 	} else {
 		echo '<br />';
 		echo '<img src="images/tree/tree_vertline.gif" alt="" />';

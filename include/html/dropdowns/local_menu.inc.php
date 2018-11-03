@@ -3,9 +3,6 @@ if ($_SESSION['prefs'][PREF_LOCAL] == 1){
 	echo '<table width="100%" border="0" cellspacing="0" cellpadding="0" class="mcat2" summary="">';
 	echo '<tr><td class="catb" valign="top">';
 		echo '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td width="18">';
-			if (!$_SESSION['prefs'][PREF_MINI_HELP]) {	
-				echo '<img src="images/menu/tbl_bg.gif" width="18" height="18">';
-			}
 			print_popup_help(AT_HELP_LOCAL_MENU);
 		echo '</td><td background="images/menu/tbl_bg.gif">';
 			echo '<a class="white" href="'.$_my_uri.'disable='.PREF_LOCAL.'">';
@@ -94,9 +91,6 @@ if ($_SESSION['prefs'][PREF_LOCAL] == 1){
 	echo '<table width="100%" border="0" cellspacing="0" cellpadding="0" class="mcat2" summary="">';
 	echo '<tr><td class="catb" valign="top">';
 		echo '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td width="18">';
-			if (!$_SESSION['prefs'][PREF_MINI_HELP]) {	
-				echo '<img src="images/menu/tbl_bg.gif" width="18" height="18">';
-			}
 			print_popup_help(AT_HELP_LOCAL_MENU);
 		echo '</td><td background="images/menu/tbl_bg.gif">';
 			echo '<a class="white" href="'.$_my_uri.'enable='.PREF_LOCAL.'">';

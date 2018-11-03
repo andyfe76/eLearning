@@ -42,8 +42,6 @@ $spaw_lang_data = array(
     'title' => 'Insert image',
     'select' => 'Select',
     'cancel' => 'Cancel',
-    'addlib' => 'Add Library',
-    'dellib' => ' Delete ',
     'library' => 'Library',
     'preview' => 'Preview',
     'images' => 'Images',
@@ -273,7 +271,6 @@ $spaw_lang_data = array(
     'css_class' => 'CSS class',
     'ok' => '   OK   ',
     'cancel' => 'Cancel',
-
   ),
   'preview' => array(
     'title' => 'Preview',

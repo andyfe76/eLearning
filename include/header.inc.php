@@ -1,5 +1,5 @@
 <?php
-	global $db;
+
 	if (isset($_GET['cid'])) {
 		$cid = intval($_GET['cid']);
 	} else {
@@ -98,11 +98,11 @@
 				<TABLE cellpadding="0" cellspacing="0" border="0" width="300" align="left">
 					<TR>
 						<TD width="28"><IMG SRC="images/course/c_title_start.jpg"></TD>
-						<TD align="left"><font color="FFFFFF"><?php echo '<b>'.$_SESSION['course_title']; ?></font></TD>
+						<TD align="left"><font color="FFFFFF"><?php echo '<b>'.$_SESSION['course_title']; ?></font</TD>
 					</TR></TABLE>
 				</TD>
 				<TD background="images/course/c_title_grey.jpg" width="100%" align="center" valign="top">
-				<TABLE cellpadding="0" cellspacing="0" border="0" align="right" id="top">
+				<TABLE cellpadding="0" cellspacing="0" border="0" align="right">
 				<tr>
 					<?php
 					/* home */
@@ -122,12 +122,12 @@
 					}
 		
 					/* resources */
-					/*if ($_SESSION['prefs'][PREF_NAV_ICONS] != 2) {
+					if ($_SESSION['prefs'][PREF_NAV_ICONS] != 2) {
 						echo '<td><a href="resources/?g=16" accesskey="3" title="'.$_template['resources'].' ALT-3"><img src="images/course/c_resources.jpg" class="menuimage" border="0" alt="'.$_template['resources'].'" /></a></td>';
 					}
 					if ($_SESSION['prefs'][PREF_NAV_ICONS] != 1) {
 						echo '<td> <b><a class="noline" href="resources/?g=16" accesskey="3" title="'.$_template['accesskey'].' ALT-3">'.$_template['resources'].'</a><b></td>'."\n";
-					}*/
+					}
 		
 					/* discussions */
 					if ($_SESSION['prefs'][PREF_NAV_ICONS] != 2) {
@@ -168,17 +168,17 @@
 		<?php
 		// Check to see if this course has a header defined. If yes, insert it in
 		// place of the default course title
-		$sql_head="select header from courses where course_id=$_SESSION[course_id]";
-		if($result=$db->query($sql_head)){
-			while($row = $result->fetchRow(DB_FETCHMODE_ASSOC)){
-				if(strlen($row['HEADER'])>0){
-					$custom_head = $row['HEADER'];
+		$sql_head="select header from courses where course_id='$_SESSION[course_id]'";
+		if($result=mysql_query($sql_head, $db)){
+			while($row=mysql_fetch_row($result)){
+				if(strlen($row[0])>0){
+					$custom_head = $row[0];
 					$custom_head = str_replace("CONTENT_DIR", "content/".$_SESSION['course_id'], $custom_head);
 				}
 			}
 		} 
 		if(strlen($custom_head)>0){
-			echo '<b>'.$custom_head.'</b>';
+			// echo '<b>'.$custom_head.'</b>';
 			/*
 			if (!$_SESSION['is_admin'] && !$_SESSION['enroll']) {
 				echo ' - ';
@@ -213,12 +213,9 @@
 			echo '<table width="100%" border="0" cellspacing="0" cellpadding="0" class="mcat2" summary="">';
 			echo '	<tr><td class="cata" valign="top">';
 				echo '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td width="18">';
-					if (!$_SESSION['prefs'][PREF_MINI_HELP]) {	
-						echo '<img src="images/menu/tbl_bg.gif" width="18" height="18">';
-					}
 					print_popup_help(AT_HELP_MAIN_MENU);
 				echo '</td><td background="images/menu/tbl_bg.gif">';
-					echo '<a name="menu"></a><a class="white" href="'.$_my_uri.'disable='.PREF_MAIN_MENU.'" accesskey="6" title="'.$_template['close_menus'].': '.$_template['accesskey'].' ALT-6">';
+					echo '<a name="menu"></a><a class="white" href="'.$_my_uri.'disable='.PREF_MAIN_MENU.'" accesskey="6" title="'.$_template['close_menu'].': '.$_template['accesskey'].' ALT-6">';
 					echo $_template['close_menus'].'';
 					echo '</a>';
 				echo '<td width="8" align="right"><img src="images/menu/tbl_end.gif" border="0"></td>';
@@ -252,9 +249,6 @@
 				echo '<table width="100%" border="0" cellspacing="0" cellpadding="0" class="mcat2" summary="">';
 				echo '<tr><td class="cata" valign="top">';
 					echo '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td width="18">';
-						if (!$_SESSION['prefs'][PREF_MINI_HELP]) {	
-							echo '<img src="images/menu/tbl_bg.gif" width="18" height="18">';
-						}
 						print_popup_help(AT_HELP_MAIN_MENU);
 					echo '</td><td background="images/menu/tbl_bg.gif">';
 						echo '<a name="menu"></a><a class="white" href="'.$_my_uri.($_SESSION['prefs'][PREF_MAIN_MENU] ? 'disable' : 'enable').'='.PREF_MAIN_MENU.$cid_url.'" accesskey="6" title="'.$_template['open_menus'].': '.$_template['accesskey'].' ALT-6">'.$_template['open_menus'].'</a>';
@@ -275,9 +269,6 @@
 				echo '<table width="100%" border="0" cellspacing="0" cellpadding="0" class="mcat2" summary="">';
 				echo '<tr><td class="cata" valign="top">';
 					echo '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td width="18">';
-						if (!$_SESSION['prefs'][PREF_MINI_HELP]) {	
-							echo '<img src="images/menu/tbl_bg.gif" width="18" height="18">';
-						}
 						print_popup_help(AT_HELP_MAIN_MENU);
 					echo '<td><td background="images/menu/tbl_bg.gif">';
 						echo '<a name="menu"></a><a class="white" href="'.$_my_uri.($_SESSION['prefs'][PREF_MAIN_MENU] ? 'disable' : 'enable').'='.PREF_MAIN_MENU.$cid_url.'" accesskey="6" title="'.$_template['open_menus'].': '.$_template['accesskey'].' ALT-6">'.$_template['open_menus'].'</a>';
@@ -294,39 +285,6 @@
 		<tr>
 		<td align="left">
 			<?php
-			
-			echo '<table cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td width="40%" align="right">';
-						/////===========---
-		if (!$_GET['print_vres']) {
-		//PDF 
-
-				echo '<div align=left><strong>';
-				if (($_SESSION['is_admin'])||($_SESSION['c_instructor'])) {
-					echo "[<a href=tools/pdf_extractor.php >".$_template['export_pdf']."</a>] / ";
-				}
-				$pdf_course_file="tools/".str_replace(' ','_',$_SESSION['course_title']).".pdf";
-				
-				
-				
-				
-				if (is_file($pdf_course_file)) {
-					$hr1="[<a href=".$pdf_course_file." target=_blank>";
-					$hr2="</a>]";
-				}else {
-					$hr1='';
-					$hr2='';
-				}
-				echo $hr1.$_template['download_pdf'].$hr2.'<br>'.'</strong> ';
-				
-				echo '</td><td width="20%" align="right">[<a href='.$PHP_SELF.'?print_vres=1&cid='.$cid.'&g='.$g.'>'.$_template['simple_view'].'</a>]</div>';
-
-			}
-		/////===========---
-
-	
-
-			echo '</td><td width="40%" align="right"><input type="button" class="button" id="top" name="print" value="'.$_template['print_this_page'].'" onclick="javascript:void(window.print());">';
-			echo '</td></tr></table>';
 		
 			$cid = intval($_GET['cid']);
 		

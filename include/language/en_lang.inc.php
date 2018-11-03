@@ -26,7 +26,7 @@
 
 /////////////////////////////////////
 // WARNINGS
-$_warning[AT_WARNING_RAM_SIZE] ='Depending how much RAM (memory) your computer has, and the size of the course you wish to print, selecting the entire content of a large course may cause your computer to lock up.';
+$_warning[AT_WARNING_RAM_SIZE] ='Depending how much RAM your computer has, and the size of the course you wish to print, selecting the entire content of a large course may cause your computer to lock up.';
 $_warning[AT_WARNING_THREAD_DELETE]='Are you sure you want to delete this thread?';
 $_warning[AT_WARNING_DELETE_FORUM]='Are you sure you want to delete <b>%1</b>? All messages posted to this forum will be erased.';
 $_warning[AT_WARNING_CONFIRM_FILE_DELETE]='Are you sure you want to delete file <strong>%1</strong>?';
@@ -54,11 +54,6 @@ $_warning[AT_WARNING_DELETE_QUESTION]='Are you sure you want to delete this ques
 $_warning[AT_WARNING_REMOVE_COURSE]='Are you sure you want to delete <strong>%1</strong> from your Enrolled Courses?';
 $_warning[AT_WARNING_DELETE_USER]='Are you sure you want to delete user <b>%1</b>?';
 $_warning[AT_WARNING_DELETE_CATEGORY]='Are you sure you want to delete this category with all its links?';
-$_warning[AT_WARNING_DELETE_USER_GROUP1] = 'Are you sure you want to delete this group with all its users?';
-$_warning[AT_WARNING_DELETE_USER_GROUP2] = 'Are you <b>really really</b> sure you want to delete this group with ALL ITS USERS ?';
-$_warning[AT_WARNING_SURE_DELETE_MODULE1] = 'Are you sure you want to delete this module with all its courses ?';
-$_warning[AT_WARNING_SURE_DELETE_MODULE2] = 'Are you <b>really really</b> sure you want to delete this module with ALL ITS COURSES ?';
-
 /////////////////////////////////////
 // INFORMATION
 $_infos[AT_INFOS_REQUEST_ACCOUNT]='You do not yet have permission to create courses. If you would like your account upgraded to Instructor status, enter the <b>required description</b> of the course you wish to create, then use the "Request Instructor Account" button to submit your request for approval.';

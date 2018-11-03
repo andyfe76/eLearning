@@ -9,14 +9,14 @@ require($_include_path.'vitals.inc.php');
 	}
 	
 	if ($_POST['save']) {
-		$sql = "SELECT * FROM policy ORDER by id";
-		$res = $db->query($sql);
+		$sql = "SELECT * FROM policy";
+		$res = mysql_query($sql, $db);
 		$i=1;
-		while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+		while ($row = mysql_fetch_array($res)) {
 			$exp = $_POST['exp'.$i];
-			$status = $row['ID'];
+			$status = $row['id'];
 			$sql = "UPDATE mpass SET pass_expiry=$exp WHERE status=$status";
-			$result = $db->query($sql);
+			$result = mysql_query($sql, $db);
 			$i++;
 		}
 			
@@ -38,23 +38,23 @@ require($_include_path.'cc_html/header.inc.php');
 	<tr>
 		<th colspan="2" scope="col"><?php  echo $_template['password_policy'];  ?></th>
 	</tr><tr>
-		<th><?php echo $_template['role']; ?></th>
+		<th><?php echo $_template['status']; ?></th>
 		<th><?php echo $_template['expiry']; ?></th>
 	</tr>
 	<?php
-		$sql = "SELECT * FROM policy ORDER BY id";
-		$res = $db->query($sql);
-		while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-			$policy[ intval($row['ID']) ] = $row['NAME'];
+		$sql = "SELECT * FROM policy";
+		$res = mysql_query($sql, $db);
+		while ($row = mysql_fetch_array($res)) {
+			$policy[ intval($row['id']) ] = $row['name'];
 		}
 		
-		$sql = "SELECT * FROM mpass order by status";
-		$res = $db->query($sql);
+		$sql = "SELECT * FROM mpass";
+		$res = mysql_query($sql, $db);
 		$i = 1;
-		while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+		while ($row = mysql_fetch_array($res)) {
 			echo '<tr><td class="row1">';
-			echo $policy[ intval($row['STATUS']) ].'</td>'."\n";
-			echo '<td class="row1" align="center"><input id="exp'.$i.'" name="exp'.$i.'" type="text" size="5" value="'.$row['PASS_EXPIRY'].'"> '.$_template['days'];
+			echo $policy[ intval($row['status']) ].'</td>'."\n";
+			echo '<td class="row1" align="center"><input id="exp'.$i.'" name="exp'.$i.'" type="text" size="5" value="'.$row['pass_expiry'].'"> '.$_template['days'];
 			echo "\n".'</td></tr>';
 			$i++;
 		}	

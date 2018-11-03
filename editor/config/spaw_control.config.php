@@ -13,10 +13,10 @@
 // ================================================
 
 // directory where spaw files are located
-$spaw_dir = '/editor/';
+$spaw_dir = '/klore/editor/';
 
 // base url for images
-$spaw_base_url = '';
+$spaw_base_url = 'http://amio/';
 
 if (!ereg('/$', $HTTP_SERVER_VARS['DOCUMENT_ROOT']))
   $spaw_root = $HTTP_SERVER_VARS['DOCUMENT_ROOT'].$spaw_dir;
@@ -68,26 +68,16 @@ $spaw_valid_imgs = array('gif', 'jpg', 'jpeg', 'png', 'swf');
 $spaw_upload_allowed = true;
 
 // image libraries
-// Disabled --> new functionality: SPAW reads the folders from <<$spaw_root.'\img'>> and presents the list to the user.
-
-
-
-$ics=0;
-$dirpath=$spaw_root.'/img';
-$spaw_imglibs = array(array());
-
-$resdir  = opendir($dirpath);
-
-	while ($dirname = readdir($resdir)) {
-		
-		if (is_dir($dirpath.'/'.$dirname) && ($dirname!='.') && ($dirname!='..')) {
-			//echo '<b><br>['.$dirname.']</b>';
-			
-			$spaw_imglibs[$ics]['value']	= 'editor/img/'.$dirname.'/';
-			$spaw_imglibs[$ics]['text']		= $dirname;
-			$ics++;		
-		}
-	}
+$spaw_imglibs = array(
+  array(
+    'value'   => 'klore/editor/img/corporate/',
+    'text'    => 'Corporate symbols',
+  ),
+  array(
+    'value'   => 'klore/editor/img/marketing/',
+    'text'    => 'Marketing img',
+  ),
+);
 
 
 ?>

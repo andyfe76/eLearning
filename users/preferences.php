@@ -33,11 +33,11 @@ $section = 'users';
 		} else {
 			/* use this course's prefs */
 			$sql	= "SELECT preferences FROM courses WHERE course_id=$_SESSION[course_id]";
-			$result	= $db->query($sql);
-			$row	=$result->fetchRow(DB_FETCHMODE_ASSOC);
+			$result	= mysql_query($sql);
+			$row	= mysql_fetch_array($result);
 
-			if ($row['PREFERENCES']) {
-				assign_session_prefs(unserialize(stripslashes($row['PREFERENCES'])));
+			if ($row['preferences']) {
+				assign_session_prefs(unserialize(stripslashes($row['preferences'])));
 				$feedback[] =AT_FEEDBACK_PREFS_CHANGED;
 				$feedback[] =AT_FEEDBACK_APPLY_PREFS;
 
@@ -102,14 +102,14 @@ $section = 'users';
 	} else if ($_GET['save'] == 3) {
 		/* get prefs: */
 		$sql	= "SELECT preferences FROM preferences WHERE member_id=$_SESSION[member_id] AND course_id=$_SESSION[course_id]";
-		$result = $db->query($sql);
-		if ($row2 =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-			assign_session_prefs(unserialize(stripslashes($row2['PREFERENCES'])));
+		$result = mysql_query($sql, $db);
+		if ($row2 = mysql_fetch_array($result)) {
+			assign_session_prefs(unserialize(stripslashes($row2['preferences'])));
 		} else {
 			$sql	= "SELECT preferences FROM members WHERE member_id=$_SESSION[member_id]";
-			$result = $db->query($sql);
-			if ($row2 =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-				assign_session_prefs(unserialize(stripslashes($row2['PREFERENCES'])));
+			$result = mysql_query($sql, $db);
+			if ($row2 = mysql_fetch_array($result)) {
+				assign_session_prefs(unserialize(stripslashes($row2['preferences'])));
 			}
 		}
 		$feedback[] = AT_FEEDBACK_PREFS_RESTORED;
@@ -121,7 +121,7 @@ $section = 'users';
 
 		$data	= addslashes(serialize($_SESSION['prefs']));
 		$sql	= "UPDATE courses SET preferences='$data' WHERE course_id=$_SESSION[course_id]";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 
 		Header('Location: ?f='.urlencode_feedback(AT_FEEDBACK_COURSE_PREFS_SAVED));
 		exit;

@@ -3,7 +3,12 @@
 /* klore														*/
 /****************************************************************/
 /* Copyright (c) 2002-2003 by Greg Gay & Joel Kronenberg        */
-
+/* http://klore.ca												*/
+/*                                                              */
+/* This program is free software. You can redistribute it and/or*/
+/* modify it under the terms of the GNU General Public License  */
+/* as published by the Free Software Foundation.				*/
+/****************************************************************/
 
 $_include_path = '../include/';
 $_ignore_page = true; /* used for the close the page option */
@@ -14,10 +19,10 @@ require($_include_path.'lib/filemanager.inc.php');
 
 /* get this courses MaxQuota and MaxFileSize: */
 $sql	= "SELECT max_quota, max_file_size FROM courses WHERE course_id=$_SESSION[course_id]";
-$result = $db->query($sql);
-$row	=$result->fetchRow(DB_FETCHMODE_ASSOC);
-$MaxCourseSize	= $row['MAX_QUOTA'];
-$MaxFileSize	= $row['MAX_FILE_SIZE'];
+$result = mysql_query($sql, $db);
+$row	= mysql_fetch_array($result);
+$MaxCourseSize	= $row['max_quota'];
+$MaxFileSize	= $row['max_file_size'];
 
 $_section[0][0] = 'Tools';
 $_section[0][1] = 'tools/';

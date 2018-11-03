@@ -12,17 +12,17 @@
 	
 	if (isset($_POST['addcateg'])) {
 		$sql = "INSERT INTO tmp_dyngroup VALUES(0, 'category=$_POST[category]', 'in category: $_POST[category]', 'group')";
-		$db->query($sql);
+		mysql_query($sql, $db);
 	}
 	
 	if (isset($_POST['addgroup'])) {
 		$grpost = 'group_'.$_POST['category'];
 		$groupid = $_POST[$grpost];
 		$sql = "SELECT name FROM member_groups WHERE group_id=$groupid";
-		$res = $db->query($sql);
-		$row =$res->fetchRow(DB_FETCHMODE_ASSOC);
-		$sql = "INSERT INTO tmp_dyngroup VALUES (0, 'group_id=$groupid', 'in group: $row[NAME]', 'group')";
-		$db->query($sql);
+		$res = mysql_query($sql, $db);
+		$row = mysql_fetch_array($res);
+		$sql = "INSERT INTO tmp_dyngroup VALUES (0, 'group_id=$groupid', 'in group: $row[name]', 'group')";
+		mysql_query($sql, $db);
 	}
 	
 	
@@ -58,30 +58,30 @@ print_errors($errors);
 	<td class="row1" align="left" valign="top">
 <?php
 	$sql = "SELECT name FROM member_categ";
-	$res = $db->query($sql);
+	$res = mysql_query($sql, $db);
 	
 	echo '<input type="hidden" name="category" id="category">';
-	while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)) {
+	while ($row = mysql_fetch_array($res)) {
 		echo '<b>'.$_template['category'].': ';
-		echo $row['NAME'].'</b>&nbsp;&nbsp;&nbsp;<input type="submit" class="button2" name="addcateg" onClick="select_categ(\''.$row['NAME'].'\');" value=">>"><br>';
-		$sql	= "SELECT * FROM member_groups WHERE category='$row[NAME]'";
-		$result	= $db->query($sql);
-		echo "\n".'&nbsp;<label for="group"></label><span style="white-space: nowrap;"><select name="group_'.$row['NAME'].'" size="4" class="dropdown" id="group'.$row['NAME'].'" title="Group">'."\n";
-		while ($row_g =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-			echo '<option value="'.$row_g['GROUP_ID'].'">'.$row_g['NAME'];
+		echo $row['name'].'</b>&nbsp;&nbsp;&nbsp;<input type="submit" class="button2" name="addcateg" onClick="select_categ(\''.$row['name'].'\');" value=">>"><br>';
+		$sql	= "SELECT * FROM member_groups WHERE category='$row[name]'";
+		$result	= mysql_query($sql, $db);
+		echo "\n".'&nbsp;<label for="group"></label><span style="white-space: nowrap;"><select name="group_'.$row['name'].'" size="4" class="dropdown" id="group'.$row['name'].'" title="Group">'."\n";
+		while ($row_g = mysql_fetch_array($result)) {
+			echo '<option value="'.$row_g['group_id'].'">'.$row_g['name'];
 			echo '</option>'."\n";
 		}
 		echo '</select>&nbsp;'."\n";
-		echo '<input type="submit" class="button2" name="addgroup" onClick="select_categ(\''.$row['NAME'].'\');" value="'.$_template['add_group'].'">';
+		echo '<input type="submit" class="button2" name="addgroup" onClick="select_categ(\''.$row['name'].'\');" value="'.$_template['add_group'].'">';
 		echo '<br><br>';
 	}
 	echo '</td>';
 	echo '<td align="left" width="150">';
 		echo '<b>'.$_template['users'].'</b><br>';
 		$sql 	= "SELECT sql FROM tmp_dyngroup WHERE type='group'";
-		$res 	= $db->query($sql);
-		while( $row	=$res->fetchRow(DB_FETCHMODE_ASSOC)) {
-			echo $row['SQL'].'<br>';
+		$res 	= mysql_query($sql, $db);
+		while( $row	= mysql_fetch_array($res)) {
+			echo $row['sql'].'<br>';
 		}
 	echo '</td>';
 ?>

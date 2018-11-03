@@ -17,6 +17,17 @@ $member_id=$_SESSION['member_id'];
 
 <?php
 
+/* make sure we own this course that we're approving for! */
+$course = intval($_GET['course']);
+if (!$_SESSION['s_is_super_admin'] && !$_SESSION['is_admin'] && !$_SESSION['c_instructor']) {
+	$sql	= "SELECT * FROM courses WHERE course_id=$course AND member_id=$_SESSION[member_id]";
+	$result	= mysql_query($sql, $db);
+	if (mysql_num_rows($result) != 1) {
+		echo $_template['not_your_course'];
+		require($_include_path.'cc_html/footer.inc.php');
+		exit;
+	}
+}
 if (!$_GET['d']) {
 	$warnings[]= array(AT_WARNING_SURE_DELETE_COURSE1, $system_courses[$course][title]);
 	print_warnings($warnings);
@@ -58,127 +69,127 @@ if (!$_GET['d']) {
 
 		// course_enrollment:
 		$sql	= "DELETE FROM course_enrollment WHERE course_id=$course";
-		$result = $db->query($sql);
-		echo $_template['enrolled'].': '.$db->affectedRows()."\n";
+		$result = mysql_query($sql, $db);
+		echo $_template['enrolled'].': '.mysql_affected_rows($db)."\n";
 
 		// news:
 		$sql	= "SELECT * FROM news WHERE course_id=$course";
-		$res	= $db->query($sql);
-		while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)){
-			$sql	= "INSERT INTO del_news VALUES ($row[NEWS_ID], $row[COURSE_ID], $row[MEMBER_ID], '$row[DATA]', $row[FORMATTING], '$row[TITLE]', '$row[BODY]')";
-			$result = $db->query($sql);
+		$res	= mysql_query($sql, $db);
+		while ($row = mysql_fetch_array($res)){
+			$sql	= "INSERT INTO del_news VALUES ($row[news_id], $row[course_id], $row[member_id], '$row[date]', $row[formatting], '$row[title]', '$row[body]')";
+			$result = mysql_query($sql, $db);
 		}
 		$sql	= "DELETE FROM news WHERE course_id=$course";
-		$result = $db->query($sql);
-		echo $_template['announcements'].': '.$db->affectedRows()."\n";
+		$result = mysql_query($sql, $db);
+		echo $_template['announcements'].': '.mysql_affected_rows($db)."\n";
 		//echo $sql;
 
 		// related_content + content:
 		$sql	= "SELECT * FROM content WHERE course_id=$course";
-		$res	= $db->query($sql);
-		while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)){
-			$sql	= "INSERT INTO del_content VALUES ($row[CONTENT_ID], $row[COURSE_ID], $row[CONTENT_PARENT_ID], $row[ORDERING], TO_DATE('$row[LAST_MODIFIED]', 'DD/MM/YYYY HH24:MI:SS'), $row[REVISION], $row[FORMATTING], TO_DATE('$row[R_DATE]', 'DD/MM/YYYY HH24:MI:SS'), '$row[TITLE]', '$row[TEXT]')";
-			$result = $db->query($sql);
+		$res	= mysql_query($sql, $db);
+		while ($row = mysql_fetch_array($res)){
+			$sql	= "INSERT INTO del_content VALUES ($row[content_id], $row[course_id], $row[content_parent_id], $row[ordering], '$row[last_modified]', $row[revision], $row[formatting], '$row[release_date]', '$row[title]', '$row[text]')";
+			$result = mysql_query($sql, $db);
 		}
 		/*$sql	= "SELECT * FROM content WHERE course_id=$course";
-		$result = $db->query($sql);
-		while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+		$result = mysql_query($sql, $db);
+		while ($row = mysql_fetch_array($result)) {
 			$sql	= "DELETE FROM content_learning_concepts WHERE content_id=$row[0]";
-			$result2 = $db->query($sql);
+			$result2 = mysql_query($sql, $db);
 	
 			$sql	= "DELETE FROM related_content WHERE content_id=$row[0]";
-			$result2 = $db->query($sql);
+			$result2 = mysql_query($sql, $db);
 		}*/
 		
 		$sql = "DELETE FROM content WHERE course_id=$course";
-		$result = $db->query($sql);
-		echo $_template['content'].':                            '.$db->affectedRows()."\n";
+		$result = mysql_query($sql, $db);
+		echo $_template['content'].':                            '.mysql_affected_rows($db)."\n";
 
 		$sql = "OPTIMIZE TABLE content";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 
 		/************************************/
 		// course stats:
 		/*$sql = "DELETE FROM course_stats WHERE course_id=$course";
-		$result = $db->query($sql);
-		echo $_template['course_stats'].':                  '.$db->affectedRows()."\n";*/
+		$result = mysql_query($sql, $db);
+		echo $_template['course_stats'].':                  '.mysql_affected_rows($db)."\n";*/
 
 		/************************************/
 		// links:
 		/*$sql	= "SELECT * FROM resource_categories WHERE course_id=$course";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 		$total_links = 0;
-		while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+		while ($row = mysql_fetch_array($result)) {
 			$sql = "DELETE FROM resource_links WHERE CatID=$row[0]";
-			$result2 = $db->query($sql);
-			$total_links += $db->affectedRows();
+			$result2 = mysql_query($sql, $db);
+			$total_links += mysql_affected_rows($db);
 		}
 		$sql	= "DELETE FROM resource_categories WHERE course_id=$course";
-		$result = $db->query($sql);
-		echo $_template['resource_categories'].':                '.$db->affectedRows()."\n";
+		$result = mysql_query($sql, $db);
+		echo $_template['resource_categories'].':                '.mysql_affected_rows($db)."\n";
 		echo $_template['resource_links'].':                     '.$total_links."\n";*/
 
 		/************************************/
 		// glossary:
 		/*$sql	= "DELETE FROM glossary WHERE course_id=$course";
-		$result = $db->query($sql);
-		echo $_template['glossary_terms'].':                     '.$db->affectedRows()."\n";*/
+		$result = mysql_query($sql, $db);
+		echo $_template['glossary_terms'].':                     '.mysql_affected_rows($db)."\n";*/
 
 		/************************************/
 		/* forum */
 		/*$sql	= "SELECT post_id FROM forums_threads WHERE course_id=$course";
-		$result = $db->query($sql);
-		while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
-			$sql	 = "DELETE FROM forums_accessed WHERE post_id=$row[POST_ID]";
-			$result2 = $db->query($sql);
+		$result = mysql_query($sql, $db);
+		while ($row = mysql_fetch_array($result)) {
+			$sql	 = "DELETE FROM forums_accessed WHERE post_id=$row[post_id]";
+			$result2 = mysql_query($sql, $db);
 
-			$sql	 = "DELETE FROM forums_subscriptions WHERE post_id=$row[POST_ID]";
-			$result2 = $db->query($sql);
+			$sql	 = "DELETE FROM forums_subscriptions WHERE post_id=$row[post_id]";
+			$result2 = mysql_query($sql, $db);
 		}*/
 
 		/************************************/
 		/*$sql = "DELETE FROM forums_threads WHERE course_id=$course";
-		$result = $db->query($sql);
-		echo $_template['forum_threads'].':                      '.$db->affectedRows()."\n";
+		$result = mysql_query($sql, $db);
+		echo $_template['forum_threads'].':                      '.mysql_affected_rows($db)."\n";
 
 		$sql = "DELETE FROM forums WHERE course_id=$course";
-		$result = $db->query($sql);
-		echo $_template['forums'].':                             '.$db->affectedRows()."\n";
+		$result = mysql_query($sql, $db);
+		echo $_template['forums'].':                             '.mysql_affected_rows($db)."\n";
 
 		$sql = "OPTIMIZE TABLE forums_threads";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 
 		$sql = "DELETE FROM preferences WHERE course_id=$course";
-		$result = $db->query($sql);
-		echo $_template['preferences'].':                        '.$db->affectedRows()."\n";
+		$result = mysql_query($sql, $db);
+		echo $_template['preferences'].':                        '.mysql_affected_rows($db)."\n";
 
 		$sql = "DELETE FROM g_click_data WHERE course_id=$course";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 		// no feedback for this item.
 
 
 		// tests + tests_questions + tests_answers + tests_results:
 		$sql	= "SELECT test_id FROM tests WHERE course_id=$course";
-		$result = $db->query($sql);
-		while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+		$result = mysql_query($sql, $db);
+		while ($row = mysql_fetch_array($result)) {
 			$sql	= "DELETE FROM tests_questions WHERE test_id=$row[0]";
-			$result2 = $db->query($sql);
+			$result2 = mysql_query($sql, $db);
 	
 			$sql2	= "SELECT result_id FROM tests_results WHERE test_id=$row[0]";
-			$result2 = $db->query($sql2, $db);
-			while ($row2 =$result2->fetchRow(DB_FETCHMODE_ASSOC)) {
+			$result2 = mysql_query($sql2, $db);
+			while ($row2 = mysql_fetch_array($result2)) {
 				$sql3	= "DELETE FROM tests_answers WHERE result_id=$row2[0]";
-				$result3 = $db->query($sql3, $db);
+				$result3 = mysql_query($sql3, $db);
 			}
 
 			$sql	= "DELETE FROM tests_results WHERE test_id=$row[0]";
-			$result2 = $db->query($sql);
+			$result2 = mysql_query($sql, $db);
 		}
 
 		$sql	= "DELETE FROM tests WHERE course_id=$course";
-		$result = $db->query($sql);
+		$result = mysql_query($sql, $db);
 
-		echo $_template['tests'].':                              '.$db->affectedRows()."\n";
+		echo $_template['tests'].':                              '.mysql_affected_rows($db)."\n";
 
 		// files:
 		$path = '../content/'.$course.'/';
@@ -186,14 +197,14 @@ if (!$_GET['d']) {
 
 		// courses:
 		$sql	= "SELECT * FROM courses WHERE course_id=$course";
-		$res	= $db->query($sql);
-		while ($row =$res->fetchRow(DB_FETCHMODE_ASSOC)){
-			$sql	= "INSERT INTO del_courses VALUES ($row[COURSE_ID], $row[MEMBER_ID], '$row[ACCESSTYPE]', '$row[CREATED_DATE]', '$row[TITLE]', '$row[DESCRIPTION]', $row[NOTIFY], '$row[MAX_QUOTA]', '$row[MAX_FILE_SIZE]', '$row[HIDE]', '$row[PREFERENCES]', '$row[HEADER]', '$row[FOOTER]', '$row[COPYRIGHT]', '$row[TRACKING]', '$row[CUSTOM1]', '$row[CUSTOM2]', '$row[CUSTOM3]', '$row[CUSTOM4]', '$row[CUSTOM5]', '$row[CUSTOM6]', '$row[CUSTOM7]', '$row[CUSTOM8]', '$row[CUSTOM9]', '$row[CUSTOM10]', '$row[MODIF_DATE]')";
-			$result = $db->query($sql);
+		$res	= mysql_query($sql, $db);
+		while ($row = mysql_fetch_array($res)){
+			$sql	= "INSERT INTO del_courses VALUES ($row[course_id], $row[member_id], '$row[access]', '$row[created_date]', '$row[title]', '$row[description]', $row[notify], '$row[max_quota]', '$row[max_file_size]', '$row[hide]', '$row[preferences]', '$row[header]', '$row[footer]', '$row[copyright]', '$row[tracking]', '$row[custom1]', '$row[custom2]', '$row[custom3]', '$row[custom4]', '$row[custom5]', '$row[custom6]', '$row[custom7]', '$row[custom8]', '$row[custom9]', '$row[custom10]', '$row[modif_date]')";
+			$result = mysql_query($sql, $db);
 		}
 		$sql = "DELETE FROM courses WHERE course_id=$course";
-		$result = $db->query($sql);
-		echo '<b>'.$_template['course'].': '.$db->affectedRows().' '.$_template['always_one'].'</b>'."\n";
+		$result = mysql_query($sql, $db);
+		echo '<b>'.$_template['course'].': '.mysql_affected_rows($db).' '.$_template['always_one'].'</b>'."\n";
 
 		echo '</pre><br />'.$_template['return'].' ';
 		

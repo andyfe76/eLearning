@@ -12,14 +12,14 @@ if ($course == 0) {
 }
 
 /* make sure we own this course that we're approving for! */
-/*$sql	= "SELECT * FROM courses WHERE course_id=$course AND member_id=$_SESSION[member_id]";
-$result	= $db->query($sql);
-if (!$row2 =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+$sql	= "SELECT * FROM courses WHERE course_id=$course AND member_id=$_SESSION[member_id]";
+$result	= mysql_query($sql, $db);
+if (!$row2 = mysql_fetch_array($result)) {
 	$errors[]=AT_ERROR_PREFS_NO_ACCESS;
 	print_errors($errors);
 	//print_errors('This is not your course!');
 	exit;
-}*/
+}
 
 if ($_POST['cancel']) {
 	Header('Location: index.php');
@@ -46,21 +46,20 @@ if ($_POST['submit']) {
 		// note: doesn't list the owner of the course.
 		$sql	= "SELECT * FROM course_enrollment C, members M WHERE C.course_id=$course AND C.member_id=M.member_id AND M.member_id<>$_SESSION[member_id] ORDER BY C.approved, M.login";
 
-		$result = $db->query($sql);
+		$result = mysql_query($sql);
 
-		while ($row =$result->fetchRow(DB_FETCHMODE_ASSOC)) {
+		while ($row = mysql_fetch_array($result)) {
 			if ($bcc != '') {
 				$bcc .= ', ';
 			}
-			$bcc .= $row['EMAIL'];
+			$bcc .= $row['email'];
 		}
 
-		$sql = "SELECT email FROM members WHERE member_id=$_SESSION[member_id]";
-		$result = $db->query($sql);
-		$row	=$result->fetchRow(DB_FETCHMODE_ASSOC);
+		$result = mysql_query("SELECT email FROM members WHERE member_id=$_SESSION[member_id]", $db);
+		$row	= mysql_fetch_array($result);
 
 
-		klore_mail($row['EMAIL'], $_POST['subject'], $_POST['body'], $row['EMAIL'], $bcc);
+		klore_mail($row['email'], $_POST['subject'], $_POST['body'], $row['email'], $bcc);
 		$feedback[]=AT_FEEDBACK_MSG_SENT;
 		print_feedback($feedback);
 		require($_include_path.'cc_html/footer.inc.php');
@@ -78,9 +77,9 @@ print_errors($errors);
 
 
 	$sql	= "SELECT COUNT(*) AS cnt FROM course_enrollment C, members M WHERE C.course_id=$course AND C.member_id=M.member_id AND M.member_id<>$_SESSION[member_id] ORDER BY C.approved, M.login";
-	$result = $db->query($sql);
-	$row	=$result->fetchRow(DB_FETCHMODE_ASSOC);
-	if ($row['CNT'] == 0) {
+	$result = mysql_query($sql);
+	$row	= mysql_fetch_array($result);
+	if ($row['cnt'] == 0) {
 		$errors[]=AT_ERROR_NO_STUDENTS;
 		print_errors($errors);
 		require($_include_path.'cc_html/footer.inc.php');
@@ -93,7 +92,7 @@ print_errors($errors);
 <p>
 <table cellspacing="1" cellpadding="0" border="0" class="bodyline" width="95%" summary="">
 <tr>
-	<th colspan=2 align=left class=left><?php  print_popup_help(AT_HELP_COURSE_EMAIL); ?><?php echo $_template['send_to']; ?> <i><?php echo $row2['TITLE']; ?></i> <?php echo $_template['students']; ?></th>
+	<th colspan=2 align=left class=left><?php  print_popup_help(AT_HELP_COURSE_EMAIL); ?><?php echo $_template['send_to']; ?> <i><?php echo $row2['title']; ?></i> <?php echo $_template['students']; ?></th>
 </tr>
 <tr>
 	<td width=100 class=row1 align=right><b><label for="subject"><?php echo $_template['subject']; ?>:</label></b></td>

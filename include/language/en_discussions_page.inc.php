@@ -3,7 +3,7 @@
 ?>
 
 	</li>
-	<li><a target="_blank" href="discussions/schat/index.php?rid=<?php echo $_SESSION['course_id']; ?>&user=<?php echo $_SESSION['login']; ?>&ct=<?php echo $_SESSION['course_title']; ?>"><b>Chat</b></a> <small class="spacer"></small>
+	<li><a href="discussions/chat/index.php3" target="ChatWin"><b>Chat</b></a> <small class="spacer">( Chat opens in a new window )</small>
 	<br />Chat with others from this course, and other courses, who are online right now.
 	</li>
 	<li><a href="inbox.php"><b>Inbox</b></a>

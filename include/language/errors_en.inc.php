@@ -127,15 +127,4 @@ $_errors[AT_ERROR_NO_CONTENT_SPACE] = 'Not enough space to import content direct
 $_errors[AT_ERROR_INVALID_MIN_GRADE] = 'Invalid minimal mark. You must specify the minimal mark required to pass the test.';
 $_errors[AT_ERROR_MANDATORY_FIELDS] = 'Please complete all mandatory fields.';
 $_errors[AT_ERROR_NOT_ENROLLED] = 'The selected user is not enrolled to this course.';
-
-$_errors[AT_ERROR_MAX_STUD_REACHED] = 'Maximum number of students already enrolled to this course. Please contact course instructor.';
-
-// translation
-$_errors[AT_ERROR_USER_ALREADY_LOGGEDIN] = 'User already logged in.';
-$_errors[AT_ERROR_SQL_BAD_DEFINITION] = 'SQL Not properly defined. Please rebuild your query.';
-$_errors[AT_ERROR_DYNAMIC_GROUP] = 'Dynamic group update error. Please check your dynamic group sql query.';
-$_errors[AT_ERROR_USER_LICENSES_LIMIT] = 'Maximum number of users has been reached. For additional licenses please contact: <a href="mailto: ">KONCEPT</a>';
-$_errors[AT_ERROR_FIRST_NAME_MISSING] = 'First name is missing. Please complete all required fields.';
-$_errors[AT_ERROR_LAST_NAME_MISSING] = 'Last name is missing. Please complete all required fields';
-$_errors[AT_ERROR_NO_REPORT_COLUMNS] = 'There are no report columns defined.';
 ?>
