@@ -38,5 +38,5 @@
 
 ![alt text](https://raw.githubusercontent.com/andyfe76/eLearning/master/screenshots/authoring.png)
 ![alt text](https://raw.githubusercontent.com/andyfe76/eLearning/master/screenshots/course.png)
-![alt text](https://raw.githubusercontent.com/andyfe76/eLearning/master/screenshots/user.png)
+![alt text](https://raw.githubusercontent.com/andyfe76/eLearning/master/screenshots/usr.png)
 
